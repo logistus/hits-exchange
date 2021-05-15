@@ -1,0 +1,37 @@
+<x-layout title="{{ $page }}">
+  @guest
+  <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="https://source.unsplash.com/random/800x300?nature" class="d-block w-100" alt="yadad">
+      </div>
+      <div class="carousel-item">
+        <img src="https://source.unsplash.com/random/800x300/?water" class="d-block w-100" alt="blab">
+      </div>
+      <div class="carousel-item">
+        <img src="https://source.unsplash.com/random/800x300/?forest" class="d-block w-100" alt="kuyt">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+  @endguest
+
+  @auth
+  <p>Welcome back {{ Auth::user()->name }}</p>
+  <p>Surf Timer: {{ Auth::user()->type->surf_timer }} </p>
+  <p>Credit per Click: {{ Auth::user()->type->surf_ratio }} </p>
+  <p>Credits: {{ Auth::user()->credits }} </p>
+  @endauth
+</x-layout>

@@ -1,0 +1,1 @@
+<x-layout title="{{ $page }}">Please confirm your email address.</x-layout>
