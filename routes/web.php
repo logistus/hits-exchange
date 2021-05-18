@@ -74,6 +74,8 @@ Route::middleware(['auth'])->group(function () {
   Route::get('surf_code_claimed/{id}', [SurfController::class, 'surf_code_claimed']);
   Route::get('start_page', [SurfController::class, 'start_page']);
 
+  Route::get('start_page/delete/{id}', [StartPageController::class, 'destroy']);
+
   Route::prefix('buy')->group(function () {
     Route::get('start_page', [StartPageController::class, 'index']);
     Route::post('start_page', [StartPageController::class, 'store']);

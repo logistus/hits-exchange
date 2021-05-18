@@ -57,7 +57,12 @@ class WebsiteController extends Controller
   public function show($id)
   {
     $website = Website::findOrFail($id);
-    return $website;
+    $response = Gate::inspect("view", $website);
+    if ($response->allowed()) {
+      return $website;
+    } else {
+      return redirect('websites')->with("status", ["warning", $response->message()]);
+    }
   }
 
   public function store(Request $request)

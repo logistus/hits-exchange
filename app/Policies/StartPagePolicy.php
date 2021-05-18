@@ -2,12 +2,12 @@
 
 namespace App\Policies;
 
+use App\Models\StartPage;
 use App\Models\User;
-use App\Models\Website;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
-class WebsitePolicy
+class StartPagePolicy
 {
   use HandlesAuthorization;
 
@@ -26,14 +26,12 @@ class WebsitePolicy
    * Determine whether the user can view the model.
    *
    * @param  \App\Models\User  $user
-   * @param  \App\Models\Website  $website
+   * @param  \App\Models\StartPage  $startPage
    * @return mixed
    */
-  public function view(User $user, Website $website)
+  public function view(User $user, StartPage $startPage)
   {
-    return $user->id === $website->user_id
-      ? Response::allow()
-      : Response::deny('You do not own this website.');
+    //
   }
 
   /**
@@ -51,38 +49,38 @@ class WebsitePolicy
    * Determine whether the user can update the model.
    *
    * @param  \App\Models\User  $user
-   * @param  \App\Models\Website  $website
+   * @param  \App\Models\StartPage  $startPage
    * @return mixed
    */
-  public function update(User $user, Website $website)
+  public function update(User $user, StartPage $startPage)
   {
-    return $user->id === $website->user_id
+    return $user->id === $startPage->user_id
       ? Response::allow()
-      : Response::deny('You do not own this website.');
+      : Response::deny('You do not own this start page.');
   }
 
   /**
    * Determine whether the user can delete the model.
    *
    * @param  \App\Models\User  $user
-   * @param  \App\Models\Website  $website
+   * @param  \App\Models\StartPage  $startPage
    * @return mixed
    */
-  public function delete(User $user, Website $website)
+  public function delete(User $user, StartPage $startPage)
   {
-    return $user->id === $website->user_id
+    return $user->id === $startPage->user_id
       ? Response::allow()
-      : Response::deny('You do not own this website.');
+      : Response::deny('You do not own this start page.');
   }
 
   /**
    * Determine whether the user can restore the model.
    *
    * @param  \App\Models\User  $user
-   * @param  \App\Models\Website  $website
+   * @param  \App\Models\StartPage  $startPage
    * @return mixed
    */
-  public function restore(User $user, Website $website)
+  public function restore(User $user, StartPage $startPage)
   {
     //
   }
@@ -91,10 +89,10 @@ class WebsitePolicy
    * Determine whether the user can permanently delete the model.
    *
    * @param  \App\Models\User  $user
-   * @param  \App\Models\Website  $website
+   * @param  \App\Models\StartPage  $startPage
    * @return mixed
    */
-  public function forceDelete(User $user, Website $website)
+  public function forceDelete(User $user, StartPage $startPage)
   {
     //
   }

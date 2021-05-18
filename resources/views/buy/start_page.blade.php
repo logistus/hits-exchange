@@ -1,38 +1,48 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('buy/start_page') }}">Buy Start Page</a></h4>
   <p>yada yada yada</p>
-  <div class="row">
-    <div id="datepicker" class="col"></div>
-    <div style="max-height: 257px; overflow-y:auto;" class="col me-3">
-      <strong>Selected Days</strong>
-      <div id="dates"></div>
+  <div class="d-flex justify-content-between mb-3">
+    <a href="#" class="badge rounded-pill bg-primary">Select URL</a>
+    <a href="#" class="badge rounded-pill bg-secondary">Select Date(s)</a>
+    <a href="#" class="badge rounded-pill bg-secondary">Make Payment</a>
+  </div>
+  <div class="d-flex justify-content-between">
+    <form method="POST">
+      @if (count($user_websites) > 0)
+      <select class="form-select" aria-label="Select Website">
+        <option value="0" selected>Select on of your websites</option>
+        @foreach ($user_websites as $website)
+        <option value="{{ $website->id }}">{{ $website->url }}</option>
+        @endforeach
+      </select>
+      @endif
+      <div class="my-3">
+        <label for="start_page_url" class="form-label">or specify new URL</label>
+        <input type="url" class="form-control" id="start_page_url" placeholder="https://www.yoursite.com/">
+      </div>
+    </form>
+    <div style="min-height: 300px;" class="d-none">
+      <strong>Select Date(s)</strong>
+      <div id="datepicker" class="mt-3"></div>
     </div>
-    <div id="payment" class="col">
-      <strong>Price</strong>
-      <div id="price" class="fs-2">$0</div>
-      <form action="https://www.coinpayments.net/index.php" method="post">
-        <input type="hidden" name="cmd" value="_pay_simple">
-        <input type="hidden" name="reset" value="1">
-        <input type="hidden" name="merchant" value="0a163329f1a618ee280c49eb1db2d9c2">
-        <input type="hidden" name="item_name" value="Start Page">
-        <input type="hidden" name="currency" value="USD">
-        <input type="hidden" name="amountf" value="2.00000000">
-        <input type="hidden" name="want_shipping" value="0">
-        <input type="image" src="https://www.coinpayments.net/images/pub/buynow-wide-blue.png" alt="Buy Now with CoinPayments.net">
-      </form>
+    <div id="payment" class="d-none">
+      <strong>Make Payment</strong>
+      <div id="price" class="fs-2 mt-2">$0</div>
+      -- TODO -- Payment Buttons
     </div>
   </div>
   <div class="row mt-3">
     <div class="col">
       <h4>Your Start Pages</h4>
-      @if ($user_start_pages)
-      <table class="table table-bordered">
+      @if (count($user_start_pages) > 0)
+      <table class="table table-bordered align-middle">
         <thead>
           <tr class="bg-light">
             <th scope="col">URL</th>
             <th scope="col">Start Date</th>
             <th scope="col">Total Views</th>
             <th scope="col">Status</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -43,13 +53,16 @@
             </td>
             <td>{{ $start_page->start_date }}</td>
             <td>{{ $start_page->total_views }}</td>
-            <td>{{ $start_page->status }}</td>
+            <td>{{ now() < $start_page->start_date ? $start_page->status : "Done" }}</td>
+            <td>
+              <a href="{{ url('start_page/delete', $start_page->id) }}" onclick="return confirm('Are you sure?');" class="btn btn-danger">Delete</a>
+            </td>
           </tr>
           @endforeach
         </tbody>
       </table>
       @else
-      <div class="alert alert-info">You don't have any start pages.</div>
+      <div>You don't have any start pages.</div>
       @endif
     </div>
   </div>
@@ -74,8 +87,6 @@
       element: document.getElementById('datepicker'),
       elementEnd: document.getElementById('dates'),
       inlineMode: true,
-      numberOfMonths: 2,
-      numberOfColumns: 2,
       singleMode: true,
       delimiter: ',',
       firstDay: 1,
@@ -92,7 +103,6 @@
         months[date.dateInstance.getMonth()] + " " +
         date.dateInstance.getFullYear() + "</div>");
       $("#price").text("$" + (2 * $("#dates *").length));
-      $("input[name='amountf']").val(2 * $("#dates *").length);
     });
     picker.on('multiselect.deselect', function(date) {
       $("#" + date.dateInstance.getDate() + "-" +
