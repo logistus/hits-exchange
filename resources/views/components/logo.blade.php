@@ -14,4 +14,4 @@
     background-color: grey;
   }
 </style>
-<a href="{{ url('/') }}" class="logo me-3">LOGI TE</a>
+<a href="{{ url('/') }}" class="logo mx-3">LOGI TE</a>

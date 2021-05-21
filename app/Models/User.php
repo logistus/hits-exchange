@@ -62,7 +62,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
   public static function generate_gravatar($user_id)
   {
-    return "https://www.gravatar.com/avatar/" . md5(strtolower(trim(User::select('email')->where('id', $user_id)->get()->first()->email)));
+    $user = User::findOrFail($user_id);
+    return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($user->email)));
   }
 
   public function websites()

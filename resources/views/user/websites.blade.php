@@ -115,7 +115,7 @@
               <small>Leave it 0 for unlimited daily views</small>
             </div>
             <div class="mb-3">
-              <label for="website-assign-credits" class="form-label">Credits to Assign</label>
+              <label for="website-assign-credits" class="form-label">Credits to Assign <small>(Optional)</small></label>
               <input type="number" class="form-control" name="credits" id="website-assign-credits" min="0" value="0" max="{{ Auth::user()->credits }}">
             </div>
           </div>

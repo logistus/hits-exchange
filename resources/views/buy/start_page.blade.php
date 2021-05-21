@@ -1,16 +1,16 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('buy/start_page') }}">Buy Start Page</a></h4>
   <p>yada yada yada</p>
-  <div class="d-flex justify-content-between mb-3">
-    <a href="#" class="badge rounded-pill bg-primary">Select URL</a>
-    <a href="#" class="badge rounded-pill bg-secondary">Select Date(s)</a>
-    <a href="#" class="badge rounded-pill bg-secondary">Make Payment</a>
+  <div class="d-flex flex-row justify-content-between mb-3">
+    <a href="#" id="step-url" class="border w-100 text-decoration-none bg-primary text-white p-3 step">Select URL</a>
+    <a href="#" id="step-date" class="border w-100 text-decoration-none bg-light p-3 step">Select Date(s)<span id="dates"></span></a>
+    <a href="#" id="step-payment" class="border w-100 text-decoration-none bg-light p-3 step">Make Payment</a>
   </div>
-  <div class="d-flex justify-content-between">
-    <form method="POST">
+  <div class="d-flex justify-content-center pt-3">
+    <form method="POST" class="step-url _step">
       @if (count($user_websites) > 0)
-      <select class="form-select" aria-label="Select Website">
-        <option value="0" selected>Select on of your websites</option>
+      <select class="form-select" id="user_websites" aria-label="Select Website">
+        <option value="0" selected>Select one of your websites</option>
         @foreach ($user_websites as $website)
         <option value="{{ $website->id }}">{{ $website->url }}</option>
         @endforeach
@@ -18,19 +18,22 @@
       @endif
       <div class="my-3">
         <label for="start_page_url" class="form-label">or specify new URL</label>
-        <input type="url" class="form-control" id="start_page_url" placeholder="https://www.yoursite.com/">
+        <input type="url" class="form-control" id="start_page_url">
       </div>
+      <button id="step-url-next-btn" type="button" class="btn btn-primary">Next</button>
     </form>
-    <div style="min-height: 300px;" class="d-none">
-      <strong>Select Date(s)</strong>
+    <div class="d-none step-date _step">
       <div id="datepicker" class="mt-3"></div>
+      <button id="step-date-previous-btn" type="button" class="btn btn-primary mt-3">Previous</button>
+      <button id="step-date-next-btn" type="button" class="btn btn-primary mt-3">Next</button>
     </div>
-    <div id="payment" class="d-none">
-      <strong>Make Payment</strong>
+    <div id="payment" class="d-none step-payment _step">
       <div id="price" class="fs-2 mt-2">$0</div>
-      -- TODO -- Payment Buttons
+      <div>-- TODO -- Payment Buttons</div>
+      <button id="step-payment-previous-btn" type="button" class="btn btn-primary mt-3">Previous</button>
     </div>
   </div>
+  <!--
   <div class="row mt-3">
     <div class="col">
       <h4>Your Start Pages</h4>
@@ -65,7 +68,7 @@
       <div>You don't have any start pages.</div>
       @endif
     </div>
-  </div>
+  </div>-->
   @php
   $locked_dates = array();
   foreach ($bought_dates as $date) {
@@ -95,20 +98,62 @@
       plugins: ['multiselect'],
     });
     picker.on('multiselect.select', function(date) {
-      $("#dates").append(
-        "<div id='" + date.dateInstance.getDate() + "-" +
-        (date.dateInstance.getMonth() + 1) + "-" +
-        date.dateInstance.getFullYear() + "'>" +
-        date.dateInstance.getDate() + " " +
-        months[date.dateInstance.getMonth()] + " " +
-        date.dateInstance.getFullYear() + "</div>");
-      $("#price").text("$" + (2 * $("#dates *").length));
+      $("#dates").html(" <strong>(" + (picker.getMultipleDates().length + 1) + " selected)</strong>");
     });
     picker.on('multiselect.deselect', function(date) {
-      $("#" + date.dateInstance.getDate() + "-" +
-        (date.dateInstance.getMonth() + 1) + "-" +
-        date.dateInstance.getFullYear()).remove();
-      $("#price").text("$" + (2 * $("#dates *").length));
+      if (picker.getMultipleDates().length - 1 > 0) {
+        $("#dates").html(" <strong>(" + (picker.getMultipleDates().length - 1) + " selected)</strong>");
+      } else {
+        $("#dates").empty();
+      }
+    });
+
+    $("#step-url, #step-date, #step-payment").click(function(e) {
+      e.preventDefault();
+    });
+
+    $("#step-url-next-btn").click(function(e) {
+      e.preventDefault();
+      if ($("#user_websites").val() != 0 || $("#start_page_url").val() != "") {
+        $(".step").removeClass("bg-primary").removeClass("text-white").addClass("bg-light");
+        $("#step-date").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
+        $("#step-url").removeClass("bg-light").addClass("bg-success").addClass("text-white");
+        $("._step").addClass("d-none");
+        $(".step-date").removeClass("d-none").addClass("d-block");
+      } else {
+        alert("select url");
+      }
+    });
+
+    $("#step-date-previous-btn").click(function(e) {
+      e.preventDefault();
+      $(".step").removeClass("bg-primary").removeClass("text-white").removeClass("bg-success").addClass("bg-light");
+      $("#step-url").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
+      $("._step").addClass("d-none");
+      $(".step-url").removeClass("d-none").addClass("d-block");
+    });
+
+    $("#step-date-next-btn").click(function(e) {
+      e.preventDefault();
+      if (picker.multipleDatesToString() != "") {
+        $(".step").removeClass("bg-primary").removeClass("text-white").addClass("bg-light");
+        $("#step-payment").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
+        $("#step-date").removeClass("bg-light").addClass("bg-success").addClass("text-white");
+        $("#step-url").removeClass("bg-light").addClass("bg-success").addClass("text-white");
+        $("._step").addClass("d-none");
+        $(".step-payment").removeClass("d-none").addClass("d-block");
+      } else {
+        alert("Please select date(s)");
+      }
+    });
+
+    $("#step-payment-previous-btn").click(function(e) {
+      e.preventDefault();
+      $(".step").removeClass("bg-primary").removeClass("text-white").removeClass("bg-success").addClass("bg-light");
+      $("#step-date").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
+      $("#step-url").removeClass("bg-light").addClass("bg-success").addClass("text-white");
+      $("._step").addClass("d-none");
+      $(".step-date").removeClass("d-none").addClass("d-block");
     });
   </script>
 </x-layout>

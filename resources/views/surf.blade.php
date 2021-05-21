@@ -14,10 +14,10 @@
 <body class="vh-100">
   <div class="d-flex flex-column h-100">
     <div style="height: 110px;" class="bg-light d-flex align-items-center justify-content-between">
-      <div class="ms-3" id="website-owner">
+      <div class="ms-3 invisible" id="website-owner">
         <div class="d-flex flex-column align-items-center justify-content-center">
-          <span id="owner">{{ App\Models\User::get_username(session('selected_website_owner')) }}</span>
-          <img src="{{ App\Models\User::generate_gravatar(session('selected_website_owner')) }}" id="gravatar" alt="{{ App\Models\User::get_username(session('selected_website_owner')) }}" width="48" height="48" />
+          <span id="owner"></span>
+          <img src="" id="gravatar" alt="" width="48" height="48" />
         </div>
       </div>
       <div>
@@ -44,7 +44,7 @@
       <div id="progress-bar" class="bg-success h-100" style="width: 0%;"></div>
     </div>
     <div style="height: 40px;" class="bg-dark p-2 fs-6 d-flex justify-content-between">
-      <div id="url-viewing">
+      <div id="url-viewing" class="invisible">
         <span class="text-white">Viewing:</span>
         <a href="{{ session('selected_website_url') }}" class="link-light" id="url" target="_blank" rel="noopener noreferrer">{{ session('selected_website_url') }}</a> <i class="bi bi-box-arrow-up-right text-white" style="font-size: .8rem;"></i>
       </div>
@@ -89,18 +89,18 @@
     }
     return PosX - ImgPos[0];
   }
-
   $(function() {
     var timer = "{{ Auth::user()->type->surf_timer }}";
     var app_url = "{{ config('app.url') }}";
     var start_url = "{{ session('selected_website_url') }}";
+
     $("#status").text("Starting surf session");
     if (start_url.startsWith(app_url)) {
-      $("#url-viewing").css("visibility", "hidden");
-      $("#website-owner").css("visibility", "hidden");
+      $("#url-viewing").removeClass("visible").addClass("invisible");
+      $("#website-owner").removeClass("visible").addClass("invisible");
     } else {
-      $("#url-viewing").css("visibility", "visible");
-      $("#website-owner").css("visibility", "visible");
+      $("#url-viewing").removeClass("invisible").addClass("visible");
+      $("#website-owner").removeClass("invisible").addClass("visible");
     }
 
     function startProgressBar() {
@@ -138,7 +138,7 @@
           $("#url").text(response.url);
           $("#url").attr("href", response.url);
           $("#owner").text(response.website_owner_username);
-          $("#gravatar").prop("src", response.website_owner_gravatar);
+          $("#gravatar").prop("src", response.website_owner_gravatar).prop("alt", response.website_owner_username);
 
           $("#banner_image").attr("src", response.banner_image);
           $("#banner_target").attr("href", "/banners/click/" + response.banner_id);
@@ -161,11 +161,11 @@
           credits = response.credits * 1;
           $("#credits").text(credits.toFixed(2));
           if (response.url.startsWith(app_url)) {
-            $("#url-viewing").css("visibility", "hidden");
-            $("#website-owner").css("visibility", "hidden");
+            $("#url-viewing").removeClass("visible").addClass("invisible");
+            $("#website-owner").removeClass("visible").addClass("invisible");
           } else {
-            $("#url-viewing").css("visibility", "visible");
-            $("#website-owner").css("visibility", "visible");
+            $("#url-viewing").removeClass("invisible").addClass("visible");
+            $("#website-owner").removeClass("invisible").addClass("visible");
           }
           startProgressBar();
         }

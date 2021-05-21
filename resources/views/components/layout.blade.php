@@ -11,9 +11,9 @@
   <title>Logi TE {{ $title ? "- $title" : "" }}</title>
 </head>
 
-<body>
+<body class="bg-light">
   <div class="container-lg">
-    <nav class="navbar navbar-expand-lg navbar-light mb-3">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
       <div class="container-fluid px-0">
         <x-logo />
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,7 +103,7 @@
         </div>
       </div>
     </nav>
-    <div>
+    <div class="card p-3">
       {{ $slot }}
     </div>
     <footer class="bg-dark text-white p-3 mt-3">

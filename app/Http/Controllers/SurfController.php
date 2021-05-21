@@ -23,6 +23,7 @@ class SurfController extends Controller
     User::where('id', Auth::user()->id)->update(['start_time' => time()]);
     session(['surfed_session' => 0]);
     session(['selected_website_url' => url('start_page')]);
+    session(['selected_website_owner' => 1]);
     $this->selectRandomBanner();
     $this->selectRandomTextAd();
     return view('surf');

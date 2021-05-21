@@ -1,3 +1,9 @@
 .navbar-light .navbar-nav .nav-link {
     color: rgba(0, 0, 0);
 }
+
+.steps a {
+    border: 1px solid #4a4a4a;
+    text-decoration: none;
+    padding: 5px;
+}
