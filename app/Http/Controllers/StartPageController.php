@@ -8,7 +8,15 @@ use Illuminate\Support\Facades\Gate;
 
 class StartPageController extends Controller
 {
+
   public function index(Request $request)
+  {
+    $start_pages = $request->user()->start_pages;
+    $page = "Start Pages";
+    return view('user.start_pages', compact('page', 'start_pages'));
+  }
+
+  public function index_buy(Request $request)
   {
     $page = "Buy Startpage";
     $user_websites = $request->user()->websites;
@@ -17,7 +25,7 @@ class StartPageController extends Controller
     return view('buy.start_page', compact('page', 'bought_dates', 'user_start_pages', 'user_websites'));
   }
 
-  public function store(Request $request)
+  public function store_buy(Request $request)
   {
     return $request->all();
   }

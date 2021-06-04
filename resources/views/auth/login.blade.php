@@ -28,7 +28,6 @@
       </div>
       <button type="submit" class="btn btn-success mt-3">Login</button>
       <div class="mt-2">Don't have an account? <a href="{{ url('register') }}">Register</a></div>
-      <div class="mt-2">Didn't get verification e-mail? <a href="{{ url('register') }}">Resend</a></div>
     </form>
   </div>
 </x-layout>

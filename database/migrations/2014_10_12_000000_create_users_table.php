@@ -16,12 +16,13 @@ class CreateUsersTable extends Migration
     Schema::create('users', function (Blueprint $table) {
       $table->id();
       $table->string('name');
+      $table->string('surname');
       $table->string('email')->unique();
       $table->string('username')->unique();
       $table->timestamp('email_verified_at')->nullable();
       $table->string('password');
       $table->foreignId('upline')->nullable();
-      $table->foreignId('country_code')->nullable();
+      $table->string('country', 3)->nullable();
       $table->foreignId('user_type')->default(1);
       $table->unsignedDecimal('credits')->default(0);
       $table->unsignedMediumInteger('banner_imps')->default(0);
@@ -33,6 +34,9 @@ class CreateUsersTable extends Migration
       $table->unsignedInteger('wrong_clicks')->default(0);
       $table->boolean('surfer_reward_claimed')->default(0);
       $table->boolean('login_spotlight_viewed')->default(0);
+      $table->boolean('referral_notification')->default(1);
+      $table->boolean('commission_notification')->default(1);
+      $table->boolean('pm_notification')->default(1);
       $table->rememberToken();
       $table->timestamp('last_login')->nullable();
       $table->ipAddress('ip_address')->nullable();

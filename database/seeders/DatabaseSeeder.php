@@ -138,10 +138,13 @@ class DatabaseSeeder extends Seeder
 
     DB::table('users')->insert(
       [
-        'name' => 'Sinan Yilmaz',
+        'name' => 'Sinan',
+        'surname' => 'Yilmaz',
         'email' => 'lordofclicking@gmail.com',
+        'email_verified_at' => Carbon::now(),
         'username' => 'lordofclicking',
         'password' => Hash::make('password'),
+        'country' => 'TR',
         'user_type' => 1,
         'credits' => 1000,
         'banner_imps' => 10000,
@@ -152,9 +155,12 @@ class DatabaseSeeder extends Seeder
 
     DB::table('users')->insert(
       [
-        'name' => 'John Doe',
+        'name' => 'John',
+        'surname' => 'Doe',
         'email' => 'johndoe@gmail.com',
+        'email_verified_at' => Carbon::now()->add(1, 'day'),
         'username' => 'johndoe',
+        'country' => 'DE',
         'upline' => 1,
         'password' => Hash::make('john'),
         'user_type' => 1,
@@ -164,9 +170,12 @@ class DatabaseSeeder extends Seeder
 
     DB::table('users')->insert(
       [
-        'name' => 'Jane Doe',
+        'name' => 'Jane',
+        'surname' => 'Doe',
         'email' => 'janedoe@gmail.com',
+        'email_verified_at' => Carbon::now()->add(2, 'day'),
         'username' => 'janedoe',
+        'country' => 'RU',
         'upline' => 1,
         'password' => Hash::make('jane'),
         'user_type' => 1,

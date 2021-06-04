@@ -24,12 +24,12 @@ class SurfCodeController extends Controller
       ->where("confirmed", 1)
       ->where("valid_from", "<=", $today)
       ->where("valid_to", ">", $today)->get()->first();
-    $claimed = SurfCodeClaim::where("id", $code_info->id)->where("user_id", $request->user()->id)->get()->first();
 
-    if ($claimed) {
-      return back()->with("status", ["warning", "You already claimed or completed this code."]);
-    } else {
-      if ($code_info) {
+    if ($code_info) {
+      $claimed = SurfCodeClaim::where("id", $code_info->id)->where("user_id", $request->user()->id)->get()->first();
+      if ($claimed) {
+        return back()->with("status", ["warning", "You already claimed or completed this code."]);
+      } else {
         SurfCodeClaim::create([
           'user_id' => $request->user()->id,
           'code_id' => $code_info->id
@@ -44,9 +44,9 @@ class SurfCodeController extends Controller
           }
         }
         return back()->with("status", ["success", "Code accpeted. Surf $code_info->surf_amount pages and receive $prizes_text."]);
-      } else {
-        return back()->with("status", ["warning", "Invalid or expired surf code."]);
       }
+    } else {
+      return back()->with("status", ["warning", "Invalid or expired surf code."]);
     }
   }
 }

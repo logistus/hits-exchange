@@ -24,20 +24,22 @@
     </div>
     <x-alert />
     <table class="table table-bordered align-middle">
-      <tr class="bg-light">
-        <th scope="col">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="toggle-all-banners">
-          </div>
-        </th>
-        <th scope="col">Banner</th>
-        <th scope="col">Impressions Assigned</th>
-        <th scope="col">Views</th>
-        <th scope="col">Clicks</th>
-        <th scope="col">Status</th>
-        <th scope="col">Assign Impressions</th>
-        <th scope="col">Actions</th>
-      </tr>
+      <thead>
+        <tr class="bg-light">
+          <th scope="col">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="toggle-all-banners">
+            </div>
+          </th>
+          <th scope="col">Banner</th>
+          <th scope="col">Impressions Assigned</th>
+          <th scope="col">Views</th>
+          <th scope="col">Clicks</th>
+          <th scope="col">Status</th>
+          <th scope="col">Assign Impressions</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
       <tbody>
         @foreach ($banners as $banner)
         <tr>

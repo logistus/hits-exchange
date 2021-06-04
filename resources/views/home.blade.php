@@ -1,5 +1,4 @@
 <x-layout title="{{ $page }}">
-  @guest
   <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-indicators">
       <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -26,12 +25,4 @@
       <span class="visually-hidden">Next</span>
     </button>
   </div>
-  @endguest
-
-  @auth
-  <p>Welcome back {{ Auth::user()->name }}</p>
-  <p>Surf Timer: {{ Auth::user()->type->surf_timer }} </p>
-  <p>Credit per Click: {{ Auth::user()->type->surf_ratio }} </p>
-  <p>Credits: {{ Auth::user()->credits }} </p>
-  @endauth
 </x-layout>

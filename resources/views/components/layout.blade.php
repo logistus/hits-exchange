@@ -22,7 +22,11 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url('/') }}">Home</a>
+              @if (Auth::check())
+              <a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a>
+              @else
+              <a class="nav-link" href="{{ url('/') }}">Home</a>
+              @endif
             </li>
             @auth
             <li class="nav-item"><a class="nav-link" href="{{ url('surf') }}">Surf</a></li>
@@ -43,6 +47,7 @@
                 <li><a class="dropdown-item" href="{{ url('websites') }}">My Websites</a></li>
                 <li><a class="dropdown-item" href="{{ url('banners') }}">My Banners</a></li>
                 <li><a class="dropdown-item" href="{{ url('texts') }}">My Text Ads</a></li>
+                <li><a class="dropdown-item" href="{{ url('start_pages') }}">My Start Pages</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
@@ -76,21 +81,28 @@
             </li>
           </ul>
           @guest
-          <a href="{{ url('login') }}">Login</a>
-          <a href="{{ url('register') }}" class="btn btn-primary ms-2">Register</a>
+          <a href="{{ url('login') }}" class="me-3">Login</a>
+          <a href="{{ url('register') }}" class="btn btn-primary me-3">Register</a>
           @endguest
 
           @auth
           <a href="#" title="Private Messages" class="mx-4" style="text-decoration: none;">
-            <i class="bi bi-envelope-open" style="font-size: 1.5rem;"></i>
-            <span class="badge bg-secondary" style="position: relative; bottom: 15px;">0</span>
+            <i class="bi bi-envelope" style="font-size: 1.5rem;"></i>
+            <span class="badge bg-danger" style="position: relative; bottom: 15px;">1</span>
           </a>
           <img src="{{ Auth::user()->generate_gravatar(Auth::user()->id) }}" alt="{{ Auth::user()->username }}" height="48" class="rounded-circle">
           <div class="dropdown">
-            <a class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-              {{ Auth::user()->username }}
+            <a class="btn dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="text-start" style="width: 100px; overflow-wrap: break-word; word-wrap:break-word; white-space:normal;">{{ Auth::user()->username }}</div>
+              <div @if (Auth::user()->type->name == "Free")
+                class="badge bg-secondary"
+                @else
+                class="badge bg-danger"
+                @endif
+                >{{ Auth::user()->type->name }} Member
+              </div>
             </a>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
               <li><a class="dropdown-item" href="{{ url('user/profile') }}">Edit Profile</a></li>
               <li><a class="dropdown-item" href="{{ url('user/settings') }}">Account Settings</a></li>
               <li>
@@ -106,7 +118,7 @@
     <div class="card p-3">
       {{ $slot }}
     </div>
-    <footer class="bg-dark text-white p-3 mt-3">
+    <footer class="bg-dark text-white p-3">
       footer
     </footer>
   </div>
