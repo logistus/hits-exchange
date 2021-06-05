@@ -65,19 +65,13 @@
                 <li><a class="dropdown-item" href="{{ url('buy/credits') }}">Buy Credits</a></li>
               </ul>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="promoteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Promote
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="promoteDropdown">
-                <li><a class="dropdown-item" href="{{ url('promote') }}">Promo Tools</a></li>
-                <li><a class="dropdown-item" href="{{ url('referrals') }}">My Referrals</a></li>
-                <li><a class="dropdown-item" href="{{ url('commissions') }}">My Commissions</a></li>
-              </ul>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url('promote') }}">Promo Tools</a>
+            </li>
             </li>
             @endauth
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="#">Support</a>
+              <a class="nav-link" href="#">Support</a>
             </li>
           </ul>
           @guest
@@ -103,8 +97,9 @@
               </div>
             </a>
             <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-              <li><a class="dropdown-item" href="{{ url('user/profile') }}">Edit Profile</a></li>
-              <li><a class="dropdown-item" href="{{ url('user/settings') }}">Account Settings</a></li>
+              <li><a class="dropdown-item" href="{{ url('user/profile') }}">My Profile</a></li>
+              <li><a class="dropdown-item" href="{{ url('user/referrals') }}">My Referrals</a></li>
+              <li><a class="dropdown-item" href="{{ url('user/commissions') }}">My Commissions</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
+
   public function authenticate(Request $request)
   {
     $request->validate([
@@ -22,10 +23,10 @@ class LoginController extends Controller
       $request->user()->last_login = now();
       $request->user()->save();
 
-      return redirect()->intended('/');
+      return redirect()->intended();
     }
 
-    return back()->withErrors(['invalid' => 'The provided credentials do not match our records.'])->withInput();
+    return back()->with('status', ['danger', 'The provided credentials do not match our records.'])->withInput();
   }
 
   public function logout(Request $request)

@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SurfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
@@ -12,7 +14,6 @@ use App\Http\Controllers\SurfCodeController;
 use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,8 +44,27 @@ Route::get('/login', function () {
 
 Route::get('/register', function () {
   $page = "Register";
-  return view('auth.register', compact('page'));
+  $countries = Country::orderBy('country_name', 'asc')->get();
+  return view('auth.register', compact('page', 'countries'));
 });
+
+// Password Reset Routes
+Route::get('forgot-password', [UserController::class, 'forgot_password'])
+  ->middleware('guest')
+  ->name('password.request');
+
+Route::post('forgot-password', [UserController::class, 'send_password_reset_email'])
+  ->middleware('guest')
+  ->name('password.email');
+
+Route::get('reset-password/{token}/{email}', [UserController::class, 'password_reset'])
+  ->middleware('guest')->name('password.reset');
+
+Route::post('reset-password', [UserController::class, 'password_reset_post'])
+  ->middleware('guest')
+  ->name('password.update');
+
+
 
 // Email verification routes
 Route::get('/email/verify', function (Request $request) {
@@ -65,6 +85,9 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 // Post requests
 Route::post('/register', [UserController::class, 'store']);
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
+Route::post('user/change-email', [UserController::class, 'change_email'])->middleware('auth');
+
+Route::get('user/profile', [UserController::class, 'view_profile']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
@@ -77,7 +100,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
   Route::get('/convert', [UserController::class, 'convert_view']);
   Route::post('/convert', [UserController::class, 'convert']);
-  Route::get('/referrals', [UserController::class, 'referrals']);
 
   Route::get('/surfer_rewards', [SurferRewardController::class, 'index']);
   Route::post('/surfer_rewards', [SurferRewardController::class, 'store']);
@@ -138,7 +160,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
   });
 
   Route::prefix('user')->group(function () {
-    Route::get('profile', [UserController::class, 'view_profile']);
     Route::post('profile', [UserController::class, 'save_profile']);
+    Route::get('referrals', [UserController::class, 'referrals']);
+    Route::post('password', [UserController::class, 'change_password']);
   });
 });

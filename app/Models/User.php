@@ -2,28 +2,37 @@
 
 namespace App\Models;
 
+use App\Models\UserType;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Notifications\Notifiable;
+use App\Notifications\VerifyEmailNotification;
+use App\Notifications\ResetPasswordNotification;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Hash;
-use App\Models\UserType;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
 {
   use HasFactory, Notifiable;
+
+  public function sendEmailVerificationNotification()
+  {
+    $this->notify(new VerifyEmailNotification);
+  }
+
+  public function sendPasswordResetNotification($token)
+  {
+    $this->notify(new ResetPasswordNotification($token));
+  }
+
 
   /**
    * The attributes that are mass assignable.
    *
    * @var array
    */
-  protected $fillable = [
-    'name',
-    'email',
-    'username',
-    'password',
-  ];
+  protected $guarded = [];
 
   /**
    * The attributes that should be hidden for arrays.
