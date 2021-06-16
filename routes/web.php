@@ -84,7 +84,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 
 // Post requests
 Route::post('/register', [UserController::class, 'store']);
-Route::post('/login', [LoginController::class, 'authenticate'])->name('login');
+Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
 Route::post('user/change-email', [UserController::class, 'change_email'])->middleware('auth');
 
 Route::get('user/profile', [UserController::class, 'view_profile']);
@@ -92,9 +92,8 @@ Route::get('user/profile', [UserController::class, 'view_profile']);
 Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
   Route::get('/surf', [SurfController::class, 'view']);
-  Route::get('/surf_icon', [SurfController::class, 'create_selected_icon']);
   Route::get('/surf_icons', [SurfController::class, 'create_click_icons']);
-  Route::post('/validate_click/{coordinate}', [SurfController::class, 'validate_click']);
+  Route::post('/validate_click/{id}', [SurfController::class, 'validate_click']);
 
   Route::get('/logout', [LoginController::class, 'logout']);
 

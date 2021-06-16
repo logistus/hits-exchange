@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Website;
 use App\Models\Banner;
 use App\Models\TextAd;
+use App\Models\Website;
 use App\Models\SurfCode;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Models\SurfCodeClaim;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
-use Illuminate\Http\Request;
 
 class SurfController extends Controller
 {
@@ -26,6 +27,7 @@ class SurfController extends Controller
     session(['selected_website_owner' => 1]);
     $this->selectRandomBanner();
     $this->selectRandomTextAd();
+    //$request->session()->regenerateToken();
     return view('surf');
   }
 
@@ -69,8 +71,8 @@ class SurfController extends Controller
                 break;
             }
           }
-          session(['selected_website_url' => url('surf_code_claimed', $active_surf_code->code_info->id)]);
-          return url('surf_code_claimed', $active_surf_code->code_info->id);
+          $url = url('surf_code_claimed', $active_surf_code->code_info->id);
+          return $url;
         } else {
           return $this->selectRandomWebsite();
         }
@@ -130,45 +132,59 @@ class SurfController extends Controller
     return $text;
   }
 
-  public function generate_surf_icons()
+  public function create_click_icons()
   {
     $selected_icons = range(1, 17);
     shuffle($selected_icons);
     $icons = array_slice($selected_icons, 0, 4);
+    $duplicate_image = $icons[array_rand($icons)];
+    array_push($icons, $duplicate_image);
+    shuffle($icons);
 
-    $selected_image = mt_rand(0, 3);
+    session(['icons' => $icons]);
 
-    session(['selected_key' => $selected_image]);
-    session(['images' => $icons]);
-  }
+    $icon_ids = array();
+    for ($i = 0; $i <= 4; $i++) {
+      array_push($icon_ids, Str::random(20));
+    }
+    session(['icon_ids' => $icon_ids]);
 
-  public function create_selected_icon()
-  {
-    $this->generate_surf_icons();
-    return Image::make('icons/' . session('images')[session('selected_key')] . '.png')->response('png')->header("Content-Type", "image/png");
-  }
+    $unique_icons = array_unique($icons);
+    $duplicates = array_diff_assoc($icons, $unique_icons);
+    $duplicate_keys = array_keys(array_intersect($icons, $duplicates));
+    session(['correct_icons' =>  $duplicate_keys]);
 
-  public function create_click_icons()
-  {
-    $image_1 = imagecreatefrompng('icons/' . session('images')[0] . '.png');
+    //dd([$icons, $icon_ids, $duplicate_keys]);
+
+    $image_1 = imagecreatefrompng('icons/' . session('icons')[0] . '.png');
     $color_image_1 = imagecolorallocatealpha($image_1, 0, 0, 0, 127);
+    //$textcolor = imagecolorallocate($image_1, 0, 0, 255);
+    //imagestring($image_1, 5, 10, 10, $icons[0], $textcolor);
     imagefill($image_1, 0, 0, $color_image_1);
-    $image_2 = imagecreatefrompng('icons/' . session('images')[1] . '.png');
+
+    $image_2 = imagecreatefrompng('icons/' . session('icons')[1] . '.png');
     $color_image_2 = imagecolorallocatealpha($image_2, 0, 0, 0, 127);
     imagefill($image_2, 0, 0, $color_image_2);
-    $image_3 = imagecreatefrompng('icons/' . session('images')[2] . '.png');
+
+    $image_3 = imagecreatefrompng('icons/' . session('icons')[2] . '.png');
     $color_image_3 = imagecolorallocatealpha($image_3, 0, 0, 0, 127);
     imagefill($image_3, 0, 0, $color_image_3);
-    $image_4 = imagecreatefrompng('icons/' . session('images')[3] . '.png');
+
+    $image_4 = imagecreatefrompng('icons/' . session('icons')[3] . '.png');
     $color_image_4 = imagecolorallocatealpha($image_4, 0, 0, 0, 127);
     imagefill($image_4, 0, 0, $color_image_4);
 
-    $surfIcons = imagecreatetruecolor(252, 48);
+    $image_5 = imagecreatefrompng('icons/' . session('icons')[4] . '.png');
+    $color_image_5 = imagecolorallocatealpha($image_5, 0, 0, 0, 127);
+    imagefill($image_5, 0, 0, $color_image_5);
+
+    $surfIcons = imagecreatetruecolor(320, 48);
 
     imagecopymerge($surfIcons, $image_1, 0, 0, 0, 0, 48, 48, 100);
-    imagecopymerge($surfIcons, $image_2, 48 + 20, 0, 0, 0, 48, 48, 100);
+    imagecopymerge($surfIcons, $image_2, (48 + 20), 0, 0, 0, 48, 48, 100);
     imagecopymerge($surfIcons, $image_3, (48 + 20) * 2, 0, 0, 0, 48, 48, 100);
     imagecopymerge($surfIcons, $image_4, (48 + 20) * 3, 0, 0, 0, 48, 48, 100);
+    imagecopymerge($surfIcons, $image_5, (48 + 20) * 4, 0, 0, 0, 48, 48, 100);
 
     $color_images = imagecolorallocatealpha($surfIcons, 0, 0, 0, 127);
     imagefill($surfIcons, 0, 0, $color_images);
@@ -181,7 +197,7 @@ class SurfController extends Controller
     return Image::make($icons)->response('png')->header("Content-Type", "image/png");
   }
 
-  public function validate_click($coordinate)
+  public function validate_click($id)
   {
     $surf_ratio = Auth::user()->type->surf_ratio;
     if (time() - Auth::user()->start_time < Auth::user()->type->surf_timer) {
@@ -197,8 +213,7 @@ class SurfController extends Controller
       Website::where('id', session('selected_website_id'))->increment('views_today');
       Website::where('id', session('selected_website_id'))->decrement('assigned');
 
-
-      if ($coordinate <= ((session('selected_key') + 1) * 68) && $coordinate >= (session('selected_key') * 68)) {
+      if ($id == session('icon_ids')[session('correct_icons')[0]] || $id == session('icon_ids')[session('correct_icons')[1]]) {
         User::where('id', Auth::user()->id)->increment('correct_clicks');
         $user_websites = Auth::user()->websites;
         $user_total_auto_assign = Auth::user()->websites->sum('auto_assign');
@@ -228,12 +243,15 @@ class SurfController extends Controller
         $website = $this->checkSurfCode();
         $banner = $this->selectRandomBanner();
         $text = $this->selectRandomTextAd();
+        $url = is_object($website) ? $website->url : $website;
+        $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
+        $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
 
         return response()->json([
           'status' => '<span class="bg-success text-white px-4 py-2 fs-2">+' . Auth::user()->type->surf_ratio + 0 . ' Credit</span>', // added + 0 to remove unnecessary zeros
-          'url' => $website->url,
-          'website_owner_gravatar' => User::generate_gravatar($website->user_id),
-          'website_owner_username' => User::where('id', $website->user_id)->value('username'),
+          'url' => $url,
+          'website_owner_gravatar' => $website_owner_gravatar,
+          'website_owner_username' => $website_owner_username,
           'banner_id' => $banner->id,
           'banner_image' => $banner->image_url,
           'text_id' => $text->id,
@@ -247,15 +265,18 @@ class SurfController extends Controller
       } else {
         User::where('id', Auth::user()->id)->increment('wrong_clicks');
 
-        $website = $this->selectRandomWebsite();
+        $website = $this->checkSurfCode();
         $banner = $this->selectRandomBanner();
         $text = $this->selectRandomTextAd();
+        $url = is_object($website) ? $website->url : $website;
+        $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
+        $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
 
         return response()->json([
           'status' => '<span class="bg-danger text-white px-4 py-2 fs-2">Wrong Click!</span>',
-          'url' => $website->url,
-          'website_owner_gravatar' => User::generate_gravatar($website->user_id),
-          'website_owner_username' => User::where('id', $website->user_id)->value('username'),
+          'url' => $url,
+          'website_owner_gravatar' => $website_owner_gravatar,
+          'website_owner_username' => $website_owner_username,
           'banner_id' => $banner->id,
           'banner_image' => $banner->image_url,
           'text_id' => $text->id,
