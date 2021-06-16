@@ -12,7 +12,6 @@
 </head>
 
 <body class="vh-100">
-  <pre>{{ var_dump(session()->all() )}}</pre>
   <div class="d-flex flex-column h-100">
     <div style="height: 110px;" class="bg-light d-flex align-items-center justify-content-between">
       <div class="ms-3 invisible" id="website-owner">
@@ -25,17 +24,7 @@
         <div id="status"></div>
         <form method="POST" id="validate_view" class="d-none d-flex align-items-center">
           @csrf
-          <!--<div class="icon"><img src="/surf_icon?t={{ time() }}" width="48" height="48" class="me-3" id="icon" /></div>-->
-          <div class="px-1 py-2 icons border bg-white" style="min-width: 320px;">
-            <img src="" height="48" id="icons" usemap="#iconsmap" />
-            <map name="iconsmap">
-              <area shape="rect" coords="0, 0, 48, 48" href="#" onclick="validateClick('{{ session('icon_ids')[0] }}')" alt="">
-              <area shape="rect" coords="68, 0, 116, 48" href="#" onclick="validateClick('{{ session('icon_ids')[1] }}')" alt="">
-              <area shape="rect" coords="136, 0, 184, 48" href="#" onclick="validateClick('{{ session('icon_ids')[2] }}')" alt="">
-              <area shape="rect" coords="204, 0, 252, 48" href="#" onclick="validateClick('{{ session('icon_ids')[3] }}')" alt="">
-              <area shape="rect" coords="272, 0, 320, 48" href="#" onclick="validateClick('{{ session('icon_ids')[4] }}')" alt="">
-            </map>
-          </div>
+          <div class="px-1 py-2 icons border bg-white" style="min-width: 320px;"></div>
         </form>
       </div>
       <div class="me-2 d-flex flex-column">
@@ -71,49 +60,31 @@
 <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
 
 <script>
-  /*
-  function FindPosition(oElement) {
-      if (typeof(oElement.offsetParent) != "undefined") {
-        for (var posX = 0, posY = 0; oElement; oElement = oElement.offsetParent) {
-          posX += oElement.offsetLeft;
-          posY += oElement.offsetTop;
-        }
-        return [posX, posY];
-      } else {
-        return [oElement.x, oElement.y];
-      }
-    }
-    
-    function GetClickXCoordinate(e) {
-      var PosX = 0;
-      var ImgPos;
-      ImgPos = FindPosition(document.getElementById("icons"));
-      if (!e) var e = window.event;
-      if (e.pageX || e.pageY) {
-        PosX = e.pageX;
-        PosY = e.pageY;
-      } else if (e.clientX || e.clientY) {
-        PosX = e.clientX + document.body.scrollLeft +
-        document.documentElement.scrollLeft;
-        PosY = e.clientY + document.body.scrollTop +
-        document.documentElement.scrollTop;
-      }
-      return PosX - ImgPos[0];
-    }
-    */
   let cid;
 
+  function checkScreenSize() {
+    // do not allow surf on small screens (below 800x600)
+    if (window.innerWidth < 800 || window.innerHeight < 600) {
+      $("body").empty();
+      $("body").html("<div class='h-100 d-flex justify-content-center align-items-center'><p class='text-center'>Surfing on small screens is not possible at this moment.<br><a href='/'>Click here</a> to back to dashboard.</p></div>");
+    }
+  }
+
   function validateClick(id) {
+    checkScreenSize();
     cid = id;
     $("#validate_view").submit();
   }
 
   $(function() {
+    checkScreenSize();
+
     var timer = "{{ Auth::user()->type->surf_timer }}";
     var app_url = "{{ config('app.url') }}";
     var start_url = "{{ session('selected_website_url') }}";
 
     $("#status").text("Starting surf session");
+
     if (start_url.startsWith(app_url)) {
       $("#url-viewing").removeClass("visible").addClass("invisible");
       $("#website-owner").removeClass("visible").addClass("invisible");
@@ -123,7 +94,7 @@
     }
 
     function startProgressBar() {
-      $("#icons").attr("src", "");
+      $(".icons").html('<div class="d-flex justify-content-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
       $("#validate_view").addClass("d-none");
       $("#progress-bar").attr("style", "width: 0%");
       $("#progress-bar").animate({
@@ -134,10 +105,7 @@
         complete: function() {
           $("#validate_view").removeClass("d-none");
           $("#status").hide();
-          $.get("surf_icons?t=" + Math.round(new Date().getTime() / 1000), function(response) {
-            console.log(response);
-            $("#icons").prop("src", response);
-          });
+          $(".icons").load('/view_surf_icons');
         }
       });
     }

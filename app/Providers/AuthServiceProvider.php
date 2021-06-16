@@ -15,6 +15,7 @@ class AuthServiceProvider extends ServiceProvider
   protected $policies = [
     'App\Models\Website' => 'App\Policies\WebsitePolicy',
     'App\Models\Banner' => 'App\Policies\BannerPolicy',
+    'App\Models\SquareBanner' => 'App\Policies\SquareBannerPolicy',
     'App\Models\TextAd' => 'App\Policies\TextAdPolicy',
     'App\Models\StartPage' => 'App\Policies\StartPagePolicy',
   ];

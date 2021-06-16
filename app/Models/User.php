@@ -95,6 +95,16 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->hasMany(Banner::class, 'user_id')->where('status', '!=', 'Suspended');
   }
 
+  public function square_banners()
+  {
+    return $this->hasMany(SquareBanner::class, 'user_id')->orderBy('id', 'desc');
+  }
+
+  public function active_square_banners()
+  {
+    return $this->hasMany(SquareBanner::class, 'user_id')->where('status', '!=', 'Suspended');
+  }
+
   public function texts()
   {
     return $this->hasMany(TextAd::class, 'user_id')->orderBy('id', 'desc');

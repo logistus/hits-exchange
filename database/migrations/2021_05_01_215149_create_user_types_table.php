@@ -20,6 +20,7 @@ class CreateUserTypesTable extends Migration
       $table->unsignedDecimal('surf_ratio');
       $table->unsignedTinyInteger('max_websites');
       $table->unsignedTinyInteger('max_banners');
+      $table->unsignedTinyInteger('max_square_banners');
       $table->unsignedTinyInteger('max_texts');
       $table->unsignedTinyInteger('min_auto_assign');
       $table->unsignedTinyInteger('credits_to_banner');

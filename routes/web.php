@@ -8,6 +8,7 @@ use App\Http\Controllers\SurfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\SquareBannerController;
 use App\Http\Controllers\TextAdController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\SurfCodeController;
@@ -92,7 +93,8 @@ Route::get('user/profile', [UserController::class, 'view_profile']);
 Route::middleware(['auth', 'verified'])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
   Route::get('/surf', [SurfController::class, 'view']);
-  Route::get('/surf_icons', [SurfController::class, 'create_click_icons']);
+  Route::get('/surf_icons', [SurfController::class, 'surf_icons']);
+  Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
   Route::post('/validate_click/{id}', [SurfController::class, 'validate_click']);
 
   Route::get('/logout', [LoginController::class, 'logout']);
@@ -140,6 +142,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/', [BannerController::class, 'store']);
     Route::post('/update', [BannerController::class, 'update']);
+  });
+  Route::prefix('square_banners')->group(function () {
+    Route::get('/', [SquareBannerController::class, 'index']);
+    Route::get('/click/{id}', [SquareBannerController::class, 'banner_click']);
+    Route::get('/reset/{id}', [SquareBannerController::class, 'banner_reset']);
+
+    Route::get('/change_status/{id}', [SquareBannerController::class, 'change_status']);
+    Route::get('/delete/{id}', [SquareBannerController::class, 'destroy']);
+    Route::get('/{id}', [SquareBannerController::class, 'show']);
+    Route::put('/{id}', [SquareBannerController::class, 'update_selected']);
+
+    Route::post('/', [SquareBannerController::class, 'store']);
+    Route::post('/update', [SquareBannerController::class, 'update']);
   });
   Route::prefix('texts')->group(function () {
     Route::get('/', [TextAdController::class, 'index']);

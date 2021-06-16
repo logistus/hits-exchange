@@ -27,7 +27,7 @@ class SurfController extends Controller
     session(['selected_website_owner' => 1]);
     $this->selectRandomBanner();
     $this->selectRandomTextAd();
-    //$request->session()->regenerateToken();
+    $request->session()->regenerateToken();
     return view('surf');
   }
 
@@ -132,7 +132,7 @@ class SurfController extends Controller
     return $text;
   }
 
-  public function create_click_icons()
+  public function click_icons()
   {
     $selected_icons = range(1, 17);
     shuffle($selected_icons);
@@ -153,9 +153,10 @@ class SurfController extends Controller
     $duplicates = array_diff_assoc($icons, $unique_icons);
     $duplicate_keys = array_keys(array_intersect($icons, $duplicates));
     session(['correct_icons' =>  $duplicate_keys]);
+  }
 
-    //dd([$icons, $icon_ids, $duplicate_keys]);
-
+  public function surf_icons()
+  {
     $image_1 = imagecreatefrompng('icons/' . session('icons')[0] . '.png');
     $color_image_1 = imagecolorallocatealpha($image_1, 0, 0, 0, 127);
     //$textcolor = imagecolorallocate($image_1, 0, 0, 255);
@@ -197,6 +198,12 @@ class SurfController extends Controller
     return Image::make($icons)->response('png')->header("Content-Type", "image/png");
   }
 
+  public function view_surf_icons()
+  {
+    $this->click_icons();
+    return view('surf_icons');
+  }
+
   public function validate_click($id)
   {
     $surf_ratio = Auth::user()->type->surf_ratio;
@@ -212,6 +219,13 @@ class SurfController extends Controller
       Website::where('id', session('selected_website_id'))->increment('views');
       Website::where('id', session('selected_website_id'))->increment('views_today');
       Website::where('id', session('selected_website_id'))->decrement('assigned');
+
+      $website = $this->checkSurfCode();
+      $banner = $this->selectRandomBanner();
+      $text = $this->selectRandomTextAd();
+      $url = is_object($website) ? $website->url : $website;
+      $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
+      $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
 
       if ($id == session('icon_ids')[session('correct_icons')[0]] || $id == session('icon_ids')[session('correct_icons')[1]]) {
         User::where('id', Auth::user()->id)->increment('correct_clicks');
@@ -238,56 +252,26 @@ class SurfController extends Controller
           $reward_credit = ($surf_ratio * User::where('id', Auth::user()->upline)->get()->first()->type->credit_reward_ratio) / 100;
           User::where('id', Auth::user()->upline)->get()->first()->increment('credits', $reward_credit);
         }
-
-
-        $website = $this->checkSurfCode();
-        $banner = $this->selectRandomBanner();
-        $text = $this->selectRandomTextAd();
-        $url = is_object($website) ? $website->url : $website;
-        $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
-        $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
-
-        return response()->json([
-          'status' => '<span class="bg-success text-white px-4 py-2 fs-2">+' . Auth::user()->type->surf_ratio + 0 . ' Credit</span>', // added + 0 to remove unnecessary zeros
-          'url' => $url,
-          'website_owner_gravatar' => $website_owner_gravatar,
-          'website_owner_username' => $website_owner_username,
-          'banner_id' => $banner->id,
-          'banner_image' => $banner->image_url,
-          'text_id' => $text->id,
-          'text_body' => $text->body,
-          'text_color' => $text->text_color,
-          'text_bg_color' => $text->bg_color,
-          'text_bold' => $text->text_bold,
-          'surfed_today' => User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today'),
-          'credits' => User::where("id", Auth::user()->id)->lockForUpdate()->value('credits'),
-        ]);
+        $status = '<span class="bg-success text-white px-4 py-2 fs-2">+' . Auth::user()->type->surf_ratio + 0 . ' Credit</span>'; // added + 0 to remove unnecessary zeros
       } else {
         User::where('id', Auth::user()->id)->increment('wrong_clicks');
-
-        $website = $this->checkSurfCode();
-        $banner = $this->selectRandomBanner();
-        $text = $this->selectRandomTextAd();
-        $url = is_object($website) ? $website->url : $website;
-        $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
-        $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
-
-        return response()->json([
-          'status' => '<span class="bg-danger text-white px-4 py-2 fs-2">Wrong Click!</span>',
-          'url' => $url,
-          'website_owner_gravatar' => $website_owner_gravatar,
-          'website_owner_username' => $website_owner_username,
-          'banner_id' => $banner->id,
-          'banner_image' => $banner->image_url,
-          'text_id' => $text->id,
-          'text_body' => $text->body,
-          'text_color' => $text->text_color,
-          'text_bg_color' => $text->bg_color,
-          'text_bold' => $text->text_bold,
-          'surfed_today' => User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today'),
-          'credits' => User::where("id", Auth::user()->id)->lockForUpdate()->value('credits'),
-        ]);
+        $status = '<span class="bg-danger text-white px-4 py-2 fs-2">Wrong Click!</span>';
       }
+      return response()->json([
+        'status' => $status,
+        'url' => $url,
+        'website_owner_gravatar' => $website_owner_gravatar,
+        'website_owner_username' => $website_owner_username,
+        'banner_id' => $banner->id,
+        'banner_image' => $banner->image_url,
+        'text_id' => $text->id,
+        'text_body' => $text->body,
+        'text_color' => $text->text_color,
+        'text_bg_color' => $text->bg_color,
+        'text_bold' => $text->text_bold,
+        'surfed_today' => User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today'),
+        'credits' => User::where("id", Auth::user()->id)->lockForUpdate()->value('credits'),
+      ]);
     }
   }
 

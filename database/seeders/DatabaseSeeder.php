@@ -110,6 +110,16 @@ class DatabaseSeeder extends Seeder
       ]
     );
 
+    DB::table('square_banners')->insert(
+      [
+        'user_id' => 1,
+        'image_url' => 'https://hungryforhits.com/getimg.php?id=6',
+        'target_url' => 'https://hungryforhits.com/?rid=17',
+        'assigned' => 10000,
+        'status' => 'Active'
+      ]
+    );
+
     DB::table('text_ads')->insert(
       [
         'user_id' => 2,
@@ -189,6 +199,7 @@ class DatabaseSeeder extends Seeder
       'surf_ratio' => 0.5,
       'max_websites' => 5,
       'max_banners' => 5,
+      'max_square_banners' => 5,
       'max_texts' => 5,
       'min_auto_assign' => 75,
       'credits_to_banner' => 10,
@@ -203,9 +214,10 @@ class DatabaseSeeder extends Seeder
       'name' => 'Premium',
       'surf_timer' => 5,
       'surf_ratio' => 1,
-      'max_websites' => 50,
-      'max_banners' => 50,
-      'max_texts' => 50,
+      'max_websites' => 15,
+      'max_banners' => 15,
+      'max_square_banners' => 15,
+      'max_texts' => 15,
       'min_auto_assign' => 0,
       'credits_to_banner' => 100,
       'credits_to_text' => 200,

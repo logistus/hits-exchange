@@ -46,11 +46,16 @@
               <ul class="dropdown-menu" aria-labelledby="adsDropdown">
                 <li><a class="dropdown-item" href="{{ url('websites') }}">My Websites</a></li>
                 <li><a class="dropdown-item" href="{{ url('banners') }}">My Banners</a></li>
+                <li><a class="dropdown-item" href="{{ url('square_banners') }}">My Square Banners</a></li>
                 <li><a class="dropdown-item" href="{{ url('texts') }}">My Text Ads</a></li>
                 <li><a class="dropdown-item" href="{{ url('start_pages') }}">My Start Pages</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="creditsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Credits
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="creditsDropdown">
                 <li><a class="dropdown-item" href="{{ url('convert') }}">Convert Credits</a></li>
                 <li><a class="dropdown-item" href="{{ url('websites/auto_assign') }}">Auto Assign</a></li>
               </ul>

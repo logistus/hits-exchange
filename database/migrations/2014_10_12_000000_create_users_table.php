@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
       $table->foreignId('user_type')->default(1);
       $table->unsignedDecimal('credits')->default(0);
       $table->unsignedMediumInteger('banner_imps')->default(0);
+      $table->unsignedMediumInteger('square_banner_imps')->default(0);
       $table->unsignedMediumInteger('text_imps')->default(0);
       $table->unsignedSmallInteger('surfed_today')->default(0);
       $table->unsignedBigInteger('start_time')->default(0);
