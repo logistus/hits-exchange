@@ -1,6 +1,6 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('websites/auto_assign') }}">Auto Assign</a></h4>
-  <div class="alert alert-warning">
+  <div class="alert alert-info">
     <div>You must auto assign <strong>{{ Auth::user()->type->min_auto_assign }}%</strong> of your credits.</div>
     <div><strong>{{ Auth::user()->websites->sum('auto_assign') }}%</strong> of your credits are currently auto assigned.</div>
   </div>

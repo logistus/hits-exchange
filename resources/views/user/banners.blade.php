@@ -6,6 +6,7 @@
       <i class="bi-plus"></i> Add New Banner
     </button>
   </div>
+  <x-alert />
   @if (count($banners))
   <form action="{{ url('banners/update') }}" method="POST">
     @csrf
@@ -22,7 +23,6 @@
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="pause-selected" name="action" value="pause_selected"><i class="bi-pause"></i> Pause Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="activate-selected" name="action" value="activate_selected"><i class="bi-play"></i> Activate Selected</button>
     </div>
-    <x-alert />
     <table class="table table-bordered align-middle">
       <thead>
         <tr class="bg-light">

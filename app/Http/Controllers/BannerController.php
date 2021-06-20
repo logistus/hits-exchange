@@ -65,7 +65,7 @@ class BannerController extends Controller
         return back()->with("status", ["warning", "You can't activate Pending or Suspended banners."]);
       }
     } else {
-      return back()->with("status", $response->message());
+      return back()->with("status", ["warning", $response->message()]);
     }
   }
 

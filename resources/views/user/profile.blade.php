@@ -56,6 +56,7 @@
       </div>
     </div>
     <h4 class="mt-5">Email Preferences</h4>
+    <p class="fs-6 fw-light">When do you want to receive an email notification</p>
     <div class="form-check">
       <label class="form-check-label" for="referral-noticication">
         Referral Notification

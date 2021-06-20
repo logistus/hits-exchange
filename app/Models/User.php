@@ -140,6 +140,26 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->hasMany(StartPage::class, 'user_id');
   }
 
+  public function unread_private_messages()
+  {
+    return $this->hasMany(PrivateMessage::class, 'to_id')->where('folder_receiver', 'Inbox')->where('read', 0);
+  }
+
+  public function private_messages()
+  {
+    return $this->hasMany(PrivateMessage::class, 'to_id')->where('folder_receiver', 'Inbox')->where('deleted_from_receiver', 0)->orderBy('id', 'desc');
+  }
+
+  public function private_messages_sent()
+  {
+    return $this->hasMany(PrivateMessage::class, 'from_id')->where('deleted_from_sender', 0)->orderBy('id', 'desc');
+  }
+
+  public function private_messages_trash()
+  {
+    return $this->hasMany(PrivateMessage::class, 'to_id')->where('folder_receiver', 'Trash')->where('deleted_from_receiver', 0)->orderBy('id', 'desc');
+  }
+
   public function getTotalSurfedAttribute()
   {
     return $this->correct_clicks + $this->wrong_clicks;

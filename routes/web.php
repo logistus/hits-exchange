@@ -8,6 +8,7 @@ use App\Http\Controllers\SurfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\PrivateMessageController;
 use App\Http\Controllers\SquareBannerController;
 use App\Http\Controllers\TextAdController;
 use App\Http\Controllers\WebsiteController;
@@ -171,6 +172,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
   Route::prefix('start_pages')->group(function () {
     Route::get('/', [StartPageController::class, 'index']);
+  });
+
+  Route::prefix('private_messages')->group(function () {
+    Route::get('/', [PrivateMessageController::class, 'inbox']);
+    Route::get('/sent', [PrivateMessageController::class, 'sent']);
+    Route::get('/trash', [PrivateMessageController::class, 'trash']);
+    Route::get('/compose', [PrivateMessageController::class, 'create']);
+    Route::get('/empty_trash', [PrivateMessageController::class, 'empty_trash']);
+    Route::get('/move_inbox/{id}', [PrivateMessageController::class, 'move_inbox']);
+    Route::get('/move_trash/{id}', [PrivateMessageController::class, 'move_trash']);
+    Route::get('/report/{id}', [PrivateMessageController::class, 'report']);
+    Route::get('/delete_from_sender/{id}', [PrivateMessageController::class, 'delete_from_sender']);
+    Route::get('/delete/{id}', [PrivateMessageController::class, 'destroy']);
+    Route::get('/reply/{id}', [PrivateMessageController::class, 'reply']);
+    Route::get('/{id}', [PrivateMessageController::class, 'show']);
+
+    Route::post('/', [PrivateMessageController::class, 'store']);
+    Route::post('/update', [PrivateMessageController::class, 'update']);
+    Route::post('/reply/{id}', [PrivateMessageController::class, 'send_reply']);
   });
 
   Route::prefix('user')->group(function () {
