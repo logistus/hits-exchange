@@ -41,6 +41,7 @@
                 <li><a class="dropdown-item" href="{{ url('user/profile') }}">My Profile</a></li>
                 <li><a class="dropdown-item" href="{{ url('user/referrals') }}">My Referrals</a></li>
                 <li><a class="dropdown-item" href="{{ url('user/commissions') }}">My Commissions</a></li>
+                <li><a class="dropdown-item" href="{{ url('user/orders') }}">My Orders</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>

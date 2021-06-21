@@ -1,159 +1,100 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('buy/start_page') }}">Buy Start Page</a></h4>
-  <p>yada yada yada</p>
-  <div class="d-flex flex-row justify-content-between mb-3">
-    <a href="#" id="step-url" class="border w-100 text-decoration-none bg-primary text-white p-3 step">Select URL</a>
-    <a href="#" id="step-date" class="border w-100 text-decoration-none bg-light p-3 step">Select Date(s)<span id="dates"></span></a>
-    <a href="#" id="step-payment" class="border w-100 text-decoration-none bg-light p-3 step">Make Payment</a>
-  </div>
+  <x-alert />
+  <p>Every member will see start page every time they start to surf throughout the day. Buy now to get maximum exposure to your website.<br>The price is $1 for each day.</p>
   <div class="d-flex justify-content-center pt-3">
-    <form method="POST" class="step-url _step">
+    <form method="POST" action="{{ url('buy/start_page') }}">
+      @csrf
+      <h4>Select a website</h4>
       @if (count($user_websites) > 0)
-      <select class="form-select" id="user_websites" aria-label="Select Website">
-        <option value="0" selected>Select one of your websites</option>
-        @foreach ($user_websites as $website)
-        <option value="{{ $website->id }}">{{ $website->url }}</option>
-        @endforeach
-      </select>
+      <div class="mb-3">
+        <label for="start_page_user_website" class="form-label">Select from your websites:</label>
+        <select class="form-select" id="start_page_user_website" name="start_page_user_website" aria-label="Select Website">
+          <option value="0" selected>Select one of your websites</option>
+          @foreach ($user_websites as $website)
+          <option value="{{ $website->id }}" {{ old('start_page_user_website') == $website->id ? "selected" : ""}}>{{ $website->url }}</option>
+          @endforeach
+        </select>
+      </div>
       @endif
       <div class="my-3">
-        <label for="start_page_url" class="form-label">or specify new URL</label>
-        <input type="url" class="form-control" id="start_page_url">
+        <label for="new_start_page_url" class="form-label">or specify new URL:</label>
+        <input type="url" class="form-control" id="new_start_page_url" value="{{ old('new_start_page_url') }}" name="new_start_page_url">
       </div>
-      <button id="step-url-next-btn" type="button" class="btn btn-primary">Next</button>
+      @error('start_page_user_website')
+      <div class="text-danger">You must select one from your websites or specify new URL.</div>
+      @enderror
+      @error('new_start_page_url')
+      <div class="text-danger">You must select one from your websites or specify new URL.</div>
+      @enderror
+      <h4 class="mt-3">Select date(s)</h4>
+      <div id="datepicker" class="my-3"></div>
+      @error('selected_dates')
+      <div class="text-danger">You must select 1 or more days.</div>
+      @enderror
+      <input type="hidden" name="selected_dates" id="dates">
+      <button type="button" id="place_order" class="btn btn-primary">Place Order</button>
     </form>
-    <div class="d-none step-date _step">
-      <div id="datepicker" class="mt-3"></div>
-      <button id="step-date-previous-btn" type="button" class="btn btn-primary mt-3">Previous</button>
-      <button id="step-date-next-btn" type="button" class="btn btn-primary mt-3">Next</button>
-    </div>
-    <div id="payment" class="d-none step-payment _step">
-      <div id="price" class="fs-2 mt-2">$0</div>
-      <div>-- TODO -- Payment Buttons</div>
-      <button id="step-payment-previous-btn" type="button" class="btn btn-primary mt-3">Previous</button>
-    </div>
-  </div>
-  <!--
-  <div class="row mt-3">
-    <div class="col">
-      <h4>Your Start Pages</h4>
-      @if (count($user_start_pages) > 0)
-      <table class="table table-bordered align-middle">
-        <thead>
-          <tr class="bg-light">
-            <th scope="col">URL</th>
-            <th scope="col">Start Date</th>
-            <th scope="col">Total Views</th>
-            <th scope="col">Status</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach ($user_start_pages as $start_page)
-          <tr>
-            <td>
-              <a href="{{ $start_page->url }}" target="_blank" rel="noopener noreferrer">{{ $start_page->url }}</a> <i class="bi-box-arrow-up-right" style="font-size: .8rem;"></i>
-            </td>
-            <td>{{ $start_page->start_date }}</td>
-            <td>{{ $start_page->total_views }}</td>
-            <td>{{ now() < $start_page->start_date ? $start_page->status : "Done" }}</td>
-            <td>
-              <a href="{{ url('start_page/delete', $start_page->id) }}" onclick="return confirm('Are you sure?');" class="btn btn-danger">Delete</a>
-            </td>
-          </tr>
-          @endforeach
-        </tbody>
-      </table>
-      @else
-      <div>You don't have any start pages.</div>
-      @endif
-    </div>
-  </div>-->
-  @php
-  $locked_dates = array();
-  foreach ($bought_dates as $date) {
-  array_push($locked_dates, $date);
-  }
-  @endphp
-  <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
-  <script src="{{ asset('js/moment.js') }}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/multiselect.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
-  <style>
-  </style>
-  <script>
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Dec"];
-    let bought_dates = "{{ implode(',', $locked_dates) }}";
-    let locked_dates_as_array = bought_dates.replace(/quot/g, '').replace(/{&;start_date&;:&;/g, '').replace(/&;}/g, '').split(',');
-    const picker = new Litepicker({
-      element: document.getElementById('datepicker'),
-      elementEnd: document.getElementById('dates'),
-      inlineMode: true,
-      singleMode: true,
-      delimiter: ',',
-      firstDay: 1,
-      lockDays: locked_dates_as_array,
-      minDate: new Date().getTime(),
-      plugins: ['multiselect'],
-    });
-    picker.on('multiselect.select', function(date) {
-      $("#dates").html(" <strong>(" + (picker.getMultipleDates().length + 1) + " selected)</strong>");
-    });
-    picker.on('multiselect.deselect', function(date) {
-      if (picker.getMultipleDates().length - 1 > 0) {
-        $("#dates").html(" <strong>(" + (picker.getMultipleDates().length - 1) + " selected)</strong>");
-      } else {
-        $("#dates").empty();
-      }
-    });
+    @php
+    $locked_dates = array();
+    foreach ($bought_dates as $date) {
+    array_push($locked_dates, $date);
+    }
+    @endphp
+    <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/multiselect.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
+    <style>
+    </style>
+    <script>
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Dec"];
+      let bought_dates = "{{ implode(',', $locked_dates) }}";
+      let locked_dates_as_array = bought_dates.replace(/quot/g, '').replace(/{&;start_date&;:&;/g, '').replace(/&;}/g, '').split(',');
+      const picker = new Litepicker({
+        element: document.getElementById('datepicker'),
+        inlineMode: true,
+        singleMode: true,
+        delimiter: ',',
+        firstDay: 1,
+        numberOfMonths: 2,
+        numberOfColumns: 2,
+        lockDays: locked_dates_as_array,
+        minDate: '{{ date( "Y-m-d", strtotime( "+1 days" ) ) }}', // current day can't be selected, also javascript can't be used to select day because we need server's time
+        plugins: ['multiselect'],
+      });
+      $("#place_order").click(function() {
+        $("#dates").val(picker.multipleDatesToString());
+        $("form").submit();
+      });
 
-    $("#step-url, #step-date, #step-payment").click(function(e) {
-      e.preventDefault();
-    });
+      picker.on('multiselect.select', function(date) {
+        console.log(picker.multipleDatesToString());
+        /*
+        let total_days = picker.getMultipleDates().length + 1;
+        let total_price = total_days * start_page_price;
+        $("#date_title").html(" <strong>(" + total_days + " selected)</strong>");
+        $("#price_title").html(" <strong>($" + total_price + ")</strong>");
+        $("[name=item_name").val("Start Page - " + total_days + " day(s)");
+        $("[name=amountf").val(total_price);
+        */
+      });
+      picker.on('multiselect.deselect', function(date) {
+        /*
+        let total_days = picker.getMultipleDates().length - 1;
+        let total_price = total_days * start_page_price;
 
-    $("#step-url-next-btn").click(function(e) {
-      e.preventDefault();
-      if ($("#user_websites").val() != 0 || $("#start_page_url").val() != "") {
-        $(".step").removeClass("bg-primary").removeClass("text-white").addClass("bg-light");
-        $("#step-date").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
-        $("#step-url").removeClass("bg-light").addClass("bg-success").addClass("text-white");
-        $("._step").addClass("d-none");
-        $(".step-date").removeClass("d-none").addClass("d-block");
-      } else {
-        alert("select url");
-      }
-    });
-
-    $("#step-date-previous-btn").click(function(e) {
-      e.preventDefault();
-      $(".step").removeClass("bg-primary").removeClass("text-white").removeClass("bg-success").addClass("bg-light");
-      $("#step-url").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
-      $("._step").addClass("d-none");
-      $(".step-url").removeClass("d-none").addClass("d-block");
-    });
-
-    $("#step-date-next-btn").click(function(e) {
-      e.preventDefault();
-      if (picker.multipleDatesToString() != "") {
-        $(".step").removeClass("bg-primary").removeClass("text-white").addClass("bg-light");
-        $("#step-payment").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
-        $("#step-date").removeClass("bg-light").addClass("bg-success").addClass("text-white");
-        $("#step-url").removeClass("bg-light").addClass("bg-success").addClass("text-white");
-        $("._step").addClass("d-none");
-        $(".step-payment").removeClass("d-none").addClass("d-block");
-      } else {
-        alert("Please select date(s)");
-      }
-    });
-
-    $("#step-payment-previous-btn").click(function(e) {
-      e.preventDefault();
-      $(".step").removeClass("bg-primary").removeClass("text-white").removeClass("bg-success").addClass("bg-light");
-      $("#step-date").removeClass("bg-light").addClass("bg-primary").addClass("text-white");
-      $("#step-url").removeClass("bg-light").addClass("bg-success").addClass("text-white");
-      $("._step").addClass("d-none");
-      $(".step-date").removeClass("d-none").addClass("d-block");
-    });
-  </script>
+        if (total_days > 0) {
+          $("#date_title").html(" <strong>(" + total_days + " selected)</strong>");
+          $("#price_title").html(" <strong>($" + total_price + ")</strong>");
+          $("[name=item_name").val("Start Page - " + total_days + " day(s)");
+          $("[name=amountf").val(total_price);
+        } else {
+          $("#price_title").empty();
+          $("#date_title").empty();
+        }
+        */
+      });
+    </script>
 </x-layout>

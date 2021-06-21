@@ -64,6 +64,16 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     $this->attributes['password'] = Hash::make($value);
   }
 
+  public function isAdmin()
+  {
+    return $this->admin;
+  }
+
+  public function gravatar()
+  {
+    return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+  }
+
   public static function get_username($user_id)
   {
     return User::select('username')->where('id', $user_id)->value('username');
@@ -163,5 +173,15 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
   public function getTotalSurfedAttribute()
   {
     return $this->correct_clicks + $this->wrong_clicks;
+  }
+
+  public function getFullNameAttribute()
+  {
+    return $this->name . " " . $this->surname;
+  }
+
+  public function orders()
+  {
+    return $this->hasMany(Order::class, 'user_id');
   }
 }

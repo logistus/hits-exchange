@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -8,6 +9,7 @@ use App\Http\Controllers\SurfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PrivateMessageController;
 use App\Http\Controllers\SquareBannerController;
 use App\Http\Controllers\TextAdController;
@@ -194,8 +196,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
   });
 
   Route::prefix('user')->group(function () {
-    Route::post('profile', [UserController::class, 'save_profile']);
     Route::get('referrals', [UserController::class, 'referrals']);
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::post('orders', [OrderController::class, 'create']);
     Route::post('password', [UserController::class, 'change_password']);
+    Route::post('profile', [UserController::class, 'save_profile']);
+  });
+});
+
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+  Route::prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'index']);
   });
 });

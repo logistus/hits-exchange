@@ -15,7 +15,7 @@
   <div class="container d-flex flex-column align-items-center mt-5 h-100">
     <h3>Book start page to get maximum exposure.</h1>
       <h4>Every member will see this page every time they start to surf throughout the day.</h4>
-      <p><a href="{{ url('book_start_page') }}">Book Now</a></p>
+      <p><a href="{{ url('buy/start_page') }}" target="_blank">Book Now</a></p>
   </div>
 </body>
 

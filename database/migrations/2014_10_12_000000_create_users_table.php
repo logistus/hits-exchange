@@ -41,7 +41,8 @@ class CreateUsersTable extends Migration
       $table->rememberToken();
       $table->timestamp('last_login')->nullable();
       $table->ipAddress('ip_address')->nullable();
-      $table->timestamp('join_date');
+      $table->timestamp('join_date')->useCurrent();
+      $table->boolean('admin')->default(0);
     });
   }
 
