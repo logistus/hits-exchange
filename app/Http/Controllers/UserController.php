@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Country;
+use App\Models\UserType;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ use App\Notifications\PasswordChanged;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Cookie;
 
 class UserController extends Controller
 {
@@ -261,5 +263,34 @@ class UserController extends Controller
     return $status === Password::PASSWORD_RESET
       ? redirect()->route('login')->with('status', ['success', __($status)])
       : back()->with('status', ['warning', __($status)]);
+  }
+
+  public function list_users(Request $request)
+  {
+    if (!$request->cookie('members_list_per_page') && $request->query('per_page') == "") {
+      Cookie::queue('members_list_per_page', 25);
+    }
+    if ((!$request->cookie('members_list_per_page') && $request->query('per_page') != "") || ($request->cookie('members_list_per_page') && $request->query('per_page') != "")) {
+      Cookie::queue('members_list_per_page', $request->query('per_page'));
+    }
+    $per_page =  $request->query('per_page') ? $request->query('per_page') : $request->cookie('members_list_per_page');
+
+    $sort = $request->query('sort') ? $request->query('sort') : "desc";
+    $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'join_date';
+    $user_types = UserType::all();
+
+    $filterUsername = $request->query('filterByUsername');
+    $filterEmail = $request->query('filterByEmail');
+    $filterUserType = $request->query('filterByUserType');
+
+    $users = User::when($filterUsername, function ($query, $filterUsername) {
+      return $query->where('username', $filterUsername);
+    })->when($filterEmail, function ($query, $filterEmail) {
+      return $query->where('email', $filterEmail);
+    })->when($filterUserType, function ($query, $filterUserType) {
+      return $query->where('user_type', $filterUserType);
+    })->orderBy($sort_by, $sort)->paginate($per_page)->withQueryString();
+
+    return view('admin.members.list', compact('users', 'per_page', 'user_types'));
   }
 }

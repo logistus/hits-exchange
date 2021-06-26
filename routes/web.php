@@ -204,8 +204,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
   });
 });
 
-Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+Route::middleware(['admin'])->group(function () {
   Route::prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index']);
+    Route::prefix('members')->group(function () {
+      Route::get('list', [UserController::class, 'list_users']);
+    });
   });
 });
