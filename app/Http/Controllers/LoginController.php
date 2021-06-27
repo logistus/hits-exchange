@@ -4,9 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Country;
 
 class LoginController extends Controller
 {
+  public function login()
+  {
+    $page = "Login";
+    return view('auth.login', compact('page'));
+  }
+
+  public function register()
+  {
+    $page = "Register";
+    $countries = Country::orderBy('name', 'asc')->get();
+    return view('auth.register', compact('page', 'countries'));
+  }
 
   public function authenticate(Request $request)
   {

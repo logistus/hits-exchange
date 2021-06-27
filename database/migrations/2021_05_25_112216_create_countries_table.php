@@ -15,11 +15,8 @@ class CreateCountriesTable extends Migration
   {
     Schema::create('countries', function (Blueprint $table) {
       $table->id();
-      $table->string('locale_code', 5);
-      $table->string('continent_code', 5);
-      $table->string('continent_name');
-      $table->string('country_iso_code', 5);
-      $table->string('country_name');
+      $table->string('code', 2);
+      $table->string('name');
     });
   }
 

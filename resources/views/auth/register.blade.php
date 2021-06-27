@@ -45,7 +45,7 @@
         <select name="country" id="country" class="form-select  @error('country') border border-danger @enderror">
           <option value="">Select</option>
           @foreach ($countries as $country)
-          <option value="{{ $country->country_iso_code }}">{{ $country->country_name }}</option>
+          <option value="{{ $country->code }}">{{ $country->name }}</option>
           @endforeach
         </select>
       </div>

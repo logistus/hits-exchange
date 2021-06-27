@@ -42,6 +42,9 @@ class CreateUsersTable extends Migration
       $table->timestamp('last_login')->nullable();
       $table->ipAddress('ip_address')->nullable();
       $table->timestamp('join_date')->useCurrent();
+      $table->enum('status', ['Active', 'Suspended']);
+      $table->string('suspend_reason', 100);
+      $table->timestamp('suspend_until')->nullable();
       $table->boolean('admin')->default(0);
     });
   }

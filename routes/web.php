@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AdminController;
-use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -41,16 +40,12 @@ Route::get('/', function () {
   }
 });
 
-Route::get('/login', function () {
-  $page = "Login";
-  return view('auth.login', compact('page'));
-});
+Route::get('/login', [UserController::class, 'login']);
+Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
 
-Route::get('/register', function () {
-  $page = "Register";
-  $countries = Country::orderBy('country_name', 'asc')->get();
-  return view('auth.register', compact('page', 'countries'));
-});
+Route::get('/register', [UserController::class, 'register'])->middleware('guest');
+Route::post('/register', [UserController::class, 'store'])->middleware('guest');
+
 
 // Password Reset Routes
 Route::get('forgot-password', [UserController::class, 'forgot_password'])
@@ -86,14 +81,11 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
   return redirect('/');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
-// Post requests
-Route::post('/register', [UserController::class, 'store']);
-Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
-Route::post('user/change-email', [UserController::class, 'change_email'])->middleware('auth');
-
+Route::post('user/change-email', [UserController::class, 'change_email'])->middleware(['auth', 'suspended']);
 Route::get('user/profile', [UserController::class, 'view_profile']);
+Route::get('suspended', [UserController::class, 'suspended']);
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
   Route::get('/surf', [SurfController::class, 'view']);
   Route::get('/surf_icons', [SurfController::class, 'surf_icons']);

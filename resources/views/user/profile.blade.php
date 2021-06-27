@@ -47,10 +47,10 @@
         <select name="country" id="country" class="form-select">
           <option value="0">Select</option>
           @foreach ($countries as $country)
-          <option value="{{ $country->country_iso_code }}" @if (Auth::user()->country == $country->country_iso_code)
+          <option value="{{ $country->code }}" @if (Auth::user()->country == $country->code)
             selected
             @endif
-            >{{ $country->country_name }}</option>
+            >{{ $country->name }}</option>
           @endforeach
         </select>
       </div>

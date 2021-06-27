@@ -116,7 +116,7 @@ class UserController extends Controller
   public function view_profile(Request $request)
   {
     $page = "Edit Profile";
-    $countries = Country::orderBy('country_name', 'asc')->get();
+    $countries = Country::orderBy('name', 'asc')->get();
     return view('user.profile', compact('page', 'countries'));
   }
 
@@ -222,6 +222,12 @@ class UserController extends Controller
     return view('auth.forgot-password', compact('page'));
   }
 
+  public function suspended()
+  {
+    $page = "Suspended";
+    return view('suspended', compact('page'));
+  }
+
   public function send_password_reset_email(Request $request)
   {
     $request->validate(['email' => 'required|email']);
@@ -282,6 +288,12 @@ class UserController extends Controller
     $filterUsername = $request->query('filterByUsername');
     $filterEmail = $request->query('filterByEmail');
     $filterUserType = $request->query('filterByUserType');
+    $filterUpline = $request->query("filterByUpline");
+    $filterVerified = $request->query("filterByVerified");
+    $filterStatus = $request->query("filterByStatus");
+    $filterNoUpline = $request->query("filterByNoUpline");
+
+    $users = User::query();
 
     $users = User::when($filterUsername, function ($query, $filterUsername) {
       return $query->where('username', $filterUsername);
@@ -289,7 +301,19 @@ class UserController extends Controller
       return $query->where('email', $filterEmail);
     })->when($filterUserType, function ($query, $filterUserType) {
       return $query->where('user_type', $filterUserType);
+    })->when($filterUpline, function ($query, $filterUpline) {
+      return $query->where('upline', '=', User::where('username', $filterUpline)->value('id'))->where('upline', '<>', NULL);
+    })->when($filterNoUpline, function ($query, $filterNoUpline) {
+      return $query->where('upline', NULL);
+    })->when($filterVerified, function ($query, $filterVerified) {
+      if ($filterVerified == "No")
+        return $query->where('email_verified_at', NULL);
+      else
+        return $query->where('email_verified_at', '<>', NULL);
+    })->when($filterVerified, function ($query, $filterStatus) {
+      return $query->where('status', $filterStatus);
     })->orderBy($sort_by, $sort)->paginate($per_page)->withQueryString();
+
 
     return view('admin.members.list', compact('users', 'per_page', 'user_types'));
   }

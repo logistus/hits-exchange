@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\UserController;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
@@ -46,6 +47,8 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
 
   public $timestamps = false;
 
+  protected $redirectTo = '/dashboard';
+
   /**
    * The attributes that should be cast to native types.
    *
@@ -67,6 +70,11 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
   public function isAdmin()
   {
     return $this->admin;
+  }
+
+  public function isSuspended()
+  {
+    return $this->status === 'Suspended';
   }
 
   public function gravatar()
