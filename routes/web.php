@@ -16,6 +16,7 @@ use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\SurfCodeController;
 use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
+use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 /*
@@ -40,10 +41,10 @@ Route::get('/', function () {
   }
 });
 
-Route::get('/login', [UserController::class, 'login']);
+Route::get('/login', [LoginController::class, 'login']);
 Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
 
-Route::get('/register', [UserController::class, 'register'])->middleware('guest');
+Route::get('/register', [LoginController::class, 'register'])->middleware('guest');
 Route::post('/register', [UserController::class, 'store'])->middleware('guest');
 
 
@@ -78,11 +79,12 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
   $request->fulfill();
+  User::where('id', Auth::user()->id)->update(['status' => 'Active']);
   return redirect('/');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 Route::post('user/change-email', [UserController::class, 'change_email'])->middleware(['auth', 'suspended']);
-Route::get('user/profile', [UserController::class, 'view_profile']);
+Route::get('user/profile', [UserController::class, 'view_profile'])->middleware(['suspended']);
 Route::get('suspended', [UserController::class, 'suspended']);
 
 Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
@@ -200,7 +202,13 @@ Route::middleware(['admin'])->group(function () {
   Route::prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index']);
     Route::prefix('members')->group(function () {
-      Route::get('list', [UserController::class, 'list_users']);
+      Route::get('list', [AdminController::class, 'list_users']);
+      Route::get('add', [AdminController::class, 'add_user_get']);
+      Route::get('edit/{id}', [AdminController::class, 'edit_user_get']);
+      Route::post('edit/{id}', [AdminController::class, 'edit_user_post']);
+      Route::post('add', [AdminController::class, 'add_user_post']);
+      Route::post('shortcuts', [AdminController::class, 'shortcuts']);
+      Route::post('suspend', [AdminController::class, 'suspend']);
     });
   });
 });

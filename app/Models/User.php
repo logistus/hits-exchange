@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\UserController;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
@@ -27,7 +26,6 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     $this->notify(new ResetPasswordNotification($token));
   }
 
-
   /**
    * The attributes that are mass assignable.
    *
@@ -48,16 +46,6 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
   public $timestamps = false;
 
   protected $redirectTo = '/dashboard';
-
-  /**
-   * The attributes that should be cast to native types.
-   *
-   * @var array
-   */
-  protected $casts = [
-    'email_verified_at' => 'datetime',
-    'join_date' => 'datetime',
-  ];
 
   /**
    * Hash password before save user

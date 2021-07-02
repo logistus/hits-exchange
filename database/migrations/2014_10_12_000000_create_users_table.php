@@ -39,12 +39,12 @@ class CreateUsersTable extends Migration
       $table->boolean('commission_notification')->default(1);
       $table->boolean('pm_notification')->default(1);
       $table->rememberToken();
-      $table->timestamp('last_login')->nullable();
+      $table->date('last_login')->nullable();
       $table->ipAddress('ip_address')->nullable();
-      $table->timestamp('join_date')->useCurrent();
-      $table->enum('status', ['Active', 'Suspended']);
+      $table->date('join_date')->default(date("Y-m-d"));
+      $table->enum('status', ['Unverified', 'Active', 'Suspended'])->default('Unverified');
       $table->string('suspend_reason', 100);
-      $table->timestamp('suspend_until')->nullable();
+      $table->date('suspend_until')->nullable();
       $table->boolean('admin')->default(0);
     });
   }

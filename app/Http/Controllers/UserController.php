@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Country;
-use App\Models\UserType;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +13,6 @@ use App\Notifications\PasswordChanged;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Facades\Cookie;
 
 class UserController extends Controller
 {
@@ -138,6 +136,10 @@ class UserController extends Controller
       } else {
         $request->user()->email = $request->email;
         $request->user()->email_verified_at = NULL;
+        $request->user()->status = 'Unverified';
+        $request->user()->save();
+        $request->user()->sendEmailVerificationNotification();
+        return redirect('email/verify');
       }
     }
 
@@ -168,30 +170,8 @@ class UserController extends Controller
     ) {
       $request->user()->save();
       return back()->with("status", ["success", "Profile updated."]);
-    } else if ($request->user()->isDirty('email')) {
-      $request->user()->save();
-      $request->user()->sendEmailVerificationNotification();
-      return back()->with("status", ["success", "Profile updated."]);
     } else {
       return $status ? back()->with("status", ["warning", $status]) : back();
-    }
-  }
-
-  public function change_email(Request $request)
-  {
-    $request->validate([
-      'email' => 'required|email'
-    ]);
-
-    $email_check = User::where('email', $request->email)->value('id');
-    if ($email_check) {
-      return back()->with("status", ["warning", "This email has already been taken."]);
-    } else {
-      $request->user()->email = $request->email;
-      $request->user()->email_verified_at = NULL;
-      $request->user()->save();
-      $request->user()->sendEmailVerificationNotification();
-      return redirect('email/verify');
     }
   }
 
@@ -269,52 +249,5 @@ class UserController extends Controller
     return $status === Password::PASSWORD_RESET
       ? redirect()->route('login')->with('status', ['success', __($status)])
       : back()->with('status', ['warning', __($status)]);
-  }
-
-  public function list_users(Request $request)
-  {
-    if (!$request->cookie('members_list_per_page') && $request->query('per_page') == "") {
-      Cookie::queue('members_list_per_page', 25);
-    }
-    if ((!$request->cookie('members_list_per_page') && $request->query('per_page') != "") || ($request->cookie('members_list_per_page') && $request->query('per_page') != "")) {
-      Cookie::queue('members_list_per_page', $request->query('per_page'));
-    }
-    $per_page =  $request->query('per_page') ? $request->query('per_page') : $request->cookie('members_list_per_page');
-
-    $sort = $request->query('sort') ? $request->query('sort') : "desc";
-    $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'join_date';
-    $user_types = UserType::all();
-
-    $filterUsername = $request->query('filterByUsername');
-    $filterEmail = $request->query('filterByEmail');
-    $filterUserType = $request->query('filterByUserType');
-    $filterUpline = $request->query("filterByUpline");
-    $filterVerified = $request->query("filterByVerified");
-    $filterStatus = $request->query("filterByStatus");
-    $filterNoUpline = $request->query("filterByNoUpline");
-
-    $users = User::query();
-
-    $users = User::when($filterUsername, function ($query, $filterUsername) {
-      return $query->where('username', $filterUsername);
-    })->when($filterEmail, function ($query, $filterEmail) {
-      return $query->where('email', $filterEmail);
-    })->when($filterUserType, function ($query, $filterUserType) {
-      return $query->where('user_type', $filterUserType);
-    })->when($filterUpline, function ($query, $filterUpline) {
-      return $query->where('upline', '=', User::where('username', $filterUpline)->value('id'))->where('upline', '<>', NULL);
-    })->when($filterNoUpline, function ($query, $filterNoUpline) {
-      return $query->where('upline', NULL);
-    })->when($filterVerified, function ($query, $filterVerified) {
-      if ($filterVerified == "No")
-        return $query->where('email_verified_at', NULL);
-      else
-        return $query->where('email_verified_at', '<>', NULL);
-    })->when($filterVerified, function ($query, $filterStatus) {
-      return $query->where('status', $filterStatus);
-    })->orderBy($sort_by, $sort)->paginate($per_page)->withQueryString();
-
-
-    return view('admin.members.list', compact('users', 'per_page', 'user_types'));
   }
 }

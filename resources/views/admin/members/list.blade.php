@@ -91,7 +91,6 @@ request()->get('filterByNoUpline')
       <th scope="col">Type</th>
       <th scope="col">Referrals</th>
       <th scope="col">Upline</th>
-      <th scope="col">Verified</th>
       <th scope="col">
         <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'join_date', 'sort' => $sort]) }}">Join Date</a>
         @if (request()->get('sort_by') == "join_date" || request()->get('sort_by') == '')
@@ -118,16 +117,32 @@ request()->get('filterByNoUpline')
       <td>{{ $user->type->name }}</td>
       <td>{{ count($user->referrals) }}</td>
       <td>{{ User::where('id', $user->upline)->value('username') }}</td>
-      <td>{!! $user->email_verified_at != "" ? "<span class='text-success font-weight-bold'>Yes</span>" : "<span class='text-danger font-weight-bold'>No</span>" !!}</td>
-      <td>{{ Carbon::createFromFormat('Y-m-d H:i:s', $user->join_date)->format('j.m.Y') }}</td>
-      <td>{{ $user->last_login ? Carbon::createFromFormat('Y-m-d H:i:s', $user->last_login)->format('j.m.Y') : "Never" }}</td>
-      <td><span class='text-{{ $user->status == "Active" ? "success" : "danger" }} font-weight-bold'>{{ $user->status }}</span></td>
+      <td>{{ $user->join_date }}</td>
+      <td>{{ $user->last_login ? $user->last_login : "Never" }}</td>
+      <td><span @if ($user->status == "Active")
+          class='text-success font-weight-bold'
+          @elseif ($user->status == "Unverified")
+          class='text-muted font-weight-bold'
+          @else
+          class='text-danger font-weight-bold'
+          @endif>{{ $user->status }}</span></td>
       <td>
-        <div class="btn-group" role="group" aria-label="Manage Member">
-          <button type="button" class="btn btn-sm btn-primary" title="Edit Member"><i class="fas fa-edit"></i></button>
-          <button type="button" class="btn btn-sm btn-danger" title="Delete Member"><i class="fas fa-trash"></i></button>
-          <button type="button" class="btn btn-sm btn-secondary" title="Suspend Member"><i class="fas fa-ban"></i></button>
-        </div>
+        <form action="{{ url('admin/members/shortcuts') }}" method="POST">
+          @csrf
+          <div class="btn-group" role="group" aria-label="Manage Member">
+            <a class="btn btn-sm btn-primary" href="{{ url('admin/members/edit', $user->id) }}" title="Edit Member"><i class="fas fa-edit"></i></a>
+            @if ($user->status == "Suspended")
+            <button type="submit" name="action" value="unsuspend" class="btn btn-sm btn-success" title="Remove Suspend"><i class="fas fa-check"></i></button>
+            @else
+            <button type="button" data-toggle="modal" data-target="#suspendModal" data-userid="{{ $user->id }}" class="btn btn-sm btn-secondary" title="Suspend Member"><i class="fas fa-ban"></i></button>
+            @endif
+            @if ($user->status == "Unverified")
+            <button type="submit" name="action" value="verify" class="btn btn-sm btn-info" title="Verify Member"><i class="fas fa-check-double"></i></button>
+            @endif
+            <button type="submit" name="action" onclick="return confirm('Are you sure?');" value="delete" class="btn btn-sm btn-danger" title="Delete Member"><i class="fas fa-trash"></i></button>
+            <input type="hidden" name="user_id" value="{{ $user->id }}">
+          </div>
+        </form>
       </td>
     </tr>
     @endforeach
@@ -157,14 +172,6 @@ request()->get('filterByNoUpline')
     </select>
   </div>
   <div class="form-group">
-    <label for="filterByVerified">By Verified</label>
-    <select class="custom-select" id="filterByVerified" name="filterByVerified">
-      <option value="" selected>Select</option>
-      <option value="Yes" {{ request()->get('filterByVerified') === "Yes" ? "selected" : "" }}>Yes</option>
-      <option value="No" {{ request()->get('filterByVerified') === "No" ? "selected" : "" }}>No</option>
-    </select>
-  </div>
-  <div class="form-group">
     <label for="filterByUpline">By Upline</label>
     <input type="text" class="form-control" id="filterByUpline" value="{{ request()->get('filterByUpline') }}" name="filterByUpline" aria-describedby="Filter by upline">
   </div>
@@ -178,24 +185,69 @@ request()->get('filterByNoUpline')
     <label for="filterByStatus">By Status</label>
     <select class="custom-select" id="filterByStatus" name="filterByStatus">
       <option value="" selected>Select</option>
+      <option value="Unverified" {{ request()->get('filterByStatus') === "Unverified" ? "selected" : "" }}>Unverified</option>
       <option value="Active" {{ request()->get('filterByStatus') === "Active" ? "selected" : "" }}>Active</option>
       <option value="Suspended" {{ request()->get('filterByStatus') === "Suspended" ? "selected" : "" }}>Suspended</option>
     </select>
   </div>
   <button class="btn btn-primary" id="applyFilters" type="submit">Apply</button>
-  <a class="btn btn-info" id="resetFilters" href="{{ url('admin/members/list') }}">Reset</a>
   <button class="btn btn-secondary" id="cancelFilters" type="button">Close</button>
 </form>
-@section('scripts') <script>
+<!-- End filters section -->
+<!-- Suspend Modal -->
+<div class="modal fade" id="suspendModal" tabindex="-1" aria-labelledby="suspendModal" aria-hidden="true">
+  <form action="{{ url('admin/members/suspend') }}" method="POST">
+    @csrf
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="suspendModal">Suspend Member</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="suspend_reason">Reason <small>(Optional)</small></label>
+            <input type="text" class="form-control" id="suspend_reason" name="suspend_reason" aria-describedby="Suspend Reason">
+          </div>
+          <div class="form-group">
+            <label for="suspend_until">Suspend Until <small>Leave blank for indefinete suspend</small></label>
+            <input type="date" class="form-control" id="suspend_until" name="suspend_until" aria-describedby="Suspend Until">
+            <input type="hidden" name="user_id" id="user_id">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Suspend Member</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<!-- End Suspend Modal -->
+@endsection
+
+@section('scripts')
+<script>
   $(function() {
     $("#filtersBtn").click(function(e) {
       $("#addFilters").css("display", "block");
-      console.log(1);
     });
-    $("#cancelFilters").click(function(e) {
+    $("#cancelFilters, body").click(function(e) {
       $("#addFilters").css("display", "none");
     });
+    $("#cancelFilters, #addFilters, #filtersBtn, #filterByUsername, #filterByEmail, #filterByUserType, #filterByUpline, #filterByNoUpline, #filterByStatus").click(function(e) {
+      e.stopPropagation();
+    });
+
+    $('#suspendModal').on('show.bs.modal', function(event) {
+      var button = $(event.relatedTarget); // Button that triggered the modal
+      var user_id = button.data('userid'); // Extract info from data-* attributes
+      var modal = $(this);
+      modal.find('.modal-body #user_id').val(user_id);
+    })
+
   });
 </script>
-@endsection
 @endsection

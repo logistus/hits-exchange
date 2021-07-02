@@ -80,7 +80,7 @@
               </a>
               <ul class="nav nav-treeview">
                 <li class="nav-item">
-                  <a href="#" class="nav-link {{ url()->current() == url('admin/members/add') ? 'active' : '' }}">
+                  <a href="{{ url('admin/members/add') }}" class="nav-link {{ url()->current() == url('admin/members/add') ? 'active' : '' }}">
                     <i class="fas fa-user-plus nav-icon"></i>
                     <p>Add Member</p>
                   </a>
@@ -109,19 +109,18 @@
             <div class="col-sm-6">
               <h1>@yield('page', '')</h1>
             </div>
-            <!-- <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Layout</a></li>
-                <li class="breadcrumb-item active">Fixed Layout</li>
-              </ol>
-            </div> -->
           </div>
         </div><!-- /.container-fluid -->
       </section>
 
       <!-- Main content -->
-      <section class="content">
+      <section class="content p-3">
+        @if (session('status'))
+        <div class="alert alert-{{ session('status')[0] }} alert-dismissible fade show" role="alert">
+          {{ session('status')[1] }}
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        </div>
+        @endif
         @yield('content')
       </section>
       <!-- /.content -->

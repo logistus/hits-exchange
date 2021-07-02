@@ -64,8 +64,7 @@ class UserSeeder extends Seeder
 				'password' => Hash::make('jane'),
 				'user_type' => 1,
 				'join_date' => Carbon::now()->add(2, 'day'),
-				'status' => 'Suspended',
-				'suspend_reason' => 'Bot',
+				'status' => 'Active',
 			]
 		);
 	}

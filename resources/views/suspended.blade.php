@@ -23,7 +23,7 @@
     <p><strong>Reason: </strong> {{ Auth::user()->suspend_reason }}</p>
     @endif
 
-    <p>Click <a href="{{ url('/') }}">here</a> to go back to homepage.</p>
+    <p>Click <a href="{{ url('support') }}">here</a> to open a ticket if you think this is a mistake.</p>
   </div>
 
 </body>
