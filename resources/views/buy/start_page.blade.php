@@ -35,66 +35,67 @@
       <input type="hidden" name="selected_dates" id="dates">
       <button type="button" id="place_order" class="btn btn-primary">Place Order</button>
     </form>
-    @php
-    $locked_dates = array();
-    foreach ($bought_dates as $date) {
-    array_push($locked_dates, $date);
-    }
-    @endphp
-    <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
-    <script src="{{ asset('js/moment.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/multiselect.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
-    <style>
-    </style>
-    <script>
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Dec"];
-      let bought_dates = "{{ implode(',', $locked_dates) }}";
-      let locked_dates_as_array = bought_dates.replace(/quot/g, '').replace(/{&;start_date&;:&;/g, '').replace(/&;}/g, '').split(',');
-      const picker = new Litepicker({
-        element: document.getElementById('datepicker'),
-        inlineMode: true,
-        singleMode: true,
-        delimiter: ',',
-        firstDay: 1,
-        numberOfMonths: 2,
-        numberOfColumns: 2,
-        lockDays: locked_dates_as_array,
-        minDate: '{{ date( "Y-m-d", strtotime( "+1 days" ) ) }}', // current day can't be selected, also javascript can't be used to select day because we need server's time
-        plugins: ['multiselect'],
-      });
-      $("#place_order").click(function() {
-        $("#dates").val(picker.multipleDatesToString());
-        $("form").submit();
-      });
+  </div>
+  @php
+  $locked_dates = array();
+  foreach ($bought_dates as $date) {
+  array_push($locked_dates, $date);
+  }
+  @endphp
+  <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
+  <script src="{{ asset('js/moment.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/multiselect.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
+  <style>
+  </style>
+  <script>
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Dec"];
+    let bought_dates = "{{ implode(',', $locked_dates) }}";
+    let locked_dates_as_array = bought_dates.replace(/quot/g, '').replace(/{&;start_date&;:&;/g, '').replace(/&;}/g, '').split(',');
+    const picker = new Litepicker({
+      element: document.getElementById('datepicker'),
+      inlineMode: true,
+      singleMode: true,
+      delimiter: ',',
+      firstDay: 1,
+      numberOfMonths: 2,
+      numberOfColumns: 2,
+      lockDays: locked_dates_as_array,
+      minDate: '{{ date( "Y-m-d", strtotime( "+1 days" ) ) }}', // current day can't be selected, also javascript can't be used to select day because we need server's time
+      plugins: ['multiselect'],
+    });
+    $("#place_order").click(function() {
+      $("#dates").val(picker.multipleDatesToString());
+      $("form").submit();
+    });
 
-      picker.on('multiselect.select', function(date) {
-        console.log(picker.multipleDatesToString());
-        /*
-        let total_days = picker.getMultipleDates().length + 1;
-        let total_price = total_days * start_page_price;
+    picker.on('multiselect.select', function(date) {
+      console.log(picker.multipleDatesToString());
+      /*
+      let total_days = picker.getMultipleDates().length + 1;
+      let total_price = total_days * start_page_price;
+      $("#date_title").html(" <strong>(" + total_days + " selected)</strong>");
+      $("#price_title").html(" <strong>($" + total_price + ")</strong>");
+      $("[name=item_name").val("Start Page - " + total_days + " day(s)");
+      $("[name=amountf").val(total_price);
+      */
+    });
+    picker.on('multiselect.deselect', function(date) {
+      /*
+      let total_days = picker.getMultipleDates().length - 1;
+      let total_price = total_days * start_page_price;
+
+      if (total_days > 0) {
         $("#date_title").html(" <strong>(" + total_days + " selected)</strong>");
         $("#price_title").html(" <strong>($" + total_price + ")</strong>");
         $("[name=item_name").val("Start Page - " + total_days + " day(s)");
         $("[name=amountf").val(total_price);
-        */
-      });
-      picker.on('multiselect.deselect', function(date) {
-        /*
-        let total_days = picker.getMultipleDates().length - 1;
-        let total_price = total_days * start_page_price;
-
-        if (total_days > 0) {
-          $("#date_title").html(" <strong>(" + total_days + " selected)</strong>");
-          $("#price_title").html(" <strong>($" + total_price + ")</strong>");
-          $("[name=item_name").val("Start Page - " + total_days + " day(s)");
-          $("[name=amountf").val(total_price);
-        } else {
-          $("#price_title").empty();
-          $("#date_title").empty();
-        }
-        */
-      });
-    </script>
+      } else {
+        $("#price_title").empty();
+        $("#date_title").empty();
+      }
+      */
+    });
+  </script>
 </x-layout>
