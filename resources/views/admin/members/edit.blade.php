@@ -8,6 +8,14 @@ use \App\Models\UserType;
 Edit Member {{ $user->username }}
 @endsection
 
+@section('breadcrumb')
+<ol class="breadcrumb float-sm-right">
+  <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
+  <li class="breadcrumb-item"><a href="{{ url('admin/members/list') }}">Members</a></li>
+  <li class="breadcrumb-item active">Edit Member</li>
+</ol>
+@endsection
+
 @section('content')
 <div class="container">
   <form action="{{ url()->current() }}" method="POST">
@@ -73,16 +81,16 @@ Edit Member {{ $user->username }}
     </div>
     <h4>Email Preferences</h4>
     <div class="custom-control custom-checkbox">
-      <input class="custom-control-input" type="checkbox" id="referral_notification" {{ $user->referral_notification ? "checked" : ""}}>
-      <label for="referral_notification" class="custom-control-label">Referral Notification</label>
+      <input class="custom-control-input" type="checkbox" id="referral_notification" name="referral_notification" {{ $user->referral_notification ? "checked" : ""}}>
+      <label for="referral_notification" class="custom-control-label font-weight-normal">Referral Notification</label>
     </div>
     <div class="custom-control custom-checkbox">
-      <input class="custom-control-input" type="checkbox" id="commission_notification" {{ $user->commission_notification ? "checked" : ""}}>
-      <label for="commission_notification" class="custom-control-label">Commission Notification</label>
+      <input class="custom-control-input" type="checkbox" id="commission_notification" name="commission_notification" {{ $user->commission_notification ? "checked" : ""}}>
+      <label for="commission_notification" class="custom-control-label font-weight-normal">Commission Notification</label>
     </div>
     <div class="custom-control custom-checkbox">
-      <input class="custom-control-input" type="checkbox" id="pm_notification" {{ $user->pm_notification ? "checked" : ""}}>
-      <label for="pm_notification" class="custom-control-label">Private Message Notification</label>
+      <input class="custom-control-input" type="checkbox" id="pm_notification" name="pm_notification" {{ $user->pm_notification ? "checked" : ""}}>
+      <label for="pm_notification" class="custom-control-label font-weight-normal">Private Message Notification</label>
     </div>
     <h4 class="mt-3">Change Password</h4>
     <div class="form-row mb-3">

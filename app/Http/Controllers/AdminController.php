@@ -74,16 +74,31 @@ class AdminController extends Controller
       "country" => "required",
       "password" => "required|min:8",
       "upline" => "exists:users,username|nullable",
-      "join_date" => "date",
+      "join_date" => "required|date",
     ]);
 
-    $user = User::create($request->only('join_date', 'name', 'surname', 'username', 'email', 'country', 'password', 'status'));
+    $user = User::create($request->only('join_date', 'name', 'surname', 'username', 'email', 'country', 'password', 'status', 'user_type'));
+
     if ($request->status === "Active") {
       $user->email_verified_at = now();
     }
+
     if ($request->upline) {
       $user->upline = User::where('username', $request->upline)->value('id');
     }
+
+    if ($request->suspend_reason) {
+      $user->suspend_reason = $request->suspend_reason;
+    }
+
+    if ($request->suspend_until) {
+      $user->suspend_until = $request->suspend_until;
+    }
+
+    $user->referral_notification = $request->input('referral_notification') ? 1 : 0;
+    $user->commission_notification = $request->input('commission_notification') ? 1 : 0;
+    $user->pm_notification = $request->input('pm_notification') ? 1 : 0;
+
     $user->save();
 
     return redirect('admin/members/list');
@@ -134,6 +149,15 @@ class AdminController extends Controller
 
   public function edit_user_post(Request $request, $id)
   {
+    $request->validate([
+      "name" => "required|string",
+      "surname" => "required|string",
+      "username" => "required",
+      "email" => "required|email",
+      "country" => "required",
+      "join_date" => "required|date",
+    ]);
+
     $user = User::findOrFail($id);
 
     $status = null;
@@ -161,6 +185,15 @@ class AdminController extends Controller
       $user->password = $request->password;
     }
 
+    if ($request->upline) {
+      $upline_id =  User::where('username', $request->upline)->value('id');
+      if ($upline_id) {
+        $user->upline = $upline_id;
+      } else {
+        $status = "Member $request->upline could not found (wanted to set as upline).";
+      }
+    }
+
     $user->name = $request->name;
     $user->surname = $request->surname;
     $user->country = $request->country;
@@ -168,7 +201,6 @@ class AdminController extends Controller
     $user->commission_notification = $request->input('commission_notification') ? 1 : 0;
     $user->pm_notification = $request->input('pm_notification') ? 1 : 0;
     $user->join_date = $request->join_date;
-    $user->upline = $request->upline;
     $user->status = $request->status;
     $user->suspend_reason = $request->suspend_reason;
     $user->suspend_until = $request->suspend_until;
@@ -176,6 +208,6 @@ class AdminController extends Controller
 
     $user->save();
 
-    return $status ? back()->with("status", ["warning", $status]) : redirect('admin/members/list');
+    return $status ? back()->with("status", ["warning", $status]) : redirect('admin/members/list')->with("status", ["success", "Member $user->username updated."]);
   }
 }

@@ -1,6 +1,7 @@
 @php
 use \App\Models\User;
 use \App\Models\UserType;
+use \App\Models\Country;
 use \Carbon\Carbon;
 
 $sort = (request()->get('sort') == 'desc' || request()->get('sort') == '') ? 'asc' : 'desc';
@@ -11,6 +12,13 @@ $sort_icon = (request()->get('sort') == 'desc' || request()->get('sort') == '') 
 
 @section('page')
 List Members
+@endsection
+
+@section('breadcrumb')
+<ol class="breadcrumb float-sm-right">
+  <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
+  <li class="breadcrumb-item active">List Members</li>
+</ol>
 @endsection
 
 @section('content')
@@ -83,6 +91,12 @@ request()->get('filterByNoUpline')
         @endif
       </th>
       <th scope="col">
+        <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'country', 'sort' => $sort]) }}">Country</a>
+        @if (request()->get('sort_by') == "country")
+        <i class="fas fa-chevron-{{ $sort_icon }}"></i>
+        @endif
+      </th>
+      <th scope="col">
         <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'credits', 'sort' => $sort]) }}">Credits</a>
         @if (request()->get('sort_by') == "credits")
         <i class="fas fa-chevron-{{ $sort_icon }}"></i>
@@ -113,6 +127,7 @@ request()->get('filterByNoUpline')
       <td><img src="{{ $user->gravatar() }}" alt="{{ $user->username }}" height="48" /></td>
       <td>{{ $user->username }}</td>
       <td>{{ $user->email }}</td>
+      <td>{{ Country::where('code', $user->country)->value('name') }}</td>
       <td>{{ $user->credits }}</td>
       <td>{{ $user->type->name }}</td>
       <td>{{ count($user->referrals) }}</td>
@@ -208,7 +223,7 @@ request()->get('filterByNoUpline')
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="suspend_reason">Reason <small>(Optional)</small></label>
+            <label for="suspend_reason">Reason <small>Optional</small></label>
             <input type="text" class="form-control" id="suspend_reason" name="suspend_reason" aria-describedby="Suspend Reason">
           </div>
           <div class="form-group">
