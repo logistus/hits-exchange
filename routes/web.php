@@ -191,10 +191,15 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
 
   Route::prefix('user')->group(function () {
     Route::get('referrals', [UserController::class, 'referrals']);
-    Route::get('orders', [OrderController::class, 'index']);
-    Route::post('orders', [OrderController::class, 'create']);
+    Route::prefix('orders')->group(function () {
+      Route::get('/', [OrderController::class, 'index']);
+      Route::post('/delete/{id}', [OrderController::class, 'destroy']);
+    });
     Route::post('password', [UserController::class, 'change_password']);
     Route::post('profile', [UserController::class, 'save_profile']);
+    Route::get('commissions', [UserController::class, 'commissions']);
+    Route::get('purchase_balance', [UserController::class, 'purchase_balance']);
+    Route::get('purchase_balance/deposit', [UserController::class, 'purchase_balance_deposit']);
   });
 });
 

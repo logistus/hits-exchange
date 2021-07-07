@@ -4,8 +4,7 @@
   <table class="table table-bordered align-middle">
     <thead>
       <tr class="bg-light">
-        <th scope="col">ID</th>
-        <th scope="col">Created</th>
+        <th scope="col">Date</th>
         <th scope="col">Type</th>
         <th scope="col">Item</th>
         <th scope="col">Status</th>
@@ -16,13 +15,13 @@
     <tbody>
       @foreach ($orders as $order)
       <tr>
-        <td>{{ $order->id }}</td>
         <td>{{ $order->created_at }}</td>
         <td>{{ $order->order_type }}</td>
         <td>{{ $order->order_item }}</td>
         <td>{{ $order->status }}</td>
         <td>${{ $order->price }}</td>
         <td>
+          <!--
           <form action="https://www.coinpayments.net/index.php" method="post" target="_top">
             <input type="hidden" name="cmd" value="_pay">
             <input type="hidden" name="reset" value="1">
@@ -36,6 +35,14 @@
             <input type="hidden" name="cancel_url" value="http://localhost:8000/user/orders">
             <input type="image" src="https://www.coinpayments.net/images/pub/buynow-grey.png" alt="Buy Now with CoinPayments.net">
           </form>
+          -->
+          @if ($order->status == 'Waiting Payment')
+          <button type="button" class="btn btn-success">Make Payment</button>
+          <form action="{{ url('user/orders/delete', $order->id) }}" method="POST" class="mt-2">
+            @csrf
+            <button type="submit" class="btn btn-danger">Cancel Order</button>
+          </form>
+          @endif
         </td>
       </tr>
       @endforeach

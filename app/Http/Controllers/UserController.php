@@ -175,6 +175,25 @@ class UserController extends Controller
     }
   }
 
+  public function change_email(Request $request)
+  {
+    $request->validate([
+      "email" => "required|email"
+    ]);
+
+    $email_check = User::where('email', $request->email)->value('id');
+    if ($email_check) {
+      return back()->with("status", ["warning", "This email has already been taken."]);
+    } else {
+      $request->user()->email = $request->email;
+      $request->user()->email_verified_at = NULL;
+      $request->user()->status = 'Unverified';
+      $request->user()->save();
+      $request->user()->sendEmailVerificationNotification();
+      return redirect('email/verify');
+    }
+  }
+
   public function change_password(Request $request)
   {
     $request->validate([
@@ -249,5 +268,26 @@ class UserController extends Controller
     return $status === Password::PASSWORD_RESET
       ? redirect()->route('login')->with('status', ['success', __($status)])
       : back()->with('status', ['warning', __($status)]);
+  }
+
+  public function commissions(Request $request)
+  {
+    $page = "Commissions";
+    $commissions_unpaid = $request->user()->commissions_unpaid;
+    $commissions_paid = $request->user()->commissions_paid;
+    return view('user/commissions', compact('page', 'commissions_unpaid', 'commissions_paid'));
+  }
+
+  public function purchase_balance(Request $request)
+  {
+    $page = "Purchase Balance";
+    $purchase_balance = $request->user()->purchase_balance;
+    return view('user/purchase_balance', compact('page', 'purchase_balance'));
+  }
+
+  public function purchase_balance_deposit(Request $request)
+  {
+    $page = "Deposit Purchase Balance";
+    return view('user/purchase_balance_deposit', compact('page'));
   }
 }

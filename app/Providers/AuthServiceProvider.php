@@ -19,6 +19,7 @@ class AuthServiceProvider extends ServiceProvider
     'App\Models\TextAd' => 'App\Policies\TextAdPolicy',
     'App\Models\StartPage' => 'App\Policies\StartPagePolicy',
     'App\Models\PrivateMessage' => 'App\Policies\PrivateMessagePolicy',
+    'App\Models\Order' => 'App\Policies\OrderPolicy',
   ];
 
   /**

@@ -50,7 +50,16 @@
               <ul class="dropdown-menu" aria-labelledby="profileDropdown">
                 <li><a class="dropdown-item" href="{{ url('user/profile') }}">My Profile</a></li>
                 <li><a class="dropdown-item" href="{{ url('user/referrals') }}">My Referrals</a></li>
-                <li><a class="dropdown-item" href="{{ url('user/commissions') }}">My Commissions</a></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url('user/purchase_balance') }}">
+                    My Purchase Balance <span class="badge bg-dark">${{ number_format(Auth::user()->purchase_balance->sum('amount'), 2) }}</span>
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ url('user/commissions') }}">
+                    My Commissions <span class="badge bg-success">${{ number_format(Auth::user()->commissions_unpaid->sum('amount'), 2) }}</span>
+                  </a>
+                </li>
                 <li><a class="dropdown-item" href="{{ url('user/orders') }}">My Orders</a></li>
                 <li>
                   <hr class="dropdown-divider">

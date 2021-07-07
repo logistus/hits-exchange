@@ -14,5 +14,6 @@
     text-decoration: none;
     background-color: #363d44;
   }
+
 </style>
-<a href="{{ url('/') }}" class="logo">LOGI TE</a>
+<a href="{{ url('/') }}"><img src="{{ asset('images/hits.exchange.svg') }}" style="width: 250px; height: 50px;" /></a>
