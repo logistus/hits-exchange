@@ -44,6 +44,8 @@ Route::get('/', function () {
 Route::get('/login', [LoginController::class, 'login']);
 Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
 
+Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth');
+
 Route::get('/register', [LoginController::class, 'register'])->middleware('guest');
 Route::post('/register', [UserController::class, 'store'])->middleware('guest');
 
@@ -93,8 +95,6 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::get('/surf_icons', [SurfController::class, 'surf_icons']);
   Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
   Route::post('/validate_click/{id}', [SurfController::class, 'validate_click']);
-
-  Route::get('/logout', [LoginController::class, 'logout']);
 
   Route::get('/convert', [UserController::class, 'convert_view']);
   Route::post('/convert', [UserController::class, 'convert']);
