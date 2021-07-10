@@ -17,7 +17,7 @@ class CreatePurchaseBalancesTable extends Migration
       $table->id();
       $table->foreignId('user_id');
       $table->foreignId('order_id')->nullable();
-      $table->enum('type', ['Commission Convert', 'Surf Prize', 'Signup Bonus', 'Purchase']);
+      $table->enum('type', ['Commission Transfer', 'Surf Prize', 'Signup Bonus', 'Purchase']);
       $table->decimal('amount');
       $table->timestamp('created_at')->useCurrent();
     });

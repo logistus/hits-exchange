@@ -57,7 +57,7 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="{{ url('user/commissions') }}">
-                    My Commissions <span class="badge bg-success">${{ number_format(Auth::user()->commissions_unpaid->sum('amount'), 2) }}</span>
+                    My Commissions <span class="badge bg-success">${{ number_format(Auth::user()->commissions_all->sum('amount'), 2) }}</span>
                   </a>
                 </li>
                 <li><a class="dropdown-item" href="{{ url('user/orders') }}">My Orders</a></li>
@@ -159,6 +159,7 @@
     var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     })
+
   </script>
 </body>
 

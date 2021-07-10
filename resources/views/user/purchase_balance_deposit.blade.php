@@ -1,8 +1,30 @@
 <x-layout title="{{ $page }}">
-  <h4><a href="{{ url('user/purchase_balance/deposit') }}">Deposit Purchase Balance</a></h4>
-  <div class="row">
+  <h4><a href="{{ url('user/purchase_balance') }}">Purchase Balance</a> > <a href="{{ url('user/purchase_balance/deposit') }}">Deposit Purchase Balance</a></h4>
+  <x-alert />
+  <div class="row mt-3">
     <div class="col-3">
-      <div class="card" style="width: 18rem;">
+      <div class="card" style="min-height: 319px;">
+        <h5 class="card-title text-center px-3 pt-3">Transfer From Commissions</h5>
+        <div class="card-body pt-0">
+          <p class="card-text">
+          <p>You can transfer your unpaid commission to your purchase balance.</p>
+          <p><strong>20%</strong> bonus will be applied when you transfer. For example, if you transfer $1 you will get $1.20 to your purchase balance.</p>
+          <p>You have ${{ number_format(Auth::user()->commissions_all->sum('amount'), 2) }} unpaid commissions.</p>
+          </p>
+          <form action="{{ url('user/transfer_commissions') }}" method="POST">
+            @csrf
+            <input type="text" name="commission_transfer_amount" id="commission_transfer_amount" placeholder="Trasnfer Amount" class="form-control">
+            @error('commission_transfer_amount')
+            <div class="text-danger">{{ $message }}</div>
+            @enderror
+            <small>Minimum amount $0.5</small>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Transfer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="card" style="min-height: 319px;">
         <img src="{{ asset('images/coinpayments.svg') }}" class="card-img-top p-3" alt="CoinPayments" title="CoinPayments" />
         <div class="card-body">
           <p class="card-text">Enter the desired amount below and click "Pay Using CoinPayments" button.</p>
@@ -30,6 +52,5 @@
         $("[name='amountf']").val($(this).val());
       });
     });
-
   </script>
 </x-layout>

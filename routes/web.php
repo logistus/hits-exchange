@@ -200,6 +200,7 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
     Route::get('commissions', [UserController::class, 'commissions']);
     Route::get('purchase_balance', [UserController::class, 'purchase_balance']);
     Route::get('purchase_balance/deposit', [UserController::class, 'purchase_balance_deposit']);
+    Route::post('transfer_commissions', [UserController::class, 'transfer_commissions']);
   });
 });
 

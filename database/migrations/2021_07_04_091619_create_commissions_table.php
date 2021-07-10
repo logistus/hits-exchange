@@ -16,9 +16,9 @@ class CreateCommissionsTable extends Migration
     Schema::create('commissions', function (Blueprint $table) {
       $table->id();
       $table->foreignId('user_id');
-      $table->foreignId('order_id');
+      $table->foreignId('order_id')->nullable();
       $table->decimal('amount');
-      $table->enum('status', ['Paid', 'Unpaid'])->default('Unpaid');
+      $table->enum('status', ['Paid', 'Transferred'])->nullable();
       $table->timestamp('created_at')->useCurrent();
     });
   }

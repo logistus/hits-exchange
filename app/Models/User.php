@@ -181,9 +181,9 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->hasMany(Order::class, 'user_id')->orderByDesc('id');
   }
 
-  public function commissions_unpaid()
+  public function commissions_all()
   {
-    return $this->hasMany(Commission::class, 'user_id')->where('status', 'Unpaid')->orderByDesc('id');
+    return $this->hasMany(Commission::class, 'user_id')->orderByDesc('id');
   }
 
   public function commissions_paid()
@@ -191,8 +191,18 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->hasMany(Commission::class, 'user_id')->where('status', 'Paid')->orderByDesc('id');
   }
 
+  public function commissions_transferred()
+  {
+    return $this->hasMany(Commission::class, 'user_id')->where('status', 'Transferred')->orderByDesc('id');
+  }
+
   public function purchase_balance()
   {
     return $this->hasMany(PurchaseBalance::class, 'user_id')->orderByDesc('id');
+  }
+
+  public function getTotalUnpaidCommissionsAttribute()
+  {
+    return $this->commissions_all->sum('amount');
   }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Commission;
 use App\Models\User;
 use App\Models\Country;
+use App\Models\PurchaseBalance;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -275,7 +277,9 @@ class UserController extends Controller
     $page = "Commissions";
     $commissions_unpaid = $request->user()->commissions_unpaid;
     $commissions_paid = $request->user()->commissions_paid;
-    return view('user/commissions', compact('page', 'commissions_unpaid', 'commissions_paid'));
+    $commissions_all = $request->user()->commissions_all;
+    $commissions_transferred = $request->user()->commissions_transferred;
+    return view('user/commissions', compact('page', 'commissions_unpaid', 'commissions_paid', 'commissions_all', 'commissions_transferred'));
   }
 
   public function purchase_balance(Request $request)
@@ -289,5 +293,26 @@ class UserController extends Controller
   {
     $page = "Deposit Purchase Balance";
     return view('user/purchase_balance_deposit', compact('page'));
+  }
+
+  public function transfer_commissions(Request $request)
+  {
+    $request->validate([
+      "commission_transfer_amount" => "required|numeric|min:0.5|max:" . $request->user()->commissions_all->sum('amount')
+    ]);
+
+    Commission::insert([
+      'user_id' => $request->user()->id,
+      'amount' => '-' . $request->commission_transfer_amount,
+      'status' => 'Transferred'
+    ]);
+
+    PurchaseBalance::insert([
+      'user_id' => $request->user()->id,
+      'type' => 'Commission Transfer',
+      'amount' => $request->commission_transfer_amount + ($request->commission_transfer_amount * 20) / 100,
+    ]);
+
+    return back()->with('status', ['success', 'Commissions successfully transferred.']);
   }
 }
