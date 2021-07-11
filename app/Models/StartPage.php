@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class StartPage extends Model
 {
   use HasFactory;
-  public $timestapmps = false;
+  public $timestamps = false;
   protected $guarded = [];
 
   public function active_start_pages()

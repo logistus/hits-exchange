@@ -67,7 +67,7 @@ $commissions = $commissions_paid;
     </tbody>
   </table>
   @else
-  <p class="alert alert-info">You don't have any {{ request()->get('type') == '' ? 'unpaid' : strtolower(request()->get('type')) }} commissions.</p>
+  <p class="alert alert-info">You don't have any {{ strtolower(request()->get('type')) }} commissions.</p>
   @endif
   @else
   <p class="alert alert-info">Invalid commission type.</p>

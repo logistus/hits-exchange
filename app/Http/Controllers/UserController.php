@@ -104,9 +104,12 @@ class UserController extends Controller
   public function referrals(Request $request)
   {
     $page = "Referrals";
+    //dd($request->user()->referrals->selectRaw('orders'));
     $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'join_date';
     if ($sort_by == "pages_surfed") {
       $referrals = $request->user()->referrals()->orderByDesc(DB::raw("`correct_clicks` + `wrong_clicks`"))->paginate(15)->withQueryString();
+    } else if ($sort_by == "total_purchased") {
+      $referrals = $request->user()->referrals()->paginate(15)->withQueryString();
     } else {
       $referrals = $request->user()->referrals()->orderByDesc($sort_by)->paginate(15)->withQueryString();
     }
@@ -314,5 +317,28 @@ class UserController extends Controller
     ]);
 
     return back()->with('status', ['success', 'Commissions successfully transferred.']);
+  }
+
+  public function transfer_credits(Request $request, $id)
+  {
+    $page = "Transfer Credits";
+    $transfer_to = User::where('id', $id)->value('username');
+    return view('user/transfer_credits', compact('page', 'transfer_to'));
+  }
+
+  public function transfer_credits_post(Request $request, $id)
+  {
+    $request->validate([
+      'credits' => 'required|min:1|max:' . $request->user()->credits
+    ]);
+    $upline_check = User::where('id', $id)->value('upline');
+    if (Auth::id() != $upline_check) {
+      return back()->with('status', ['warning', 'You can transfer credits only to your referrals.']);
+    }
+
+    $request->user()->decrement('credits', $request->credits);
+    User::where('id', $id)->increment('credits', $request->credits);
+
+    return back()->with('status', ['success', "$request->credits successfully transferred to " . User::where('id', $id)->value('username')]);
   }
 }

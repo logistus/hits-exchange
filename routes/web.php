@@ -175,6 +175,7 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
     Route::get('/sent', [PrivateMessageController::class, 'sent']);
     Route::get('/trash', [PrivateMessageController::class, 'trash']);
     Route::get('/compose', [PrivateMessageController::class, 'create']);
+    Route::get('/compose_directly/{id}', [PrivateMessageController::class, 'create_with_id']);
     Route::get('/empty_trash', [PrivateMessageController::class, 'empty_trash']);
     Route::get('/move_inbox/{id}', [PrivateMessageController::class, 'move_inbox']);
     Route::get('/move_trash/{id}', [PrivateMessageController::class, 'move_trash']);
@@ -191,9 +192,12 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
 
   Route::prefix('user')->group(function () {
     Route::get('referrals', [UserController::class, 'referrals']);
+    Route::get('transfer_credits/{id}', [UserController::class, 'transfer_credits']);
+    Route::post('transfer_credits/{id}', [UserController::class, 'transfer_credits_post']);
     Route::prefix('orders')->group(function () {
       Route::get('/', [OrderController::class, 'index']);
       Route::post('/delete/{id}', [OrderController::class, 'destroy']);
+      Route::post('/pay_with_purchase_balance/{id}', [OrderController::class, 'pay_with_purchase_balance']);
     });
     Route::post('password', [UserController::class, 'change_password']);
     Route::post('profile', [UserController::class, 'save_profile']);

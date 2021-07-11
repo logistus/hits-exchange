@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Banner;
+use App\Models\StartPage;
 use App\Models\TextAd;
 use App\Models\Website;
 use App\Models\SurfCode;
@@ -23,7 +24,26 @@ class SurfController extends Controller
     }
     User::where('id', Auth::user()->id)->update(['start_time' => time()]);
     session(['surfed_session' => 0]);
-    session(['selected_website_url' => url('start_page')]);
+    // Check if there is any active start page URL
+    $active_start_pages = StartPage::select('id', 'dates', 'url')->where('status', 'Active')->get();
+    if (count($active_start_pages) > 0) {
+      foreach ($active_start_pages as $active_start_page) {
+        $dates = explode(',', $active_start_page->dates);
+        foreach ($dates as $date) {
+          if ($date == date("Y-m-d")) {
+            die("eşit mi lan");
+            session(['selected_website_url' => $active_start_page->url]);
+            StartPage::where('id', $active_start_page->id)->increment('total_views');
+            break 2;
+          } else {
+            session(['selected_website_url' => url('start_page')]);
+          }
+        }
+      }
+    } else {
+      session(['selected_website_url' => url('start_page')]);
+    }
+
     session(['selected_website_owner' => 1]);
     $this->selectRandomBanner();
     $this->selectRandomTextAd();

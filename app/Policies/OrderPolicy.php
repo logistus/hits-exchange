@@ -17,4 +17,11 @@ class OrderPolicy
       ? Response::allow()
       : Response::deny('You can\'t delete this order.');
   }
+
+  public function update(User $user, Order $order)
+  {
+    return $user->id === $order->user_id
+      ? Response::allow()
+      : Response::deny('You can\'t update this order.');
+  }
 }

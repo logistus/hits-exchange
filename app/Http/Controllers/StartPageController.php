@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Website;
 use App\Models\StartPage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class StartPageController extends Controller
   {
     $page = "Buy Startpage";
     $user_websites = $request->user()->websites;
-    $bought_dates = StartPage::select('start_date')->where('status', 'Active')->get();
+    $bought_dates = StartPage::select('dates')->where('status', 'Active')->get();
     $user_start_pages = $request->user()->start_pages;
     return view('buy.start_page', compact('page', 'bought_dates', 'user_start_pages', 'user_websites'));
   }
@@ -39,15 +40,30 @@ class StartPageController extends Controller
       return back()->with("status", ["warning", "Either specify a new URL or select one from your websites. Not both."])->withInput();
     }
 
-    $selected_dates_length = explode(",", $request->selected_dates);
-    $selected_dates = implode(", ", $selected_dates_length);
+    if ($request->new_start_page_url != "") {
+      $start_page_url = $request->new_start_page_url;
+    } else {
+      $start_page_url = Website::where('id', $request->start_page_user_website)->value('url');
+    }
 
-    Order::create([
+    $selected_dates_array = explode(",", $request->selected_dates);
+    $selected_dates = implode(", ", $selected_dates_array);
+
+
+    $order = Order::create([
       "user_id" => Auth::id(),
       "order_type" => "Start Page",
       "order_item" => "Start Page (" . $selected_dates . ")",
-      "price" => count($selected_dates_length) * 1, // TODO: get start page price from database
+      "price" => count($selected_dates_array) * 1, // TODO: get start page price from database
       "status" => "Waiting Payment"
+    ]);
+
+    StartPage::create([
+      "user_id" => $request->user()->id,
+      "order_id" => $order->id,
+      "dates" => $selected_dates,
+      "url" => $start_page_url,
+      "status" => "Pending Payment"
     ]);
 
     return redirect("user/orders");

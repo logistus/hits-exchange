@@ -19,7 +19,7 @@ use App\Models\User;
         <select name="pm_to" id="pm_to" class="form-select @error('pm_to') border border-danger @enderror" required>
           <option>Select Referral</option>
           @foreach (Auth::user()->referrals as $referral)
-          <option value="{{ $referral->id }}" {{ old("pm_to") == $referral->id ? "selected" : "" }}>{{ User::where('id', $referral->id)->value('username') }}</option>
+          <option value="{{ $referral->id }}" {{ (old("pm_to") == $referral->id || session('pm_to') == $referral->id) ? "selected" : "" }}>{{ User::where('id', $referral->id)->value('username') }}</option>
           @endforeach
         </select>
         @else
@@ -56,13 +56,14 @@ use App\Models\User;
   <script>
     ClassicEditor
       .create(document.querySelector('#editor'), {
-        toolbar: ['bold', 'italic', 'link', 'blockquote', 'undo', 'redo'],
-        height: 150,
-      });
+        toolbar: ['bold', 'italic', 'link', 'blockquote', 'undo', 'redo']
+        , height: 150
+      , });
     // $(function() {
     //   $.get("https://ipapi.co/json/", function(result) {
     //     console.log(result);
     //   });
     //});
+
   </script>
 </x-layout>

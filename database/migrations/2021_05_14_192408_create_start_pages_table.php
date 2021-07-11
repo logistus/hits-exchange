@@ -16,7 +16,8 @@ class CreateStartPagesTable extends Migration
     Schema::create('start_pages', function (Blueprint $table) {
       $table->id();
       $table->foreignId('user_id');
-      $table->date('start_date');
+      $table->foreignId('order_id');
+      $table->string('dates');
       $table->string('url');
       $table->unsignedMediumInteger('total_views');
       $table->enum('status', ['Active', 'Pending Payment', 'Suspended', 'Expired']);

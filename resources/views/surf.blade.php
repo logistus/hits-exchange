@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
   <link href="{{ url('css/app.css') }}" rel="stylesheet">
-  <title>Surfing @ Logi TE</title>
+  <title>Surfing @ {{ config("app.name") }}</title>
 </head>
 
 <body class="vh-100">
@@ -82,10 +82,11 @@
     var timer = "{{ Auth::user()->type->surf_timer }}";
     var app_url = "{{ config('app.url') }}";
     var start_url = "{{ session('selected_website_url') }}";
+    var surfed_session = "{{ session('surfed_session') }}";
 
     $("#status").text("Starting surf session");
 
-    if (start_url.startsWith(app_url)) {
+    if (start_url.startsWith(app_url) || surfed_session == "0") {
       $("#url-viewing").removeClass("visible").addClass("invisible");
       $("#website-owner").removeClass("visible").addClass("invisible");
     } else {
@@ -100,9 +101,9 @@
       $("#progress-bar").animate({
         width: "100%"
       }, {
-        duration: (timer * 1) * 1000,
-        easing: "linear",
-        complete: function() {
+        duration: (timer * 1) * 1000
+        , easing: "linear"
+        , complete: function() {
           $("#validate_view").removeClass("d-none");
           $("#status").hide();
           $(".icons").load('/view_surf_icons');
@@ -116,8 +117,8 @@
       e.preventDefault();
 
       $.post("/validate_click/" + cid, {
-        _token: $("[name='_token']").val(),
-      }, function(response) {
+        _token: $("[name='_token']").val()
+      , }, function(response) {
         if (response.status == "ec") {
           location.href = "/";
         } else {
@@ -160,6 +161,7 @@
 
     });
   });
+
 </script>
 
 </html>

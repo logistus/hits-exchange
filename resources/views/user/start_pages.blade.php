@@ -14,7 +14,7 @@
       @foreach ($start_pages as $start_page)
       <tr>
         <td><a href="{{ $start_page->url }}" target="_blank" rel="nooepner noreferrer">{{ $start_page->url }}</a> <i class="bi-box-arrow-up-right" style="font-size: .8rem;"></i></td>
-        <td>{{ $start_page->start_date }}</td>
+        <td>{{ $start_page->dates }}</td>
         <td>{{ $start_page->total_views }}</td>
         <td>{{ $start_page->status }}</td>
       </tr>

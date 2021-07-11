@@ -67,6 +67,16 @@ class PrivateMessageController extends Controller
     return view('private_messages/create', compact('page'));
   }
 
+  public function create_with_id($id)
+  {
+    $upline_check = User::where('id', $id)->value('upline');
+    if (Auth::id() != $upline_check) {
+      return back()->with('status', ['warning', 'You can send private message only to your referrals.']);
+    }
+    session(['pm_to' => $id]);
+    return redirect('private_messages/compose');
+  }
+
   public function store(Request $request)
   {
     $request->validate([

@@ -2,7 +2,7 @@
   <h4><a href="{{ url('buy/start_page') }}">Buy Start Page</a></h4>
   <x-alert />
   <p>Every member will see start page every time they start to surf throughout the day. Buy now to get maximum exposure to your website.<br>The price is $1 for each day.</p>
-  <div class="d-flex justify-content-center pt-3">
+  <div class="d-flex pt-3">
     <form method="POST" action="{{ url('buy/start_page') }}">
       @csrf
       <h4>Select a website</h4>
@@ -33,13 +33,13 @@
       <div class="text-danger">You must select 1 or more days.</div>
       @enderror
       <input type="hidden" name="selected_dates" id="dates">
-      <button type="button" id="place_order" class="btn btn-primary">Place Order</button>
+      <button type="button" id="place_order" class="btn btn-primary d-block">Place Order</button>
     </form>
   </div>
   @php
   $locked_dates = array();
-  foreach ($bought_dates as $date) {
-  array_push($locked_dates, $date);
+  foreach ($bought_dates as $dates) {
+  array_push($locked_dates, $dates->dates);
   }
   @endphp
   <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
@@ -52,19 +52,20 @@
   <script>
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Dec"];
     let bought_dates = "{{ implode(',', $locked_dates) }}";
-    let locked_dates_as_array = bought_dates.replace(/quot/g, '').replace(/{&;start_date&;:&;/g, '').replace(/&;}/g, '').split(',');
+    console.log(bought_dates);
+    let locked_dates_as_array = bought_dates.replace(/ /g, '').split(',');
     const picker = new Litepicker({
-      element: document.getElementById('datepicker')
-      , inlineMode: true
-      , singleMode: true
-      , delimiter: ','
-      , firstDay: 1
-      , numberOfMonths: 2
-      , numberOfColumns: 2
-      , lockDays: locked_dates_as_array
-      , minDate: '{{ date( "Y-m-d", strtotime( "+1 days" ) ) }}', // current day can't be selected, also javascript can't be used to select day because we need server's time
-      plugins: ['multiselect']
-    , });
+      element: document.getElementById('datepicker'),
+      inlineMode: true,
+      singleMode: true,
+      delimiter: ',',
+      firstDay: 1,
+      numberOfMonths: 2,
+      numberOfColumns: 2,
+      lockDays: locked_dates_as_array,
+      minDate: '{{ date( "Y-m-d", strtotime( "+1 days" ) ) }}', // current day can't be selected, also javascript can't be used to select day because we need server's time
+      plugins: ['multiselect'],
+    });
     $("#place_order").click(function() {
       $("#dates").val(picker.multipleDatesToString());
       $("form").submit();
@@ -97,6 +98,5 @@
       }
       */
     });
-
   </script>
 </x-layout>

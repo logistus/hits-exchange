@@ -1,5 +1,6 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('surfer_rewards') }}">Surfer Rewards</a></h4>
+  <p><strong>Server Time: </strong> {{ date("Y-m-d h:i:s a") }}</p>
   <p>The reward is valid only on the day you surf, and you can only choose one prize per day.</p>
   <p>Today you have surfed <strong>{{ Auth::user()->surfed_today }}</strong> pages.</p>
   <x-alert />

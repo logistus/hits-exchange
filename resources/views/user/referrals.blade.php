@@ -1,7 +1,8 @@
 <x-layout title="{{ $page }}">
-  <h4><a href="{{ url('referrals') }}">Referrals</a></h4>
+  <h4><a href="{{ url('user/referrals') }}">Referrals</a></h4>
+  <x-alert />
   @if ($referrals)
-  <form action="{{ url('referrals') }}" method="GET" class="my-3 row row-cols-lg-auto align-items-center">
+  <form action="{{ url('user/referrals') }}" method="GET" class="my-3 row row-cols-lg-auto align-items-center">
     <div class="col-12">
       <label for="sort_by">Sort by:</label>
     </div>
@@ -11,7 +12,7 @@
         <option value="last_login" {{ request()->get('sort_by') == 'last_login' ? 'selected' : '' }}>Last Login</option>
         <option value="user_type" {{ request()->get('sort_by') == 'user_type' ? 'selected' : '' }}>User Type</option>
         <option value="pages_surfed" {{ request()->get('sort_by') == 'pages_surfed' ? 'selected' : '' }}>Pages Surfed</option>
-        <option value="total_purchased">Total Purchased</option>
+        <option value="total_purchased" {{ request()->get('sort_by') == 'total_purchased' ? 'selected' : '' }}>Total Purchased</option>
       </select>
     </div>
     <div class="col-12">
@@ -40,14 +41,14 @@
         <td>{{ $referral->username }}</td>
         <td>{{ $referral->type->name }}</td>
         <td>{{ $referral->totalSurfed }}</td>
-        <td>0$</td>
+        <td>${{ $referral->orders->where('status', 'Completed')->sum('price') }}</td>
         <td>{{ $referral->email_verified_at ? "Verified" : "Unverified" }}</td>
         <td>hungryforhits.com</td>
         <td>{{ $referral->last_login ? $referral->last_login : "Never" }}</td>
         <td>{{ $referral->join_date }}</td>
         <td class="d-flex flex-column">
-          <a class="btn btn-secondary mb-3">Transfer Credits</a>
-          <a class="btn btn-secondary">Send Message</a>
+          <a class="btn btn-secondary mb-3" href="{{ url('user/transfer_credits', $referral->id) }}">Transfer Credits</a>
+          <a class="btn btn-secondary" href="{{ url('private_messages/compose_directly', $referral->id) }}">Send Message</a>
         </td>
       </tr>
       @endforeach

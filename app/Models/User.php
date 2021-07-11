@@ -143,7 +143,7 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
 
   public function start_pages()
   {
-    return $this->hasMany(StartPage::class, 'user_id');
+    return $this->hasMany(StartPage::class, 'user_id')->orderByDesc('id');
   }
 
   public function unread_private_messages()
