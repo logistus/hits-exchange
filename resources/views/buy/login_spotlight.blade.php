@@ -1,27 +1,27 @@
 <x-layout title="{{ $page }}">
-  <h4><a href="{{ url('buy/start_page') }}">Buy Start Page</a></h4>
+  <h4><a href="{{ url('buy/login_spotlight') }}">Buy Login Spotlight</a></h4>
   <x-alert />
-  <p>Every member will see start page every time they start to surf throughout the day. Buy now to get maximum exposure to your website.<br>The price is $1 for each day.</p>
+  <p>Every member will see login spotlight every time they login the first time at current day. <br>The price is $2 for each day.</p>
   <div class="d-flex pt-3">
-    <form method="POST" action="{{ url('buy/start_page') }}">
+    <form method="POST" action="{{ url('buy/login_spotlight') }}">
       @csrf
       <h4>Select a website</h4>
       @if (count($user_websites) > 0)
       <div class="mb-3">
-        <label for="start_page_user_website" class="form-label">Select from your websites:</label>
-        <select class="form-select" id="start_page_user_website" name="start_page_user_website" aria-label="Select Website">
+        <label for="login_spotlight_user_website" class="form-label">Select from your websites:</label>
+        <select class="form-select" id="login_spotlight_user_website" name="login_spotlight_user_website" aria-label="Select Website">
           <option value="0" selected>Select one of your websites</option>
           @foreach ($user_websites as $website)
-          <option value="{{ $website->id }}" {{ old('start_page_user_website') == $website->id ? "selected" : ""}}>{{ $website->url }}</option>
+          <option value="{{ $website->id }}" {{ old('login_spotlight_user_website') == $website->id ? "selected" : ""}}>{{ $website->url }}</option>
           @endforeach
         </select>
       </div>
       @endif
       <div class="my-3">
         <label for="new_start_page_url" class="form-label">or specify new URL:</label>
-        <input type="url" class="form-control" id="new_start_page_url" value="{{ old('new_start_page_url') }}" name="new_start_page_url">
+        <input type="url" class="form-control" id="new_login_spotlight_url" value="{{ old('new_start_page_url') }}" name="new_start_page_url">
       </div>
-      @error('start_page_user_website')
+      @error('login_spotlight_user_website')
       <div class="text-danger">You must select one from your websites or specify new URL.</div>
       @enderror
       @error('new_start_page_url')
@@ -53,6 +53,7 @@
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Dec"];
     let bought_dates = "{{ implode(',', $locked_dates) }}";
     console.log(bought_dates);
+    console.log('{{ date( "Y-m-d", strtotime( "+1 days" ) ) }}');
     let locked_dates_as_array = bought_dates.replace(/ /g, '').split(',');
     const picker = new Litepicker({
       element: document.getElementById('datepicker')

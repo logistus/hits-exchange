@@ -23,7 +23,7 @@
         <td>{{ $order->status }}</td>
         <td>${{ $order->price }}</td>
         <td>
-          @if ($order->status == 'Waiting Payment')
+          @if ($order->status == 'Pending Payment')
           @if (Auth::user()->purchase_balance->sum('amount') >= $order->price)
           <form action="{{ url('user/orders/pay_with_purchase_balance', $order->id) }}" method="POST" class="mt-2">
             @csrf
@@ -37,7 +37,7 @@
         <td>
           <form action="{{ url('user/orders/delete', $order->id) }}" method="POST" class="mt-2">
             @csrf
-            <button type="submit" class="btn btn-danger">Delete Order</button>
+            <button type="submit" class="btn btn-danger">Delete Order & Advert</button>
           </form>
         </td>
       </tr>

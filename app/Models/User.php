@@ -146,6 +146,11 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->hasMany(StartPage::class, 'user_id')->orderByDesc('id');
   }
 
+  public function login_spotlights()
+  {
+    return $this->hasMany(LoginSpotlight::class, 'user_id')->orderByDesc('id');
+  }
+
   public function unread_private_messages()
   {
     return $this->hasMany(PrivateMessage::class, 'to_id')->where('folder_receiver', 'Inbox')->where('read', 0);

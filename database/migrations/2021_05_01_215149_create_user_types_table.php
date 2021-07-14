@@ -24,6 +24,7 @@ class CreateUserTypesTable extends Migration
       $table->unsignedTinyInteger('max_texts');
       $table->unsignedTinyInteger('min_auto_assign');
       $table->unsignedTinyInteger('credits_to_banner');
+      $table->unsignedTinyInteger('credits_to_square_banner');
       $table->unsignedTinyInteger('credits_to_text');
       $table->unsignedTinyInteger('credit_reward_ratio');
       $table->unsignedTinyInteger('commission_ratio');

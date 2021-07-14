@@ -19,7 +19,9 @@ class CreateOrdersTable extends Migration
       $table->enum('order_type', ['Credit', 'Banner Impressions', 'Text Impressions', 'Square Banner Impressions', 'Start Page', 'Login Spotlight']);
       $table->string('order_item');
       $table->unsignedMediumInteger('price');
-      $table->enum('status', ['Waiting Payment', 'Completed', 'Cancelled']);
+      $table->string('ad_type');
+      $table->foreignId('ad_id');
+      $table->enum('status', ['Pending Payment', 'Completed', 'Cancelled']);
       $table->timestamp('created_at')->useCurrent();
     });
   }

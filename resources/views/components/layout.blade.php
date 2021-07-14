@@ -113,6 +113,7 @@
                 <li><a class="dropdown-item" href="{{ url('square_banners') }}">My Square Banners</a></li>
                 <li><a class="dropdown-item" href="{{ url('texts') }}">My Text Ads</a></li>
                 <li><a class="dropdown-item" href="{{ url('start_pages') }}">My Start Pages</a></li>
+                <li><a class="dropdown-item" href="{{ url('login_spotlights') }}">My Login Spotlights</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -133,6 +134,9 @@
                 <li><a class="dropdown-item" href="{{ url('buy/login_spotlight') }}">Login Spotlight</a></li>
                 <li><a class="dropdown-item" href="{{ url('buy/credits') }}">Buy Credits</a></li>
               </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fw-bold" href="{{ url('upgrade') }}">Upgrade</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url('promote') }}">Promo Tools</a>
@@ -158,7 +162,7 @@
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    });
 
   </script>
 </body>

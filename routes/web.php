@@ -8,6 +8,7 @@ use App\Http\Controllers\SurfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\LoginSpotlightController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PrivateMessageController;
 use App\Http\Controllers\SquareBannerController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\SurfCodeController;
 use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
+use App\Models\LoginSpotlight;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
@@ -32,14 +34,9 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Get requests
 
-Route::get('/', function () {
-  if (Auth::check()) {
-    return redirect('dashboard');
-  } else {
-    $page = "Home";
-    return view('home', compact('page'));
-  }
-});
+Route::get('/', [UserController::class, 'home']);
+
+Route::get('/ref/{id}', [UserController::class, 'ref_link']);
 
 Route::get('/login', [LoginController::class, 'login']);
 Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
@@ -94,6 +91,7 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::get('/surf', [SurfController::class, 'view']);
   Route::get('/surf_icons', [SurfController::class, 'surf_icons']);
   Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
+  Route::get('/promote', [UserController::class, 'promote']);
   Route::post('/validate_click/{id}', [SurfController::class, 'validate_click']);
 
   Route::get('/convert', [UserController::class, 'convert_view']);
@@ -112,6 +110,8 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::prefix('buy')->group(function () {
     Route::get('start_page', [StartPageController::class, 'index_buy']);
     Route::post('start_page', [StartPageController::class, 'store_buy']);
+    Route::get('login_spotlight', [LoginSpotlightController::class, 'index_buy']);
+    Route::post('login_spotlight', [LoginSpotlightController::class, 'store_buy']);
   });
 
   Route::prefix('websites')->group(function () {
@@ -166,9 +166,8 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
     Route::post('/update', [TextAdController::class, 'update']);
   });
 
-  Route::prefix('start_pages')->group(function () {
-    Route::get('/', [StartPageController::class, 'index']);
-  });
+  Route::get('start_pages', [StartPageController::class, 'index']);
+  Route::get('login_spotlights', [LoginSpotlightController::class, 'index']);
 
   Route::prefix('private_messages')->group(function () {
     Route::get('/', [PrivateMessageController::class, 'inbox']);

@@ -1,11 +1,12 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('convert') }}">Conversions</a></h4>
-  <div class="alert alert-info">You have
+  <div class="alert alert-info mt-3">You have
     <strong>{{ Auth::user()->credits }}</strong> credits,
-    <strong>{{ Auth::user()->banner_imps }}</strong> banner impressions
+    <strong>{{ Auth::user()->banner_imps }}</strong> banner impressions,
+    <strong>{{ Auth::user()->square_banner_imps }}</strong> square banner impressions,
     <strong>{{ Auth::user()->text_imps }}</strong> text ad impressions.
   </div>
-  <div class="alert alert-secondary">Your 1 credit equals to <strong>{{ Auth::user()->type->credits_to_banner }}</strong> banner impsressions and <strong>{{ Auth::user()->type->credits_to_text }}</strong> text impressions.</div>
+  <div class="alert alert-secondary">Your 1 credit equals to <strong>{{ Auth::user()->type->credits_to_banner }}</strong> banner impsressions or <strong>{{ Auth::user()->type->credits_to_square_banner }}</strong> square banner impsressions or <strong>{{ Auth::user()->type->credits_to_text }}</strong> text impressions.</div>
   <x-alert />
   <form action="{{ url('convert') }}" method="POST" class="row row-cols-lg-auto g-5 align-items-center">
     @csrf
@@ -17,6 +18,7 @@
       <select class="form-select" id="convert-from" name="convert_from">
         <option value="credits" {{ old('convert_from') == "credits" ? "selected" : "" }}>Credits</option>
         <option value="banner_imps" {{ old('convert_from') == "banner_imps" ? "selected" : "" }}>Banner Impressions</option>
+        <option value="square_banner_imps" {{ old('convert_from') == "square_banner_imps" ? "selected" : "" }}>Square Banner Impressions</option>
         <option value="text_imps" {{ old('convert_from') == "text_imps" ? "selected" : "" }}>Text Impressions</option>
       </select>
     </div>
@@ -27,6 +29,7 @@
     <div class="col-12">
       <select class="form-select" id="convert-to" name="convert_to">
         <option value="banner_imps" {{ old('convert_to') == "banner_imps" ? "selected" : "" }}>Banner Impressions</option>
+        <option value="square_banner_imps" {{ old('convert_to') == "square_banner_imps" ? "selected" : "" }}>Square Banner Impressions</option>
         <option value="text_imps" {{ old('convert_to') == "text_imps" ? "selected" : "" }}>Text Impressions</option>
       </select>
     </div>
@@ -41,6 +44,7 @@
       var user_banner_imps = "{{ Auth::user()->banner_imps }}" * 1;
       var user_text_imps = "{{ Auth::user()->text_imps }}" * 1;
       var credits_to_banner = "{{ Auth::user()->type->credits_to_banner }}" * 1;
+      var credits_to_square_banner = "{{ Auth::user()->type->credits_to_square_banner }}" * 1;
       var credits_to_text = "{{ Auth::user()->type->credits_to_text }}" * 1;
       var convert_from = $("#convert-from");
       var convert_to = $("#convert-to");
@@ -48,11 +52,15 @@
       var convert_result = $("#convert-result");
       var credits = new Option("Credits", "credits");
       var banner_imps = new Option("Banner impressions", "banner_imps");
+      var square_banner_imps = new Option("Square Banner impressions", "square_banner_imps");
       var text_imps = new Option("Text Impressions", "text_imps");
 
       function show_conversions() {
         if (convert_from.val() == "credits" && convert_to.val() == "banner_imps") {
           convert_result.val(convert_amount.val() * credits_to_banner);
+        }
+        if (convert_from.val() == "credits" && convert_to.val() == "square_banner_imps") {
+          convert_result.val(convert_amount.val() * credits_to_square_banner);
         }
         if (convert_from.val() == "credits" && convert_to.val() == "text_imps") {
           convert_result.val(convert_amount.val() * credits_to_text);
@@ -60,29 +68,42 @@
         if (convert_from.val() == "banner_imps" && convert_to.val() == "text_imps") {
           convert_result.val(Math.round((convert_amount.val() * (credits_to_text / credits_to_banner))));
         }
+        if (convert_from.val() == "square_banner_imps" && convert_to.val() == "text_imps") {
+          convert_result.val(Math.round((convert_amount.val() * (credits_to_text / credits_to_square_banner))));
+        }
         if (convert_from.val() == "text_imps" && convert_to.val() == "banner_imps") {
           convert_result.val(Math.round((convert_amount.val() / (credits_to_text / credits_to_banner))));
         }
       }
 
-
-      convert_from.change(function(e) {
-        var selected = $(this).val();
+      function update_options() {
         convert_to.empty();
-        if (selected == "credits") {
+        if (convert_from.val() == "credits") {
           convert_to.append(banner_imps);
+          convert_to.append(square_banner_imps);
           convert_to.append(text_imps);
           convert_to.val("banner_imps");
           convert_result.val(convert_amount.val() * credits_to_banner);
-        } else if (selected == "banner_imps") {
+        } else if (convert_from.val() == "banner_imps") {
           convert_to.append(text_imps);
           convert_to.val("text_imps");
           convert_result.val(Math.round((convert_amount.val() * (credits_to_text / credits_to_banner))));
+        } else if (convert_from.val() == "square_banner_imps") {
+          convert_to.append(text_imps);
+          convert_to.val("text_imps");
+          convert_result.val(Math.round((convert_amount.val() * (credits_to_text / credits_to_square_banner))));
         } else {
           convert_to.append(banner_imps);
+          convert_to.append(square_banner_imps);
           convert_to.val("banner_imps");
           convert_result.val(Math.round((convert_amount.val() / (credits_to_text / credits_to_banner))));
         }
+      }
+
+      update_options();
+
+      convert_from.change(function(e) {
+        update_options();
       });
 
       convert_to.change(function() {
@@ -93,5 +114,6 @@
         show_conversions();
       });
     });
+
   </script>
 </x-layout>

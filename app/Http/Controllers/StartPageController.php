@@ -48,17 +48,17 @@ class StartPageController extends Controller
 
     $selected_dates_array = explode(",", $request->selected_dates);
     $selected_dates = implode(", ", $selected_dates_array);
-
-
     $order = Order::create([
       "user_id" => Auth::id(),
       "order_type" => "Start Page",
       "order_item" => "Start Page (" . $selected_dates . ")",
       "price" => count($selected_dates_array) * 1, // TODO: get start page price from database
-      "status" => "Waiting Payment"
+      "ad_id" => $start_page->id,
+      "ad_type" => "start_page",
+      "status" => "Pending Payment"
     ]);
 
-    StartPage::create([
+    $start_page = StartPage::create([
       "user_id" => $request->user()->id,
       "order_id" => $order->id,
       "dates" => $selected_dates,

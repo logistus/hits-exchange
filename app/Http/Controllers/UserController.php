@@ -2,22 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Commission;
 use App\Models\User;
 use App\Models\Country;
-use App\Models\PurchaseBalance;
+use App\Models\Commission;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\PurchaseBalance;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\PasswordChanged;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 
 class UserController extends Controller
 {
+  public function home()
+  {
+    $page = "Home";
+    return view('home', compact('page'));
+  }
+
   public function store(Request $request)
   {
     $request->validate([
@@ -62,23 +69,41 @@ class UserController extends Controller
     $convert_to = $request->convert_to;
     (int) $convert_amount = $request->convert_amount;
     $credits_to_banner = $request->user()->type->credits_to_banner;
+    $credits_to_square_banner = $request->user()->type->credits_to_square_banner;
     $credits_to_text = $request->user()->type->credits_to_text;
 
     if ($convert_from == "banner_imps") {
-      $text_imps_add = round($convert_amount * ($credits_to_text / $credits_to_banner));
-      $request->user()->decrement("banner_imps", $convert_amount);
-      $request->user()->increment("text_imps", $text_imps_add);
-      $request->user()->save();
-      return back();
+      if ($convert_amount > $request->user()->banner_imps) {
+        return back()->withInput()->with("status", ["warning", "Maximum banner impression can't be greater than " . $request->user()->banner_imps]);
+      } else {
+        $text_imps_add = round($convert_amount * ($credits_to_text / $credits_to_banner));
+        $request->user()->decrement("banner_imps", $convert_amount);
+        $request->user()->increment("text_imps", $text_imps_add);
+        $request->user()->save();
+        return back();
+      }
     }
 
     if ($convert_from == "text_imps") {
-      if ($convert_amount < ($credits_to_text / $credits_to_banner)) {
-        return back()->withInput()->with("status", "Minimum text impression amount must be equal or greater than " . $credits_to_text / $credits_to_banner);
-      } else {
+      if ($convert_amount > $request->user()->text_imps) {
+        return back()->withInput()->with("status", ["warning", "Maximum text impression can't be greater than " . $request->user()->text_imps]);
+      }
+      if ($convert_to == "banner_imps") {
+        if ($convert_amount < ($credits_to_text / $credits_to_banner)) {
+          return back()->withInput()->with("status", ["warning", "Minimum text impression amount must be equal or greater than " . $credits_to_text / $credits_to_banner]);
+        }
         $banner_imps_add = round($convert_amount / ($credits_to_text / $credits_to_banner));
         $request->user()->decrement("text_imps", $convert_amount);
         $request->user()->increment("banner_imps", $banner_imps_add);
+        $request->user()->save();
+        return back();
+      } else {
+        if ($convert_amount < ($credits_to_text / $credits_to_square_banner)) {
+          return back()->withInput()->with("status", ["warning", "Minimum text impression amount must be equal or greater than " . $credits_to_text / $credits_to_square_banner]);
+        }
+        $square_banner_imps_add = round($convert_amount / ($credits_to_text / $credits_to_square_banner));
+        $request->user()->decrement("text_imps", $convert_amount);
+        $request->user()->increment("square_banner_imps", $square_banner_imps_add);
         $request->user()->save();
         return back();
       }
@@ -89,6 +114,12 @@ class UserController extends Controller
         $banner_imps_add = round($convert_amount * $credits_to_banner);
         $request->user()->decrement("credits", $convert_amount);
         $request->user()->increment("banner_imps", $banner_imps_add);
+        $request->user()->save();
+        return back();
+      } else if ($convert_to == "square_banner_imps") {
+        $square_banner_imps_add = round($convert_amount * $credits_to_square_banner);
+        $request->user()->decrement("credits", $convert_amount);
+        $request->user()->increment("square_banner_imps", $square_banner_imps_add);
         $request->user()->save();
         return back();
       } else {
@@ -104,14 +135,29 @@ class UserController extends Controller
   public function referrals(Request $request)
   {
     $page = "Referrals";
-    //dd($request->user()->referrals->selectRaw('orders'));
     $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'join_date';
     if ($sort_by == "pages_surfed") {
-      $referrals = $request->user()->referrals()->orderByDesc(DB::raw("`correct_clicks` + `wrong_clicks`"))->paginate(15)->withQueryString();
+      $referrals = $request->user()->referrals()
+        ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'correct_clicks', 'wrong_clicks')
+        ->orderByDesc(DB::raw("`correct_clicks` + `wrong_clicks`"))
+        ->paginate(15)
+        ->withQueryString();
     } else if ($sort_by == "total_purchased") {
-      $referrals = $request->user()->referrals()->paginate(15)->withQueryString();
+      $referrals = $request->user()->referrals()
+        ->select('users.id', 'username', 'user_type', 'users.status', 'last_login', 'join_date', 'correct_clicks', 'wrong_clicks')
+        ->selectRaw('SUM(orders.price) as total_purchased')
+        ->where('orders.status', 'Completed')
+        ->join('orders', 'users.id', '=', 'orders.user_id')
+        ->orderByRaw('SUM(orders.price) DESC')
+        ->groupBy('orders.user_id')
+        ->paginate(15)
+        ->withQueryString();
     } else {
-      $referrals = $request->user()->referrals()->orderByDesc($sort_by)->paginate(15)->withQueryString();
+      $referrals = $request->user()->referrals()
+        ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'correct_clicks', 'wrong_clicks')
+        ->orderByDesc($sort_by)
+        ->paginate(15)
+        ->withQueryString();
     }
     return view("user.referrals", compact('referrals', 'page'));
   }
@@ -340,5 +386,17 @@ class UserController extends Controller
     User::where('id', $id)->increment('credits', $request->credits);
 
     return back()->with('status', ['success', "$request->credits successfully transferred to " . User::where('id', $id)->value('username')]);
+  }
+
+  public function ref_link($id)
+  {
+    Cookie::queue("ref_id", $id, 60 * 24 * 30);
+    return redirect()->intended();
+  }
+
+  public function promote()
+  {
+    $page = "Promo Tools";
+    return view('user/promote', compact('page'));
   }
 }

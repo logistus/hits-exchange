@@ -1,3 +1,6 @@
+@php
+use App\Models\User;
+@endphp
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('register') }}">Register</a></h4>
   <x-alert />
@@ -68,6 +71,14 @@
         <input type="password" name="password_confirmation" class="form-control">
       </div>
     </div>
+    @if( count(User::where('id', request()->cookie('ref_id'))->get()))
+    <div class="row mb-3">
+      <label class="col-sm-2 col-form-label">Referred By</label>
+      <div class="col-sm-5 pt-1">
+        {{ User::where('id', request()->cookie('ref_id'))->get()->first()->full_name }}
+      </div>
+    </div>
+    @endif
     <div class="form-check mt-3">
       <input class="form-check-input" type="checkbox" id="tos" name="tos">
       <label class="form-check-label" for="tos">
