@@ -14,7 +14,7 @@
 <body class="vh-100">
   <div class="container d-flex flex-column align-items-center mt-5 h-100">
     {{ $slot }}
-    <div class="mt-5">TODO: show square banners</div>
+    <x-userads />
   </div>
 </body>
 

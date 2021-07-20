@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
       $table->foreignId('upline')->nullable();
       $table->string('country', 3)->nullable();
       $table->foreignId('user_type')->default(1);
+      $table->date('upgrade_expires')->nullable();
       $table->unsignedDecimal('credits')->default(0);
       $table->unsignedMediumInteger('banner_imps')->default(0);
       $table->unsignedMediumInteger('square_banner_imps')->default(0);
@@ -41,11 +42,13 @@ class CreateUsersTable extends Migration
       $table->rememberToken();
       $table->date('last_login')->nullable();
       $table->ipAddress('ip_address')->nullable();
+      $table->decimal('total_purchased')->default(0);
       $table->date('join_date')->default(date("Y-m-d"));
       $table->enum('status', ['Unverified', 'Active', 'Suspended'])->default('Unverified');
       $table->string('suspend_reason', 100);
       $table->date('suspend_until')->nullable();
       $table->boolean('admin')->default(0);
+      $table->unsignedSmallInteger('claim_surf_prize');
     });
   }
 

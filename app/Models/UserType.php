@@ -15,4 +15,9 @@ class UserType extends Model
   {
     return $this->belongsTo(User::class, 'user_type');
   }
+
+  public function prices()
+  {
+    return $this->hasMany(UpgradePrice::class, 'user_type_id')->where('time_type', '!=', 'Day');
+  }
 }

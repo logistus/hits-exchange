@@ -84,7 +84,7 @@
     var start_url = "{{ session('selected_website_url') }}";
     var surfed_session = "{{ session('surfed_session') }}";
 
-    $("#status").text("Starting surf session");
+    $("#status").text("Viewing start page");
 
     if (start_url.startsWith(app_url) || surfed_session == "0") {
       $("#url-viewing").removeClass("visible").addClass("invisible");

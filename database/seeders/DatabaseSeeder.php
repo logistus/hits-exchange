@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
       SquareBannerSeeder::class,
       TextAdSeeder::class,
       UserTypeSeeder::class,
+      UpgradePricesSeeder::class,
+      AdPricesSeeder::class,
       SurferRewardSeeder::class
     ]);
   }

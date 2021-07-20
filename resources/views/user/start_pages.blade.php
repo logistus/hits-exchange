@@ -8,6 +8,7 @@
         <th scope="col">Date(s)</th>
         <th scope="col">Total Views</th>
         <th scope="col">Status</th>
+        <th scope="col">Delete</th>
       </tr>
     </thead>
     <tbody>
@@ -16,13 +17,22 @@
         <td><a href="{{ $start_page->url }}" target="_blank" rel="nooepner noreferrer">{{ $start_page->url }}</a> <i class="bi-box-arrow-up-right" style="font-size: .8rem;"></i></td>
         <td>{{ $start_page->dates }}</td>
         <td>{{ $start_page->total_views }}</td>
-        <td>{{ $start_page->status }}</td>
+        <td>{{ $start_page->status }}<br>
+          @if ($start_page->status == "Pending Payment")
+          <a href="{{ url('user/orders') }}">Make Payment</a>
+          @endif</td>
+        <td>
+          <form action="{{ url('start_pages/delete', $start_page->id) }}" method="POST" class="mt-2">
+            @csrf
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </td>
       </tr>
       @endforeach
     </tbody>
   </table>
   @else
-  <p class="text-center">You don't have any start pages.</p>
-  <p class="text-center"><a href="{{ url('buy/start_page') }}">Click here</a> to buy.</p>
+  <p>You don't have any start pages.</p>
+  <p><a href="{{ url('buy/start_page') }}">Click here</a> to buy.</p>
   @endif
 </x-layout>

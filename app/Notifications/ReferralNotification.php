@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PrivateMessageReceived extends Notification implements ShouldQueue
+class ReferralNotification extends Notification implements ShouldQueue
 {
   use Queueable;
 
@@ -43,10 +43,11 @@ class PrivateMessageReceived extends Notification implements ShouldQueue
   public function toMail($notifiable)
   {
     return (new MailMessage)
+      ->subject('Referral Notification')
       ->greeting('Hello ' . $this->user->name . ',')
-      ->subject('New Private Message')
-      ->line('You have received a new private message.')
-      ->action('Open Inbox', url('/private_messages'));
+      ->line('You just referred new member to ' . config('app.name'))
+      ->line('You will earn commissions every time your referrer buys something at ' . config('app.name'))
+      ->line('Thank you for promoting.');
   }
 
   /**

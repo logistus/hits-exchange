@@ -7,6 +7,7 @@ use App\Models\Website;
 use Illuminate\Http\Request;
 use App\Models\LoginSpotlight;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class LoginSpotlightController extends Controller
 {
@@ -20,7 +21,7 @@ class LoginSpotlightController extends Controller
   public function index_buy(Request $request)
   {
     $page = "Buy Login Spotlight";
-    $user_websites = $request->user()->websites;
+    $user_websites = Website::where('user_id', $request->user()->id)->where('status', 'Active')->get();
     $bought_dates = LoginSpotlight::select('dates')->where('status', 'Active')->get();
     $user_login_spotlights = $request->user()->login_spotlights;
     return view('buy.login_spotlight', compact('page', 'bought_dates', 'user_login_spotlights', 'user_websites'));
@@ -50,7 +51,6 @@ class LoginSpotlightController extends Controller
 
     $order = Order::create([
       "user_id" => Auth::id(),
-      "order_type" => "Login Spotlight",
       "order_item" => "Login Spotlight (" . $selected_dates . ")",
       "price" => count($selected_dates_array) * 2, // TODO: get start page price from database
       "status" => "Pending Payment"
@@ -65,5 +65,18 @@ class LoginSpotlightController extends Controller
     ]);
 
     return redirect("user/orders");
+  }
+
+  public function destroy($id)
+  {
+    $login_spotlight = LoginSpotlight::findOrFail($id);
+    $response = Gate::inspect("delete", $login_spotlight);
+    if ($response->allowed()) {
+      $login_spotlight->delete();
+      Order::where('id', $login_spotlight->order_id)->delete();
+      return back();
+    } else {
+      return back()->with("status", ["warning", $response->message()]);
+    }
   }
 }

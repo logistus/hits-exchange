@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,7 @@ use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\SurfCodeController;
 use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
+use App\Http\Controllers\UserTypeController;
 use App\Models\LoginSpotlight;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -88,6 +90,7 @@ Route::get('suspended', [UserController::class, 'suspended']);
 
 Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
+  Route::get('/upgrade', [UserController::class, 'upgrade']);
   Route::get('/surf', [SurfController::class, 'view']);
   Route::get('/surf_icons', [SurfController::class, 'surf_icons']);
   Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
@@ -104,14 +107,19 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::post('surf_codes', [SurfCodeController::class, 'store']);
   Route::get('surf_code_claimed/{id}', [SurfController::class, 'surf_code_claimed']);
   Route::get('start_page', [SurfController::class, 'start_page']);
-
-  Route::get('start_page/delete/{id}', [StartPageController::class, 'destroy']);
+  Route::get('prize_page', [SurfController::class, 'prize_page']);
+  Route::post('claim_surf_prize', [SurfController::class, 'claim_surf_prize']);
+  Route::get('login_spotlight', [SurfController::class, 'login_spotlight']);
+  Route::post('login_spotlight', [SurfController::class, 'login_spotlight_prize']);
 
   Route::prefix('buy')->group(function () {
     Route::get('start_page', [StartPageController::class, 'index_buy']);
     Route::post('start_page', [StartPageController::class, 'store_buy']);
     Route::get('login_spotlight', [LoginSpotlightController::class, 'index_buy']);
     Route::post('login_spotlight', [LoginSpotlightController::class, 'store_buy']);
+    Route::post('upgrade/{type_id}/{price_id}', [UserTypeController::class, 'store_buy']);
+    Route::get('credits', [AdPriceController::class, 'index']);
+    Route::post('credits/{id}', [AdPriceController::class, 'store']);
   });
 
   Route::prefix('websites')->group(function () {
@@ -167,7 +175,9 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   });
 
   Route::get('start_pages', [StartPageController::class, 'index']);
+  Route::post('start_pages/delete/{id}', [StartPageController::class, 'destroy']);
   Route::get('login_spotlights', [LoginSpotlightController::class, 'index']);
+  Route::post('login_spotlights/delete/{id}', [LoginSpotlightController::class, 'destroy']);
 
   Route::prefix('private_messages')->group(function () {
     Route::get('/', [PrivateMessageController::class, 'inbox']);

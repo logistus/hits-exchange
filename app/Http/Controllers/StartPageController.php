@@ -22,7 +22,7 @@ class StartPageController extends Controller
   public function index_buy(Request $request)
   {
     $page = "Buy Startpage";
-    $user_websites = $request->user()->websites;
+    $user_websites = Website::where('user_id', $request->user()->id)->where('status', 'Active')->get();
     $bought_dates = StartPage::select('dates')->where('status', 'Active')->get();
     $user_start_pages = $request->user()->start_pages;
     return view('buy.start_page', compact('page', 'bought_dates', 'user_start_pages', 'user_websites'));
@@ -50,15 +50,13 @@ class StartPageController extends Controller
     $selected_dates = implode(", ", $selected_dates_array);
     $order = Order::create([
       "user_id" => Auth::id(),
-      "order_type" => "Start Page",
       "order_item" => "Start Page (" . $selected_dates . ")",
       "price" => count($selected_dates_array) * 1, // TODO: get start page price from database
-      "ad_id" => $start_page->id,
-      "ad_type" => "start_page",
+
       "status" => "Pending Payment"
     ]);
 
-    $start_page = StartPage::create([
+    StartPage::create([
       "user_id" => $request->user()->id,
       "order_id" => $order->id,
       "dates" => $selected_dates,
@@ -75,6 +73,7 @@ class StartPageController extends Controller
     $response = Gate::inspect("delete", $start_page);
     if ($response->allowed()) {
       $start_page->delete();
+      Order::where('id', $start_page->order_id)->delete();
       return back();
     } else {
       return back()->with("status", ["warning", $response->message()]);

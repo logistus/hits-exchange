@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Banner;
+use App\Models\LoginSpotlight;
 use App\Models\StartPage;
 use App\Models\TextAd;
 use App\Models\Website;
@@ -31,7 +32,6 @@ class SurfController extends Controller
         $dates = explode(',', $active_start_page->dates);
         foreach ($dates as $date) {
           if ($date == date("Y-m-d")) {
-            die("eşit mi lan");
             session(['selected_website_url' => $active_start_page->url]);
             StartPage::where('id', $active_start_page->id)->increment('total_views');
             break 2;
@@ -40,6 +40,8 @@ class SurfController extends Controller
           }
         }
       }
+    } else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 5) == 0) {
+      session(['selected_website_url' => url('prize_page')]);
     } else {
       session(['selected_website_url' => url('start_page')]);
     }
@@ -102,53 +104,48 @@ class SurfController extends Controller
     }
   }
 
+  public function check_prize_page()
+  {
+  }
+
   public function selectRandomWebsite()
   {
-    $website = Website::inRandomOrder()->select('id', 'url', 'user_id')
-      ->where('user_id', '!=', Auth::user()->id)
-      ->where('assigned', '>', 0)
-      ->where('status', 'Active')
-      ->where('max_daily_views', 0)
-      ->orwhere(function ($query) {
-        $query->where('views_today', '<=', 'max_daily_views')
-          ->where('max_daily_views', '>', 0);
-      })->limit(1)->get()->first();
-    // save website ID to session
-    session(['selected_website_owner' => $website->user_id]);
-    session(['selected_website_url' => $website->url]);
-    session(['selected_website_id' => $website->id]);
-    return $website;
+    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 5) == 0) {
+      return url('prize_page');
+    } else {
+      $website = Website::inRandomOrder()->select('id', 'url', 'user_id')
+        ->where('user_id', '!=', Auth::user()->id)
+        ->where('assigned', '>', 0)
+        ->where('status', 'Active')
+        ->where('max_daily_views', 0)
+        ->orwhere(function ($query) {
+          $query->where('views_today', '<=', 'max_daily_views')
+            ->where('max_daily_views', '>', 0);
+        })->limit(1)->get()->first();
+      // save website ID to session
+      session(['selected_website_owner' => $website->user_id]);
+      session(['selected_website_url' => $website->url]);
+      session(['selected_website_id' => $website->id]);
+      return $website;
+    }
   }
 
   public function selectRandomBanner()
   {
-    $banner = Banner::inRandomOrder()->select('image_url', 'id')
-      ->where('user_id', '!=', Auth::user()->id)
-      ->where('assigned', '>', 0)
-      ->where('status', 'Active')
-      ->limit(1)->get()->first();
-    // save website ID to session
+    $banner = Banner::select_random();
     session(['selected_banner_id' => $banner->id]);
     session(['selected_banner_image' => $banner->image_url]);
-    Banner::where('id', $banner->id)->decrement('assigned');
-    Banner::where('id', $banner->id)->increment('views');
     return $banner;
   }
 
   public function selectRandomTextAd()
   {
-    $text = TextAd::inRandomOrder()->select('id', 'body', 'text_color', 'bg_color', 'text_bold')
-      ->where('user_id', '!=', Auth::user()->id)
-      ->where('assigned', '>', 0)
-      ->where('status', 'Active')
-      ->limit(1)->get()->first();
+    $text = TextAd::select_random();
     session(['selected_text_id' => $text->id]);
     session(['selected_text_body' => $text->body]);
     session(['selected_text_color' => $text->text_color]);
     session(['selected_bg_color' => $text->bg_color]);
     session(['selected_text_bold' => $text->text_bold]);
-    TextAd::where('id', $text->id)->decrement('assigned');
-    TextAd::where('id', $text->id)->increment('views');
     return $text;
   }
 
@@ -224,7 +221,7 @@ class SurfController extends Controller
     return view('surf_icons');
   }
 
-  public function validate_click($id)
+  public function validate_click(Request $request, $id)
   {
     $surf_ratio = Auth::user()->type->surf_ratio;
     if (time() - Auth::user()->start_time < Auth::user()->type->surf_timer) {
@@ -248,6 +245,10 @@ class SurfController extends Controller
       $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
 
       if ($id == session('icon_ids')[session('correct_icons')[0]] || $id == session('icon_ids')[session('correct_icons')[1]]) {
+        $auto_assign = $this->check_auto_assign($request->user());
+        if ($auto_assign < $request->user()->type->min_auto_assign) {
+          return redirect('websites/auto_assign');
+        }
         User::where('id', Auth::user()->id)->increment('correct_clicks');
         $user_websites = Auth::user()->websites;
         $user_total_auto_assign = Auth::user()->websites->sum('auto_assign');
@@ -302,7 +303,77 @@ class SurfController extends Controller
 
   public function start_page()
   {
-    $start_page = 'start_page';
-    return view($start_page);
+    return view('start_page');
+  }
+
+  public function prize_page()
+  {
+    $last_prize_claimed = Auth::user()->claim_surf_prize;
+    $surfed_today = User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today');
+    return view('prize_page', compact('last_prize_claimed', 'surfed_today'));
+  }
+
+  public function claim_surf_prize()
+  {
+    $surfed_today = User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today');
+    $credit_prize_base = 4;
+    $banner_prize_base = 10;
+    $square_banner_prize_base = 10;
+    $text_prize_base = 50;
+
+    $prize_won = mt_rand(1, 4);
+
+    switch ($prize_won) {
+      case 1:
+        // credits
+        $credits_won = round($credit_prize_base * ($surfed_today / 100));
+        User::where('id', Auth::user()->id)->increment('credits', $credits_won);
+        $prize_text = "Congrats! You have won $credits_won credits.";
+        break;
+      case 2:
+        // banners
+        $banners_won = round($banner_prize_base * ($surfed_today / 100));
+        User::where('id', Auth::user()->id)->increment('banner_imps', $banners_won);
+        $prize_text = "Congrats! You have won $banners_won banner impressions.";
+        break;
+      case 3:
+        // square banners
+        $square_banners_won = round($square_banner_prize_base * ($surfed_today / 100));
+        User::where('id', Auth::user()->id)->increment('square_banner_imps', $square_banners_won);
+        $prize_text = "Congrats! You have won $square_banners_won banner impressions.";
+        break;
+      case 4:
+        // text ads
+        $text_ads_won = round($text_prize_base * ($surfed_today / 100));
+        User::where('id', Auth::user()->id)->increment('text_imps', $text_ads_won);
+        $prize_text = "Congrats! You have won $text_ads_won text ad impressions.";
+        break;
+      default:
+        $prize_text = "Invalid prize type.";
+    }
+    return back()->with('status', $prize_text);
+  }
+
+  public function login_spotlight()
+  {
+    $login_spotlight_url = LoginSpotlight::where('status', 'Active')->where('dates', "LIKE",  "%" . date('Y-m-d') . "%")->value('url');
+    return view('view_login_spotlight', compact('login_spotlight_url'));
+  }
+
+  public function login_spotlight_prize()
+  {
+    $prize_check = Auth::user()->login_spotlight_viewed;
+    if ($prize_check) {
+      return response()->json([
+        'status' => 'Login Spotlight prize already claimed.'
+      ]);
+    } else {
+      User::where('id', Auth::user()->id)->increment('credits', 10);
+      User::where('id', Auth::user()->id)->update(['login_spotlight_viewed' => 1]);
+      LoginSpotlight::where('dates', "LIKE",  "%" . date('Y-m-d') . "%")->increment('total_views');
+      return response()->json([
+        'status' => '10 credits won.'
+      ]);
+    }
   }
 }

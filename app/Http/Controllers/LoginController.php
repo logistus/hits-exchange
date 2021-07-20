@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Country;
+use Illuminate\Http\Request;
+use App\Models\LoginSpotlight;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -35,6 +36,15 @@ class LoginController extends Controller
       $request->session()->regenerate();
       $request->user()->last_login = now();
       $request->user()->save();
+
+      // check login spotlight
+
+      $login_spotlight_check_url = LoginSpotlight::where('status', 'Active')->where('dates', "LIKE",  "%" . date('Y-m-d') . "%")->value('url');
+      $login_spotlight_check_user = $request->user()->login_spotlight_viewed;
+
+      if ($login_spotlight_check_url && !$login_spotlight_check_user) {
+        return redirect('login_spotlight');
+      }
 
       return redirect()->intended();
     }

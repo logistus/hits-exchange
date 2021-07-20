@@ -2,25 +2,34 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
+use App\Models\Order;
+use App\Models\Commission;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
-class PrivateMessageReceived extends Notification implements ShouldQueue
+class CommissionEarned extends Notification implements ShouldQueue
 {
   use Queueable;
 
+  public $upline;
   public $user;
+  public $order;
+  public $commission;
 
   /**
    * Create a new notification instance.
    *
    * @return void
    */
-  public function __construct($user)
+  public function __construct(User $upline, $user, Order $order, Commission $commission)
   {
+    $this->upline = $upline;
     $this->user = $user;
+    $this->order = $order;
+    $this->commission = $commission;
   }
 
   /**
@@ -43,10 +52,12 @@ class PrivateMessageReceived extends Notification implements ShouldQueue
   public function toMail($notifiable)
   {
     return (new MailMessage)
-      ->greeting('Hello ' . $this->user->name . ',')
-      ->subject('New Private Message')
-      ->line('You have received a new private message.')
-      ->action('Open Inbox', url('/private_messages'));
+      ->subject('Commission Earned')
+      ->greeting('Hello ' . $this->upline->name . ',')
+      ->line('One of your referral has sent a payment to ' . config('app.name'))
+      ->line('You just earned commission!')
+      ->line($this->user->username . ' has purchased ' . $this->order->order_item . ' for $' . $this->order->price)
+      ->line('Your commission is $' . $this->commission->amount . ' (' . $this->upline->type->commission_ratio . '%)');
   }
 
   /**

@@ -30,6 +30,7 @@ class UserTypeSeeder extends Seeder
       'commission_ratio' => 20,
       'default_text_ad_color' => '#FFFFFF',
       'default_text_ad_bg_color' => '#1246e2',
+      'customize_text_ads' => 0,
     ]);
 
     DB::table('user_types')->insert([
@@ -48,6 +49,7 @@ class UserTypeSeeder extends Seeder
       'commission_ratio' => 40,
       'default_text_ad_color' => '#FFFFFF',
       'default_text_ad_bg_color' => '#1246e2',
+      'customize_text_ads' => 1,
     ]);
   }
 }

@@ -8,6 +8,7 @@
         <th scope="col">Date(s)</th>
         <th scope="col">Total Views</th>
         <th scope="col">Status</th>
+        <th scope="col">Delete</th>
       </tr>
     </thead>
     <tbody>
@@ -21,12 +22,18 @@
           <a href="{{ url('user/orders') }}">Make Payment</a>
           @endif
         </td>
+        <td>
+          <form action="{{ url('login_spotlights/delete', $login_spotlight->id) }}" method="POST" class="mt-2">
+            @csrf
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </td>
       </tr>
       @endforeach
     </tbody>
   </table>
   @else
-  <p class="text-center">You don't have any login spotlighrs.</p>
-  <p class="text-center"><a href="{{ url('buy/login_spotlight') }}">Click here</a> to buy.</p>
+  <p>You don't have any login spotlighrs.</p>
+  <p><a href="{{ url('buy/login_spotlight') }}">Click here</a> to buy.</p>
   @endif
 </x-layout>

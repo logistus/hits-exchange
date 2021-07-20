@@ -16,15 +16,17 @@
           @endforeach
         </select>
       </div>
+      @else
+      <p>You don't have any websites.</p>
       @endif
+      <h4>or specify new URL</h4>
       <div class="my-3">
-        <label for="new_start_page_url" class="form-label">or specify new URL:</label>
-        <input type="url" class="form-control" id="new_login_spotlight_url" value="{{ old('new_start_page_url') }}" name="new_start_page_url">
+        <input type="url" class="form-control" id="new_login_spotlight_url" value="{{ old('new_login_spotlight_url') }}" name="new_login_spotlight_url">
       </div>
       @error('login_spotlight_user_website')
       <div class="text-danger">You must select one from your websites or specify new URL.</div>
       @enderror
-      @error('new_start_page_url')
+      @error('new_login_spotlight_url')
       <div class="text-danger">You must select one from your websites or specify new URL.</div>
       @enderror
       <h4 class="mt-3">Select date(s)</h4>

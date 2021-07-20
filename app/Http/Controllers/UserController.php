@@ -8,10 +8,12 @@ use App\Models\Commission;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\PurchaseBalance;
+use App\Models\UserType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\PasswordChanged;
+use App\Notifications\ReferralNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Password;
@@ -44,6 +46,14 @@ class UserController extends Controller
 
     // Send email for email verification
     event(new Registered($user));
+
+    // Check if user has upline, if there is and he/she wants an email, send it
+    if ($request->cookie('ref_id')) {
+      $upline =  User::where('id', request()->cookie('ref_id'))->get()->first();
+      if ($upline && $upline->referral_notification) {
+        $upline->notify(new ReferralNotification($upline));
+      }
+    }
 
     // Log user in
     Auth::login($user);
@@ -136,30 +146,44 @@ class UserController extends Controller
   {
     $page = "Referrals";
     $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'join_date';
-    if ($sort_by == "pages_surfed") {
-      $referrals = $request->user()->referrals()
-        ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'correct_clicks', 'wrong_clicks')
-        ->orderByDesc(DB::raw("`correct_clicks` + `wrong_clicks`"))
-        ->paginate(15)
-        ->withQueryString();
-    } else if ($sort_by == "total_purchased") {
+    if ($sort_by == '' || $sort_by == 'join_date' || $sort_by == 'last_login' || $sort_by == 'user_type' || $sort_by == 'pages_surfed' || $sort_by == 'total_purchased') {
+      if ($sort_by == "pages_surfed") {
+        $referrals = $request->user()->referrals()
+          ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'total_purchased', 'correct_clicks', 'wrong_clicks')
+          ->orderByDesc(DB::raw("`correct_clicks` + `wrong_clicks`"))
+          ->paginate(15)
+          ->withQueryString();
+      }
+      /* I might need this later
+
+    else if ($sort_by == "total_purchased") {
       $referrals = $request->user()->referrals()
         ->select('users.id', 'username', 'user_type', 'users.status', 'last_login', 'join_date', 'correct_clicks', 'wrong_clicks')
-        ->selectRaw('SUM(orders.price) as total_purchased')
-        ->where('orders.status', 'Completed')
-        ->join('orders', 'users.id', '=', 'orders.user_id')
+        ->selectRaw('SUM(orders.price) AS total_purchased')
+        ->join('orders', function($join) {
+            $join->on( 'users.id', '=', 'orders.user_id')->where
+        })
         ->orderByRaw('SUM(orders.price) DESC')
         ->groupBy('orders.user_id')
+        ->whereExists(function ($query) {
+          $query->select(DB::raw(1))
+            ->from('orders')
+            ->whereColumn('orders.user_id', 'users.id');
+        })
         ->paginate(15)
         ->withQueryString();
+      */ else {
+        $referrals = $request->user()->referrals()
+          ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'total_purchased', 'correct_clicks', 'wrong_clicks')
+          ->orderByDesc($sort_by)
+          ->paginate(15)
+          ->withQueryString();
+      }
+      return view("user.referrals", compact('referrals', 'page'));
     } else {
-      $referrals = $request->user()->referrals()
-        ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'correct_clicks', 'wrong_clicks')
-        ->orderByDesc($sort_by)
-        ->paginate(15)
-        ->withQueryString();
+      $referrals = null;
+      return back()->with("status", ["warning", "Invalid sorting type."]);
     }
-    return view("user.referrals", compact('referrals', 'page'));
   }
 
   public function view_profile(Request $request)
@@ -360,6 +384,7 @@ class UserController extends Controller
       'user_id' => $request->user()->id,
       'type' => 'Commission Transfer',
       'amount' => $request->commission_transfer_amount + ($request->commission_transfer_amount * 20) / 100,
+      'status' => 'Completed'
     ]);
 
     return back()->with('status', ['success', 'Commissions successfully transferred.']);
@@ -391,12 +416,19 @@ class UserController extends Controller
   public function ref_link($id)
   {
     Cookie::queue("ref_id", $id, 60 * 24 * 30);
-    return redirect()->intended();
+    return redirect('/');
   }
 
   public function promote()
   {
     $page = "Promo Tools";
     return view('user/promote', compact('page'));
+  }
+
+  public function upgrade()
+  {
+    $page = "Upgrade";
+    $user_types = UserType::all();
+    return view('user/upgrade', compact('page', 'user_types'));
   }
 }

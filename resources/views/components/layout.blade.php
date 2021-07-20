@@ -7,6 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link href="{{ asset('css/app.css') }}" rel="stylesheet">
   <title>{{ config('app.name') }} {{ $title ? "- $title" : "" }}</title>
 </head>
@@ -19,11 +23,6 @@
         @auth
         <div>
           <div class="d-flex align-items-center">
-            @if (Auth::user()->isAdmin())
-            <a href="{{ url('admin') }}" target="_blank" title="Admin Panel">
-              <i class="bi-gear" style="font-size: 1.5rem;"></i>
-            </a>
-            @endif
             <a href="{{ url('private_messages') }}" title="Private Messages" class="mx-4" style="text-decoration: none;">
               <i class="bi-envelope{{ count(Auth::user()->unread_private_messages) > 0 ? '' : '-open' }}" style="font-size: 1.5rem;"></i>
               @if (count(Auth::user()->unread_private_messages) > 0)
@@ -34,10 +33,6 @@
             <div class="dropdown">
               <a class="btn dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="text-start" style="width: 100px; overflow-wrap: break-word; word-wrap:break-word; white-space:normal;">{{ Auth::user()->username }}</div>
-                @if (Auth::user()->isAdmin())
-                <div class="badge bg-danger">Admin Member</div>
-                @endif
-                @if (!Auth::user()->isAdmin())
                 <div @if (Auth::user()->type->name == "Free")
                   class="badge bg-secondary"
                   @else
@@ -45,22 +40,21 @@
                   @endif
                   >{{ Auth::user()->type->name }} Member
                 </div>
-                @endif
               </a>
               <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                <li><a class="dropdown-item" href="{{ url('user/profile') }}">My Profile</a></li>
-                <li><a class="dropdown-item" href="{{ url('user/referrals') }}">My Referrals</a></li>
+                <li><a class="dropdown-item" href="{{ url('user/profile') }}">Edit Profile</a></li>
+                <li><a class="dropdown-item" href="{{ url('user/referrals') }}">Referrals</a></li>
                 <li>
                   <a class="dropdown-item" href="{{ url('user/purchase_balance') }}">
-                    My Purchase Balance <span class="badge bg-dark">${{ number_format(Auth::user()->purchase_balance->sum('amount'), 2) }}</span>
+                    Purchase Balance <span class="badge bg-primary">${{ number_format(Auth::user()->purchase_balance->sum('amount'), 2) }}</span>
                   </a>
                 </li>
                 <li>
                   <a class="dropdown-item" href="{{ url('user/commissions') }}">
-                    My Commissions <span class="badge bg-success">${{ number_format(Auth::user()->commissions_all->sum('amount'), 2) }}</span>
+                    Commissions <span class="badge bg-success">${{ number_format(Auth::user()->commissions_all->sum('amount'), 2) }}</span>
                   </a>
                 </li>
-                <li><a class="dropdown-item" href="{{ url('user/orders') }}">My Orders</a></li>
+                <li><a class="dropdown-item" href="{{ url('user/orders') }}">Orders</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
@@ -132,7 +126,7 @@
               <ul class="dropdown-menu" aria-labelledby="buyAdsDropdown">
                 <li><a class="dropdown-item" href="{{ url('buy/start_page') }}">Start Page</a></li>
                 <li><a class="dropdown-item" href="{{ url('buy/login_spotlight') }}">Login Spotlight</a></li>
-                <li><a class="dropdown-item" href="{{ url('buy/credits') }}">Buy Credits</a></li>
+                <li><a class="dropdown-item" href="{{ url('buy/credits') }}">Buy Credits & Impressions</a></li>
               </ul>
             </li>
             <li class="nav-item">
@@ -152,6 +146,7 @@
     </nav>
     <div class="card p-3">
       {{ $slot }}
+      <x-userads />
     </div>
     <footer class="bg-dark text-white p-3">
       footer

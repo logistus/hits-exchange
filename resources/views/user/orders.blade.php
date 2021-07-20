@@ -6,7 +6,6 @@
     <thead>
       <tr class="bg-light">
         <th scope="col">Date</th>
-        <th scope="col">Type</th>
         <th scope="col">Item</th>
         <th scope="col">Status</th>
         <th scope="col">Price</th>
@@ -18,7 +17,6 @@
       @foreach ($orders as $order)
       <tr>
         <td>{{ $order->created_at }}</td>
-        <td>{{ $order->order_type }}</td>
         <td>{{ $order->order_item }}</td>
         <td>{{ $order->status }}</td>
         <td>${{ $order->price }}</td>
@@ -29,16 +27,23 @@
             @csrf
             <button type="submit" class="btn btn-primary">Pay With Purchase Balance</button>
           </form>
+          @else
+          Insufficent fund in purchase balance
+          <p><a href="{{ url('user/purchase_balance/deposit') }}">Deposit</a></p>
           @endif
           @else
           Paid
           @endif
         </td>
         <td>
+          @if ($order->status == "Pending Payment")
           <form action="{{ url('user/orders/delete', $order->id) }}" method="POST" class="mt-2">
             @csrf
-            <button type="submit" class="btn btn-danger">Delete Order & Advert</button>
+            <button type="submit" class="btn btn-danger">Delete Order</button>
           </form>
+          @else
+          N/A
+          @endif
         </td>
       </tr>
       @endforeach

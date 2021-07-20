@@ -7,6 +7,7 @@ use App\Models\User;
   <x-private_message_top />
   <script src="https://cdn.ckeditor.com/ckeditor5/28.0.0/classic/ckeditor.js"></script>
   <h3 class="mb-3">Compose</h3>
+  @if (count(Auth::user()->referrals) > 0)
   <form action="{{ url('private_messages') }}" method="POST">
     @csrf
     <div class="row mb-3">
@@ -15,16 +16,12 @@ use App\Models\User;
         <i class="bi-question-circle-fill" data-bs-toggle="tooltip" data-bs-placement="top" title="You can send private messages to your referrals."></i>
       </label>
       <div class="col-sm-3">
-        @if (count(Auth::user()->referrals) > 0)
         <select name="pm_to" id="pm_to" class="form-select @error('pm_to') border border-danger @enderror" required>
           <option>Select Referral</option>
           @foreach (Auth::user()->referrals as $referral)
           <option value="{{ $referral->id }}" {{ (old("pm_to") == $referral->id || session('pm_to') == $referral->id) ? "selected" : "" }}>{{ User::where('id', $referral->id)->value('username') }}</option>
           @endforeach
         </select>
-        @else
-        <input type="text" readonly class="form-control-plaintext" id="staticNoRefs" value="You don't have any referrals.">
-        @endif
       </div>
       @error('pm_to')
       <div class="text-danger offset-sm-2">Please select a referral.</div>
@@ -52,6 +49,9 @@ use App\Models\User;
     </div>
     <button type="submit" class="btn btn-primary offset-sm-2 mt-3">Send</button>
   </form>
+  @else
+  <p>You can send private message only to your referrals. You don't have any referrals.</p>
+  @endif
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script>
     ClassicEditor

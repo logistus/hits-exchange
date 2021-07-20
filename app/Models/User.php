@@ -206,6 +206,11 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->hasMany(PurchaseBalance::class, 'user_id')->orderByDesc('id');
   }
 
+  public function purchase_balance_completed()
+  {
+    return $this->hasMany(PurchaseBalance::class, 'user_id')->where('status', 'Completed')->orderByDesc('id');
+  }
+
   public function getTotalUnpaidCommissionsAttribute()
   {
     return $this->commissions_all->sum('amount');

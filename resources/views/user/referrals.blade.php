@@ -1,7 +1,6 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('user/referrals') }}">Referrals</a></h4>
   <x-alert />
-  {{-- <pre>{{ var_dump($referrals) }}</pre> --}}
   @if ($referrals)
   <form action="{{ url('user/referrals') }}" method="GET" class="my-3 row row-cols-lg-auto align-items-center">
     <div class="col-12">
@@ -42,7 +41,7 @@
         <td>{{ $referral->username }}</td>
         <td>{{ $referral->type->name }}</td>
         <td>{{ $referral->totalSurfed }}</td>
-        <td>${{ $referral->orders->where('status', 'Completed')->sum('price') }}</td>
+        <td>${{ $referral->total_purchased }}</td>
         <td>{{ $referral->status }}</td>
         <td>hungryforhits.com</td>
         <td>{{ $referral->last_login ? $referral->last_login : "Never" }}</td>

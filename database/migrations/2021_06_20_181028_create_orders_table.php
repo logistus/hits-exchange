@@ -16,12 +16,9 @@ class CreateOrdersTable extends Migration
     Schema::create('orders', function (Blueprint $table) {
       $table->id();
       $table->foreignId('user_id');
-      $table->enum('order_type', ['Credit', 'Banner Impressions', 'Text Impressions', 'Square Banner Impressions', 'Start Page', 'Login Spotlight']);
       $table->string('order_item');
       $table->unsignedMediumInteger('price');
-      $table->string('ad_type');
-      $table->foreignId('ad_id');
-      $table->enum('status', ['Pending Payment', 'Completed', 'Cancelled']);
+      $table->enum('status', ['Pending Payment', 'Completed', 'Cancelled'])->default('Pending Payment');
       $table->timestamp('created_at')->useCurrent();
     });
   }

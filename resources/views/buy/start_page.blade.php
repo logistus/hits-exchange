@@ -5,7 +5,7 @@
   <div class="d-flex pt-3">
     <form method="POST" action="{{ url('buy/start_page') }}">
       @csrf
-      <h4>Select a website</h4>
+      <h4>Select from your websites</h4>
       @if (count($user_websites) > 0)
       <div class="mb-3">
         <label for="start_page_user_website" class="form-label">Select from your websites:</label>
@@ -16,9 +16,11 @@
           @endforeach
         </select>
       </div>
+      @else
+      <p>You don't have any active websites.</p>
       @endif
+      <h4>or specify new URL</h4>
       <div class="my-3">
-        <label for="new_start_page_url" class="form-label">or specify new URL:</label>
         <input type="url" class="form-control" id="new_start_page_url" value="{{ old('new_start_page_url') }}" name="new_start_page_url">
       </div>
       @error('start_page_user_website')

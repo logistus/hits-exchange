@@ -4,7 +4,7 @@ use App\Models\Order;
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('user/purchase_balance') }}">Purchase Balance</a></h4>
   <p class="d-flex justify-content-between align-items-center">
-    <span>You have <strong>${{ number_format(Auth::user()->purchase_balance->sum('amount'), 2) }}</strong> in your purchase balance.</span>
+    <span>You have <strong>${{ number_format(Auth::user()->purchase_balance_completed->sum('amount'), 2) }}</strong> in your purchase balance.</span>
     <a href="{{ url('user/purchase_balance/deposit') }}" class="btn btn-success">Deposit</a>
   </p>
   @if (count($purchase_balance) > 0)
@@ -15,6 +15,7 @@ use App\Models\Order;
         <th scope="col">Type</th>
         <th scope="col">Product</th>
         <th scope="col">Amount</th>
+        <th scope="col">Status</th>
       </tr>
     </thead>
     <tbody>
@@ -34,6 +35,7 @@ use App\Models\Order;
             ${{ $pb->amount }}
           </span>
         </td>
+        <td>{{ $pb->status }}</td>
       </tr>
       @endforeach
     </tbody>
