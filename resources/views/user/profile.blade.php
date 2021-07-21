@@ -55,6 +55,36 @@
         </select>
       </div>
     </div>
+    <h4 class="mt-5">Cashout Settings</h4>
+    <div class="row mb-3">
+      <label for="payment_type" class="col-sm-2 col-form-label">Payment Type</label>
+      <div class="col-sm-5">
+        <select name="payment_type" id="payment_type" class="form-select">
+          <option value="">Hold Commissions</option>
+          <option value="btc" {{ Auth::user()->payment_type == "btc" ? "selected" : "" }}>Bitcoin</option>
+          <option value="coinbase" {{ Auth::user()->payment_type == "coinbase" ? "selected" : "" }}>Coinbase</option>
+        </select>
+      </div>
+    </div>
+    <div class="row mb-3 payment_types {{ Auth::user()->payment_type != 'btc' ? 'd-none' : '' }}" id="payment_btc">
+      <label for="btc_address" class="col-sm-2 col-form-label">BTC Address</label>
+      <div class="col-sm-5">
+        <input type="text" class="form-control @error('btc_address') border border-danger @enderror" id="btc_address" name="btc_address" value="{{ Auth::user()->btc_address }}">
+        <small>We will send your money to this BTC address.</small>
+      </div>
+      @error('btc_address')
+      <div class="text-danger offset-sm-2">{{ $message }}</div>
+      @enderror
+    </div>
+    <div class="row mb-3 payment_types {{ Auth::user()->payment_type != 'coinbase' ? 'd-none' : '' }}" id="payment_coinbase">
+      <label for="coinbase_email" class="col-sm-2 col-form-label">Coinbase Email</label>
+      <div class="col-sm-5">
+        <input type="email" class="form-control @error('coinbase_email') border border-danger @enderror" id="coinbase_email" name="coinbase_email" value="{{ Auth::user()->coinbase_email }}">
+      </div>
+      @error('coinbase_email')
+      <div class="text-danger offset-sm-2">{{ $message }}</div>
+      @enderror
+    </div>
     <h4 class="mt-5">Email Preferences</h4>
     <p class="fs-6 fw-light">When do you want to receive an email notification</p>
     <div class="form-check">
@@ -129,4 +159,22 @@
     <button type="submit" class="btn btn-primary offset-sm-2 mt-3">Change Email Address</button>
   </form>
   @endif
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script>
+    $(function() {
+      $("#payment_type").change(function() {
+        if ($(this).val() == "btc") {
+          $("#payment_coinbase").addClass("d-none");
+          $("#payment_btc").removeClass("d-none");
+        } else if ($(this).val() == "coinbase") {
+          $("#payment_btc").addClass("d-none");
+          $("#payment_coinbase").removeClass("d-none");
+        } else {
+          $("#payment_btc").addClass("d-none");
+          $("#payment_coinbase").addClass("d-none");
+        }
+      });
+    });
+
+  </script>
 </x-layout>

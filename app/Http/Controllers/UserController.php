@@ -195,11 +195,12 @@ class UserController extends Controller
 
   public function save_profile(Request $request)
   {
+    //return $request->all();
     $request->validate([
       "email" => "required|email",
       "name" => "required|string",
       "surname" => "required|string",
-      "username" => "required|string"
+      "username" => "required|string",
     ]);
 
     $status = null;
@@ -233,6 +234,35 @@ class UserController extends Controller
     $request->user()->referral_notification = $request->input('referral_notification') ? 1 : 0;
     $request->user()->commission_notification = $request->input('commission_notification') ? 1 : 0;
     $request->user()->pm_notification = $request->input('pm_notification') ? 1 : 0;
+    $request->user()->payment_type = $request->payment_type;
+
+    if ($request->payment_type == "btc") {
+      if ($request->btc_address == null) {
+        $request->user()->save();
+        return back()->with("status", ["warning", "Missing BTC address."]);
+      } else {
+        $btc_check = User::where('btc_address', $request->btc_address)->where('btc_address', '!=', '')->value('id');
+        if ($btc_check) {
+          $status = "This BTC address already in use.";
+        } else {
+          $request->user()->btc_address = $request->btc_address;
+        }
+      }
+    }
+
+    if ($request->payment_type == "coinbase") {
+      if ($request->coinbase_email == null) {
+        $request->user()->save();
+        $status = "Missing Coinbase email address.";
+      } else {
+        $coinbase_check = User::where('coinbase_email', $request->coinbase_email)->where('coinbase_email', '!=', '')->value('id');
+        if ($coinbase_check) {
+          $status = "This Coinbase email address already in use.";
+        } else {
+          $request->user()->coinbase_email = $request->coinbase_email;
+        }
+      }
+    }
 
     if (
       $request->user()->isDirty('name') ||
@@ -241,7 +271,10 @@ class UserController extends Controller
       $request->user()->isDirty('username') ||
       $request->user()->isDirty('referral_notification') ||
       $request->user()->isDirty('commission_notification') ||
-      $request->user()->isDirty('pm_notification')
+      $request->user()->isDirty('pm_notification') ||
+      $request->user()->isDirty('payment_type') ||
+      $request->user()->isDirty('btc_address') ||
+      $request->user()->isDirty('coinbase_email')
     ) {
       $request->user()->save();
       return back()->with("status", ["success", "Profile updated."]);
