@@ -44,7 +44,6 @@ class PasswordChanged extends Notification implements ShouldQueue
   {
     $url = url('support');
     return (new MailMessage)
-      ->attach(asset('images/hits.exchange.svg'))
       ->subject('Password Changed')
       ->greeting('Hello ' . $this->user->name . ',')
       ->line('Your password has been changed. If you didn\'t change your password you can send us a ticket.')
