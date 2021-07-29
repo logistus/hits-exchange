@@ -24,7 +24,7 @@ class CreateUsersTable extends Migration
       $table->foreignId('upline')->nullable();
       $table->string('country', 3)->nullable();
       $table->foreignId('user_type')->default(1);
-      $table->date('upgrade_expires')->nullable();
+      $table->unsignedInteger('upgrade_expires')->nullable();
       $table->string('payment_type')->nullable();
       $table->string('btc_address')->unique()->nullable();
       $table->string('coinbase_email')->unique()->nullable();

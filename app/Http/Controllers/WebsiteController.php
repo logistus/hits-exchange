@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BannedUrl;
 use App\Models\Website;
+use Hamcrest\Type\IsBoolean;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -67,21 +69,27 @@ class WebsiteController extends Controller
 
   public function store(Request $request)
   {
-    $website = Website::create([
-      "user_id" => $request->user()->id,
-      "url" => $request->url,
-      "max_daily_views" => $request->max_daily_views,
-    ]);
-    if ($request->credits && $request->credits > 0) {
-      if ($request->user()->credits < $request->credits) {
-        return back()->with("status", ["warning", "You don't have enough credits."]);
-      } else {
-        $website->assigned = $request->credits;
-        $website->save();
-        $request->user()->decrement("credits", $request->credits);
+    // check if url is banned
+    $isBanned = BannedUrlController::check_banned($request->url);
+    if ($isBanned) {
+      return back()->with('status', ['warning', $isBanned]);
+    } else {
+      $website = Website::create([
+        "user_id" => $request->user()->id,
+        "url" => str_replace("http://", "https://", $request->url),
+        "max_daily_views" => $request->max_daily_views,
+      ]);
+      if ($request->credits && $request->credits > 0) {
+        if ($request->user()->credits < $request->credits) {
+          return back()->with("status", ["warning", "You don't have enough credits."]);
+        } else {
+          $website->assigned = $request->credits;
+          $website->save();
+          $request->user()->decrement("credits", $request->credits);
+        }
       }
+      return redirect('websites/check_website/' . $website->id);
     }
-    return back();
   }
 
   public function change_status($id)
@@ -226,14 +234,21 @@ class WebsiteController extends Controller
     // return $request->all();
     $website = Website::findOrFail($id);
     $response = Gate::inspect("update", $website);
+    $isBanned = BannedUrlController::check_banned($request->edit_url);
+    if ($isBanned) {
+      return back()->with('status', ['warning', $isBanned]);
+    }
     if ($response->allowed()) {
-      $website->url = $request->edit_url;
+      $website->url = str_replace("http://", "https://", $request->edit_url);
       $website->max_daily_views = $request->edit_max_daily_views;
       if ($website->isDirty("url")) {
         $website->status = "Pending";
+        $website->save();
+        return redirect('websites/check_website/' . $website->id);
+      } else {
+        $website->save();
+        return back();
       }
-      $website->save();
-      return back();
     } else {
       return back()->with("status", ["warning", $response->message()]);
     }
@@ -261,6 +276,25 @@ class WebsiteController extends Controller
       $website->views = 0;
       $website->save();
       return back();
+    } else {
+      return back()->with("status", ["warning", $response->message()]);
+    }
+  }
+
+  public function website_check($id)
+  {
+    $website = Website::findOrFail($id);
+    return view('check_website', compact('website'));
+  }
+
+  public function website_approve($id)
+  {
+    $website = Website::findOrFail($id);
+    $response = Gate::inspect("update", $website);
+    if ($response->allowed()) {
+      $website->status = 'Active';
+      $website->save();
+      return redirect('websites');
     } else {
       return back()->with("status", ["warning", $response->message()]);
     }

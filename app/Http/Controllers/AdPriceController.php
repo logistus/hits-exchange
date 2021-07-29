@@ -14,7 +14,7 @@ class AdPriceController extends Controller
     $credit_ad_prices = AdPrice::where('ad_type', 'Credits')->get();
     $banner_ad_prices = AdPrice::where('ad_type', 'Banner Impressions')->get();
     $square_banner_ad_prices = AdPrice::where('ad_type', 'Square Banner Impressions')->get();
-    $text_ad_prices = AdPrice::where('ad_type', 'Text Ad Impressions')->get();
+    $text_ad_prices = AdPrice::where('ad_type', 'Text Impressions')->get();
 
     return view('buy/credits', compact('page', 'credit_ad_prices', 'banner_ad_prices', 'square_banner_ad_prices', 'text_ad_prices'));
   }
@@ -25,7 +25,9 @@ class AdPriceController extends Controller
 
     Order::create([
       'user_id' => $request->user()->id,
+      'order_type' => $ad_unit->ad_type,
       'order_item' => $ad_unit->ad_amount . ' ' . $ad_unit->ad_type,
+      'order_amount' => $ad_unit->ad_amount,
       'price' => $ad_unit->price
     ]);
 

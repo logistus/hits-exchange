@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
+use App\Models\BannedUrl;
 use App\Classes\FastImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,26 +24,46 @@ class BannerController extends Controller
     return $banner;
   }
 
+  public function check_banned($url)
+  {
+    $domain = str_replace("www.", "", parse_url($url, PHP_URL_HOST));
+    $isBanned = BannedUrl::where('url', $domain)->get()->first();
+    if ($isBanned) {
+      $warning_message = 'This is URL banned!';
+      if ($isBanned->reason)
+        $warning_message .= " Reason: " . $isBanned->reason;
+      return $warning_message;
+    } else {
+      return false;
+    }
+  }
+
   public function store(Request $request)
   {
     $image = new FastImage($request->image_url);
     list($width, $height) = $image->getSize();
     if ($width == 468 && $height == 60) {
-      $banner = Banner::create([
-        "user_id" => Auth::user()->id,
-        "image_url" => $request->image_url,
-        "target_url" => $request->target_url,
-      ]);
-      if ($request->imps && $request->imps > 0) {
-        if ($request->user()->banner_imps < $request->imps) {
-          return back()->with("status", ["warning", "You don't have enough banner impressions."]);
-        } else {
-          $banner->assigned = $request->imps;
-          $banner->save();
-          $request->user()->decrement("banner_imps", $request->imps);
+      $isBannedTargetUrl = BannedUrlController::check_banned($request->target_url);
+      $isBannedImageUrl = BannedUrlController::check_banned($request->image_url);
+      if ($isBannedTargetUrl || $isBannedImageUrl) {
+        return back()->with('status', ['warning', $isBannedTargetUrl ? $isBannedTargetUrl : $isBannedImageUrl]);
+      } else {
+        $banner = Banner::create([
+          "user_id" => Auth::user()->id,
+          "image_url" => str_replace("http://", "https://", $request->image_url),
+          "target_url" => str_replace("http://", "https://", $request->target_url),
+        ]);
+        if ($request->imps && $request->imps > 0) {
+          if ($request->user()->banner_imps < $request->imps) {
+            return back()->with("status", ["warning", "You don't have enough banner impressions."]);
+          } else {
+            $banner->assigned = $request->imps;
+            $banner->save();
+            $request->user()->decrement("banner_imps", $request->imps);
+          }
         }
+        return back();
       }
-      return back();
     } else {
       return back()->with("status", ["warning", "Banner must have 468 pixel width and 60 pixel height."]);
     }
@@ -191,12 +212,17 @@ class BannerController extends Controller
     // return $request->all();
     $banner = Banner::findOrFail($id);
     $response = Gate::inspect("update", $banner);
+    $isBannedTargetUrl = BannedUrlController::check_banned($request->edit_target_url);
+    $isBannedImageUrl = BannedUrlController::check_banned($request->edit_image_url);
+    if ($isBannedTargetUrl || $isBannedImageUrl) {
+      return back()->with('status', ['warning', $isBannedTargetUrl ? $isBannedTargetUrl : $isBannedImageUrl]);
+    }
     if ($response->allowed()) {
       $image = new FastImage($request->edit_image_url);
       list($width, $height) = $image->getSize();
       if ($width == 468 && $height == 60) {
-        $banner->target_url = $request->edit_target_url;
-        $banner->image_url = $request->edit_image_url;
+        $banner->target_url = str_replace("http://", "https://", $request->edit_target_url);
+        $banner->image_url = str_replace("http://", "https://", $request->edit_image_url);
         if ($banner->isDirty("image_url") || $banner->isDirty("target_url")) {
           $banner->status = "Pending";
         }

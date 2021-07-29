@@ -102,12 +102,12 @@
                 My Ads
               </a>
               <ul class="dropdown-menu" aria-labelledby="adsDropdown">
-                <li><a class="dropdown-item" href="{{ url('websites') }}">My Websites</a></li>
-                <li><a class="dropdown-item" href="{{ url('banners') }}">My Banners</a></li>
-                <li><a class="dropdown-item" href="{{ url('square_banners') }}">My Square Banners</a></li>
-                <li><a class="dropdown-item" href="{{ url('texts') }}">My Text Ads</a></li>
-                <li><a class="dropdown-item" href="{{ url('start_pages') }}">My Start Pages</a></li>
-                <li><a class="dropdown-item" href="{{ url('login_spotlights') }}">My Login Spotlights</a></li>
+                <li><a class="dropdown-item" href="{{ url('websites') }}">Websites</a></li>
+                <li><a class="dropdown-item" href="{{ url('banners') }}">Banners</a></li>
+                <li><a class="dropdown-item" href="{{ url('square_banners') }}">Square Banners</a></li>
+                <li><a class="dropdown-item" href="{{ url('texts') }}">Text Ads</a></li>
+                <li><a class="dropdown-item" href="{{ url('start_pages') }}">Start Pages</a></li>
+                <li><a class="dropdown-item" href="{{ url('login_spotlights') }}">Login Spotlights</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -126,7 +126,7 @@
               <ul class="dropdown-menu" aria-labelledby="buyAdsDropdown">
                 <li><a class="dropdown-item" href="{{ url('buy/start_page') }}">Start Page</a></li>
                 <li><a class="dropdown-item" href="{{ url('buy/login_spotlight') }}">Login Spotlight</a></li>
-                <li><a class="dropdown-item" href="{{ url('buy/credits') }}">Buy Credits & Impressions</a></li>
+                <li><a class="dropdown-item" href="{{ url('buy/credits') }}">Credits & Impressions</a></li>
               </ul>
             </li>
             <li class="nav-item">
@@ -148,8 +148,11 @@
       {{ $slot }}
       <x-userads />
     </div>
-    <footer class="bg-dark text-white p-3">
-      footer
+    <footer class="bg-dark text-white p-3 d-flex justify-content-between mb-3">
+      <div>Copyright © {{ config('app.name') }}</div>
+      <div>
+        <a href="#" class="link-light">Terms of Service</a> - <a href="#" class="link-light">Privacy Policy</a>
+      </div>
     </footer>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>

@@ -19,6 +19,8 @@ use App\Http\Controllers\SurfCodeController;
 use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
 use App\Http\Controllers\UserTypeController;
+use App\Http\Controllers\WebsiteReportController;
+use App\Http\Middleware\UpgradeCheck;
 use App\Models\LoginSpotlight;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -88,7 +90,7 @@ Route::post('user/change-email', [UserController::class, 'change_email'])->middl
 Route::get('user/profile', [UserController::class, 'view_profile'])->middleware(['suspended']);
 Route::get('suspended', [UserController::class, 'suspended']);
 
-Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
+Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
   Route::get('/upgrade', [UserController::class, 'upgrade']);
   Route::get('/surf', [SurfController::class, 'view']);
@@ -96,6 +98,8 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
   Route::get('/promote', [UserController::class, 'promote']);
   Route::post('/validate_click/{id}', [SurfController::class, 'validate_click']);
+  Route::get('report_website/{id}', [WebsiteReportController::class, 'index']);
+  Route::post('report_website/{id}', [WebsiteReportController::class, 'store']);
 
   Route::get('/convert', [UserController::class, 'convert_view']);
   Route::post('/convert', [UserController::class, 'convert']);
@@ -111,6 +115,7 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
   Route::post('claim_surf_prize', [SurfController::class, 'claim_surf_prize']);
   Route::get('login_spotlight', [SurfController::class, 'login_spotlight']);
   Route::post('login_spotlight', [SurfController::class, 'login_spotlight_prize']);
+  Route::get('signup_bonus_claimed/{id}', [SurfController::class, 'signup_bonus_claimed']);
 
   Route::prefix('buy')->group(function () {
     Route::get('start_page', [StartPageController::class, 'index_buy']);
@@ -130,7 +135,9 @@ Route::middleware(['auth', 'verified', 'suspended'])->group(function () {
     Route::get('/{id}', [WebsiteController::class, 'show']);
     Route::put('/{id}', [WebsiteController::class, 'update_selected']);
     Route::get('/reset/{id}', [WebsiteController::class, 'website_reset']);
+    Route::get('/check_website/{id}', [WebsiteController::class, 'website_check']);
 
+    Route::post('/approve/{id}', [WebsiteController::class, 'website_approve']);
     Route::post('/', [WebsiteController::class, 'store']);
     Route::post('/update', [WebsiteController::class, 'update']);
     Route::post('/auto_assign', [WebsiteController::class, 'auto_assign']);

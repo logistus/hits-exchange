@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Banner;
 use App\Models\LoginSpotlight;
+use App\Models\PurchaseBalance;
+use App\Models\SignupBonus;
 use App\Models\StartPage;
 use App\Models\TextAd;
 use App\Models\Website;
@@ -27,6 +29,8 @@ class SurfController extends Controller
     session(['surfed_session' => 0]);
     // Check if there is any active start page URL
     $active_start_pages = StartPage::select('id', 'dates', 'url')->where('status', 'Active')->get();
+    $signup_bonus = SignupBonus::where('surf_amount', Auth::user()->correct_clicks)->orderBy('surf_amount')->get()->first();
+
     if (count($active_start_pages) > 0) {
       foreach ($active_start_pages as $active_start_page) {
         $dates = explode(',', $active_start_page->dates);
@@ -40,8 +44,10 @@ class SurfController extends Controller
           }
         }
       }
-    } else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 5) == 0) {
+    } else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 25) == 0) {
       session(['selected_website_url' => url('prize_page')]);
+    } else if ($signup_bonus) {
+      session(['selected_website_url' => url('signup_bonus_claimed', $signup_bonus->id)]);
     } else {
       session(['selected_website_url' => url('start_page')]);
     }
@@ -104,14 +110,14 @@ class SurfController extends Controller
     }
   }
 
-  public function check_prize_page()
-  {
-  }
-
   public function selectRandomWebsite()
   {
-    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 5) == 0) {
+    $signup_bonus = SignupBonus::where('surf_amount', Auth::user()->correct_clicks)->orderBy('surf_amount')->get()->first();
+
+    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 25) == 0) {
       return url('prize_page');
+    } else if ($signup_bonus) {
+      return url('signup_bonus_claimed', $signup_bonus->id);
     } else {
       $website = Website::inRandomOrder()->select('id', 'url', 'user_id')
         ->where('user_id', '!=', Auth::user()->id)
@@ -241,6 +247,7 @@ class SurfController extends Controller
       $banner = $this->selectRandomBanner();
       $text = $this->selectRandomTextAd();
       $url = is_object($website) ? $website->url : $website;
+      $website_id = is_object($website) ? $website->id : 0;
       $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
       $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
 
@@ -281,6 +288,7 @@ class SurfController extends Controller
       return response()->json([
         'status' => $status,
         'url' => $url,
+        'website_id' => $website_id,
         'website_owner_gravatar' => $website_owner_gravatar,
         'website_owner_username' => $website_owner_username,
         'banner_id' => $banner->id,
@@ -311,6 +319,36 @@ class SurfController extends Controller
     $last_prize_claimed = Auth::user()->claim_surf_prize;
     $surfed_today = User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today');
     return view('prize_page', compact('last_prize_claimed', 'surfed_today'));
+  }
+
+  public function signup_bonus_claimed($id)
+  {
+    $signup_bonus = SignupBonus::where('id', $id)->get()->first();
+    switch ($signup_bonus->bonus_type) {
+      case 'Credits':
+        User::where('id', Auth::id())->increment('credits', $signup_bonus->bonus_amount);
+        break;
+      case 'Banner Impressions':
+        User::where('id', Auth::id())->increment('banner_imps', $signup_bonus->bonus_amount);
+        break;
+      case 'Square Banner Impressions':
+        User::where('id', Auth::id())->increment('square_banner_imps', $signup_bonus->bonus_amount);
+        break;
+      case 'Text Ad Impressions':
+        User::where('id', Auth::id())->increment('text_imps', $signup_bonus->bonus_amount);
+        break;
+      case 'Purchase Balance':
+        PurchaseBalance::create([
+          'user_id' => Auth::id(),
+          'type' => 'Signup Bonus',
+          'amount' => $signup_bonus->bonus_amount,
+          'status' => 'Completed'
+        ]);
+        break;
+      default:
+        return view('dashboard');
+    }
+    return view('signup_bonus_claimed', compact('signup_bonus'));
   }
 
   public function claim_surf_prize()

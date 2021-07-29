@@ -40,7 +40,11 @@ class LoginSpotlightController extends Controller
     }
 
     if ($request->new_login_spotlight_url != "") {
-      $login_spotlight_url = $request->new_login_spotlight_url;
+      $isBanned = BannedUrlController::check_banned($request->new_login_spotlight_url);
+      if ($isBanned) {
+        return back()->with('status', ['warning', $isBanned]);
+      }
+      $login_spotlight_url = str_replace("http://", "https://", $request->new_login_spotlight_url);
     } else {
       $login_spotlight_url = Website::where('id', $request->login_spotlight_user_website)->value('url');
     }
@@ -51,6 +55,7 @@ class LoginSpotlightController extends Controller
 
     $order = Order::create([
       "user_id" => Auth::id(),
+      'order_type' => 'Login Spotlight',
       "order_item" => "Login Spotlight (" . $selected_dates . ")",
       "price" => count($selected_dates_array) * 2, // TODO: get start page price from database
       "status" => "Pending Payment"

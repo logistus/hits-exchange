@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAdPricesTable extends Migration
+class CreateBannedUrlsTable extends Migration
 {
   /**
    * Run the migrations.
@@ -13,11 +13,10 @@ class CreateAdPricesTable extends Migration
    */
   public function up()
   {
-    Schema::create('ad_prices', function (Blueprint $table) {
+    Schema::create('banned_urls', function (Blueprint $table) {
       $table->id();
-      $table->enum('ad_type', ['Credits', 'Banner Impressions', 'Square Banner Impressions', 'Text Impressions']);
-      $table->unsignedMediumInteger('ad_amount');
-      $table->decimal('price');
+      $table->string('url');
+      $table->string('reason');
     });
   }
 
@@ -28,6 +27,6 @@ class CreateAdPricesTable extends Migration
    */
   public function down()
   {
-    Schema::dropIfExists('ad_prices');
+    Schema::dropIfExists('banned_urls');
   }
 }

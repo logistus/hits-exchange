@@ -16,7 +16,7 @@ class UserTypeSeeder extends Seeder
   {
     DB::table('user_types')->insert([
       'name' => 'Free',
-      'surf_timer' => 10,
+      'surf_timer' => 2,
       'surf_ratio' => 0.5,
       'max_websites' => 5,
       'max_banners' => 5,

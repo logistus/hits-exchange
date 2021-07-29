@@ -46,10 +46,11 @@
       <div id="url-viewing" class="invisible">
         <span class="text-white">Viewing:</span>
         <a href="{{ session('selected_website_url') }}" class="link-light" id="url" target="_blank" rel="noopener noreferrer">{{ session('selected_website_url') }}</a> <i class="bi bi-box-arrow-up-right text-white" style="font-size: .8rem;"></i>
+        (<a href="#" id="report_url" target="_blank" class="bg-danger text-white">Report this URL</a>)
       </div>
-      <div><a href="{{ url('/') }}" class="link-light" target="_top">Member's Area</a></div>
+      <div><a href="{{ url('/dashboard') }}" class="link-light" target="_top">Dashboard</a></div>
     </div>
-    <iframe style="height: calc(100% - 210px); overflow-x:hidden;" frameborder="0" src="{{ session('selected_website_url') }}" id="surf_window"></iframe>
+    <iframe style="height: calc(100% - 210px); overflow-x:hidden;" sandbox="" frameborder="0" src="{{ session('selected_website_url') }}" id="surf_window"></iframe>
     <div id="bottom_bar" class="bg-primary text-white p-4 d-flex">
       <div class="me-3">Surfed This Session: <strong id="surfed_session">{{ session('surfed_session') }}</strong></div>
       <div class="me-3">Surfed Today: <strong id="surfed_today">{{ Auth::user()->surfed_today }}</strong></div>
@@ -147,6 +148,7 @@
           $("#surfed_today").text(response.surfed_today);
           credits = response.credits * 1;
           $("#credits").text(credits.toFixed(2));
+          $("#report_url").attr("href", "/report_website/" + response.website_id);
           if (response.url.startsWith(app_url)) {
             $("#url-viewing").removeClass("visible").addClass("invisible");
             $("#website-owner").removeClass("visible").addClass("invisible");

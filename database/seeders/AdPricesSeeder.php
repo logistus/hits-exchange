@@ -51,13 +51,13 @@ class AdPricesSeeder extends Seeder
     ]);
 
     DB::table('ad_prices')->insert([
-      'ad_type' => 'Text Ad Impressions',
+      'ad_type' => 'Text Impressions',
       'ad_amount' => 50000,
       'price' => 5
     ]);
 
     DB::table('ad_prices')->insert([
-      'ad_type' => 'Text Ad Impressions',
+      'ad_type' => 'Text Impressions',
       'ad_amount' => 100000,
       'price' => 8
     ]);

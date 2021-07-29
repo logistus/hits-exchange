@@ -46,7 +46,7 @@ class LoginController extends Controller
         return redirect('login_spotlight');
       }
 
-      return redirect()->intended();
+      return redirect()->intended('/dashboard');
     }
 
     return back()->with('status', ['danger', 'The provided credentials do not match our records.'])->withInput();

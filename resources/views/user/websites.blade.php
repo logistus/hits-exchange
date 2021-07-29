@@ -1,15 +1,15 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('websites') }}">Websites</a> ({{ count(Auth::user()->websites) }}/{{ Auth::user()->type->max_websites }})</h4>
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
     <div>You have <strong>{{ number_format(Auth::user()->credits, 2) }}</strong> credits.</div>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWebsiteModal">
+    <button type="button" class="btn btn-primary mt-sm-0 mt-3" data-bs-toggle="modal" data-bs-target="#addWebsiteModal">
       <i class="bi-plus"></i> Add New Website
     </button>
   </div>
   @if (count($websites))
   <form action="{{ url('websites/update') }}" method="POST">
     @csrf
-    <div class="d-flex align-items-center justify-content-center mb-3 alert alert-info">
+    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center mb-3 alert alert-info">
       <div>Evenly distribute </div>
       <div>
         <input type="number" name="credits_to_distribute" min="0" max="{{ Auth::user()->credits }}" style="width: 7rem;" class="form-control mx-2">
@@ -70,6 +70,9 @@
             <p><a href="{{ url('websites/change_status', $website->id) }}">Activate</a></p>
             @endif
             @endif
+            @if ($website->status == 'Pending')
+            <p><a href="{{ url('websites/check_website/' . $website->id) }}">Check</a></p>
+            @endif
           </td>
           <td>
             <input type="number" name="assign_websites[{{ $website->id }}]" class="form-control" style="width: 7rem;" min="0" {{ $website->status == 'Suspended' || Auth::user()->credits < 1 ? "disabled" : "" }} />
@@ -106,7 +109,7 @@
           <div class="modal-body">
             @csrf
             <div class="mb-3">
-              <label for="website-url" class="form-label">Website URL</label>
+              <label for="website-url" class="form-label">Website URL <small>(<strong>Must</strong> start with https)</small></label>
               <input type="url" class="form-control" name="url" id="website-url" placeholder="https://www.mywebsite.com/" required>
             </div>
             <div class="mb-3">
@@ -204,5 +207,6 @@
         }
       });
     });
+
   </script>
 </x-layout>

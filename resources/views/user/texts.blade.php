@@ -1,5 +1,6 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('texts') }}">Text Ads</a> ({{ count(Auth::user()->texts) }}/{{ Auth::user()->type->max_texts }})</h4>
+  <x-alert />
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>You have <strong>{{ number_format(Auth::user()->text_imps) }}</strong> text ad impressions.</div>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTextAdModal">
@@ -22,7 +23,6 @@
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="pause-selected" name="action" value="pause_selected"><i class="bi-pause"></i> Pause Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="activate-selected" name="action" value="activate_selected"><i class="bi-play"></i> Activate Selected</button>
     </div>
-    <x-alert />
     <table class="table table-bordered align-middle">
       <tr class="bg-light">
         <th scope="col">
@@ -307,5 +307,6 @@
         }
       });
     });
+
   </script>
 </x-layout>

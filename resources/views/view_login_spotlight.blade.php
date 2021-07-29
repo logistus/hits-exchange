@@ -21,7 +21,7 @@
     <div style="height: 10px;" id="timer_wrapper" class="bg-transparent w-100">
       <div id="progress-bar" class="bg-success h-100" style="width: 0%;"></div>
     </div>
-    <iframe style="height: calc(100% - 110px); overflow-x:hidden;" frameborder="0" src="{{ $login_spotlight_url }}" id="surf_window"></iframe>
+    <iframe style="height: calc(100% - 110px); overflow-x:hidden;" sandbox="" frameborder="0" src="{{ $login_spotlight_url }}" id="surf_window"></iframe>
   </div>
 </body>
 <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>

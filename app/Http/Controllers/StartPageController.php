@@ -41,7 +41,11 @@ class StartPageController extends Controller
     }
 
     if ($request->new_start_page_url != "") {
-      $start_page_url = $request->new_start_page_url;
+      $isBanned = BannedUrlController::check_banned($request->new_start_page_url);
+      if ($isBanned) {
+        return back()->with('status', ['warning', $isBanned]);
+      }
+      $start_page_url = str_replace("http://", "https://", $request->new_start_page_url);
     } else {
       $start_page_url = Website::where('id', $request->start_page_user_website)->value('url');
     }
@@ -50,6 +54,7 @@ class StartPageController extends Controller
     $selected_dates = implode(", ", $selected_dates_array);
     $order = Order::create([
       "user_id" => Auth::id(),
+      "order_type" => "Start Page",
       "order_item" => "Start Page (" . $selected_dates . ")",
       "price" => count($selected_dates_array) * 1, // TODO: get start page price from database
 

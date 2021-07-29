@@ -8,6 +8,7 @@ use App\Models\Commission;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\PurchaseBalance;
+use App\Models\SignupBonus;
 use App\Models\UserType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -64,7 +65,8 @@ class UserController extends Controller
   public function dashboard()
   {
     $page = "Dashboard";
-    return view("dashboard", compact("page"));
+    $signup_bonuses = SignupBonus::all();
+    return view("dashboard", compact("page", "signup_bonuses"));
   }
 
   public function convert_view()

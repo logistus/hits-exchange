@@ -13,6 +13,7 @@ use App\Models\PurchaseBalance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Notifications\CommissionEarned;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
@@ -35,11 +36,42 @@ class OrderController extends Controller
         'amount' => '-' . $order->price
       ]);
       $order->update(['status' => 'Completed']);
+      // Start Page Order
       if ($order->order_type == "Start Page") {
         StartPage::where('order_id', $order->id)->update(['status' => 'Active']);
       }
+      // Login Spotlight Order
       if ($order->order_type == "Login Spotlight") {
         LoginSpotlight::where('order_id', $order->id)->update(['status' => 'Active']);
+      }
+      // Upgrade
+      if ($order->order_type == "Upgrade") {
+        if ($request->user()->upgrade_expires != NULL) {
+          $expires = Carbon::createFromFormat("Y-m-d h:i:s", $request->user()->upgrade_expires)->add($order->order_amount, 'day')->timestamp;
+        } else {
+          $expires = Carbon::now()->add($order->order_amount, 'day')->timestamp;
+        }
+        //dd($expires, now()->timestamp);
+        User::where('id', Auth::id())->update([
+          'user_type' => $order->order_member_type,
+          'upgrade_expires' => $expires,
+        ]);
+      }
+      // Credits
+      if ($order->order_type == "Credits") {
+        User::where('id', Auth::id())->increment("credits", $order->order_amount);
+      }
+      // Banner Impressions
+      if ($order->order_type == "Banner Impressions") {
+        User::where('id', Auth::id())->increment("banner_imps", $order->order_amount);
+      }
+      // Square Banner Impressions
+      if ($order->order_type == "Square Banner Impressions") {
+        User::where('id', Auth::id())->increment("square_banner_imps", $order->order_amount);
+      }
+      // Text Impressions
+      if ($order->order_type == "Text Impressions") {
+        User::where('id', Auth::id())->increment("text_imps", $order->order_amount);
       }
       // Update user's total purchased column
       User::where('id', Auth::id())->increment('total_purchased', $order->price);

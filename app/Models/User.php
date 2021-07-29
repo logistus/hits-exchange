@@ -45,8 +45,6 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
 
   public $timestamps = false;
 
-  protected $redirectTo = '/dashboard';
-
   /**
    * Hash password before save user
    */

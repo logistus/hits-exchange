@@ -28,21 +28,27 @@ class SquareBannerController extends Controller
     $image = new FastImage($request->image_url);
     list($width, $height) = $image->getSize();
     if ($width == 125 && $height == 125) {
-      $square_banner = SquareBanner::create([
-        "user_id" => Auth::user()->id,
-        "image_url" => $request->image_url,
-        "target_url" => $request->target_url,
-      ]);
-      if ($request->imps && $request->imps > 0) {
-        if ($request->user()->square_banner_imps < $request->imps) {
-          return back()->with("status", ["warning", "You don't have enough square banner impressions."]);
-        } else {
-          $square_banner->assigned = $request->imps;
-          $square_banner->save();
-          $request->user()->decrement("square_banner_imps", $request->imps);
+      $isBannedTargetUrl = BannedUrlController::check_banned($request->target_url);
+      $isBannedImageUrl = BannedUrlController::check_banned($request->image_url);
+      if ($isBannedTargetUrl || $isBannedImageUrl) {
+        return back()->with('status', ['warning', $isBannedTargetUrl ? $isBannedTargetUrl : $isBannedImageUrl]);
+      } else {
+        $square_banner = SquareBanner::create([
+          "user_id" => Auth::user()->id,
+          "image_url" => str_replace("http://", "https://", $request->image_url),
+          "target_url" => str_replace("http://", "https://", $request->target_url),
+        ]);
+        if ($request->imps && $request->imps > 0) {
+          if ($request->user()->square_banner_imps < $request->imps) {
+            return back()->with("status", ["warning", "You don't have enough square banner impressions."]);
+          } else {
+            $square_banner->assigned = $request->imps;
+            $square_banner->save();
+            $request->user()->decrement("square_banner_imps", $request->imps);
+          }
         }
+        return back();
       }
-      return back();
     } else {
       return back()->with("status", ["warning", "Square banner must have 125 pixel width and 125 pixel height."]);
     }
@@ -191,12 +197,17 @@ class SquareBannerController extends Controller
     // return $request->all();
     $square_banner = SquareBanner::findOrFail($id);
     $response = Gate::inspect("update", $square_banner);
+    $isBannedTargetUrl = BannedUrlController::check_banned($request->edit_target_url);
+    $isBannedImageUrl = BannedUrlController::check_banned($request->edit_image_url);
+    if ($isBannedTargetUrl || $isBannedImageUrl) {
+      return back()->with('status', ['warning', $isBannedTargetUrl ? $isBannedTargetUrl : $isBannedImageUrl]);
+    }
     if ($response->allowed()) {
       $image = new FastImage($request->edit_image_url);
       list($width, $height) = $image->getSize();
       if ($width == 125 && $height == 125) {
-        $square_banner->target_url = $request->edit_target_url;
-        $square_banner->image_url = $request->edit_image_url;
+        $square_banner->target_url = str_replace("http://", "https://", $request->edit_target_url);
+        $square_banner->image_url = str_replace("http://", "https://", $request->edit_image_url);
         if ($square_banner->isDirty("image_url") || $square_banner->isDirty("target_url")) {
           $square_banner->status = "Pending";
         }

@@ -24,24 +24,29 @@ class TextAdController extends Controller
 
   public function store(Request $request)
   {
-    $text = TextAd::create([
-      'user_id' => Auth::user()->id,
-      'body' => $request->text_body,
-      'target_url' => $request->target_url,
-      'text_color' => $request->user()->type->name == "Free" ? $request->user()->type->default_text_ad_color : $request->text_color,
-      'bg_color' => $request->user()->type->name == "Free" ? $request->user()->type->default_text_ad_bg_color : $request->bg_color,
-      'text_bold' => ($request->user()->type->name != "Free" && $request->edit_text_bold) ? $request->edit_text_bold : 0,
-    ]);
-    if ($request->imps && $request->imps > 0) {
-      if ($request->user()->text_imps < $request->imps) {
-        return back()->with('status', 'You don\'t have enough text ad impressions.');
-      } else {
-        $text->assigned = $request->imps;
-        $text->save();
-        $request->user()->decrement('text_imps', $request->imps);
+    $isBanned = BannedUrlController::check_banned($request->target_url);
+    if ($isBanned) {
+      return back()->with('status', ['warning', $isBanned]);
+    } else {
+      $text = TextAd::create([
+        'user_id' => Auth::user()->id,
+        'body' => $request->text_body,
+        'target_url' => str_replace("http://", "https://", $request->target_url),
+        'text_color' => $request->user()->type->name == "Free" ? $request->user()->type->default_text_ad_color : $request->text_color,
+        'bg_color' => $request->user()->type->name == "Free" ? $request->user()->type->default_text_ad_bg_color : $request->bg_color,
+        'text_bold' => ($request->user()->type->name != "Free" && $request->edit_text_bold) ? $request->edit_text_bold : 0,
+      ]);
+      if ($request->imps && $request->imps > 0) {
+        if ($request->user()->text_imps < $request->imps) {
+          return back()->with('status', 'You don\'t have enough text ad impressions.');
+        } else {
+          $text->assigned = $request->imps;
+          $text->save();
+          $request->user()->decrement('text_imps', $request->imps);
+        }
       }
+      return back();
     }
-    return back();
   }
 
   public function change_status($id)
@@ -187,8 +192,12 @@ class TextAdController extends Controller
     //return $request->all();
     $text = TextAd::findOrFail($id);
     $response = Gate::inspect('update', $text);
+    $isBanned = BannedUrlController::check_banned($request->edit_target_url);
+    if ($isBanned) {
+      return back()->with('status', ['warning', $isBanned]);
+    }
     if ($response->allowed()) {
-      $text->target_url = $request->edit_target_url;
+      $text->target_url = str_replace("http://", "https://", $request->edit_target_url);
       $text->body = $request->edit_text_body;
       $text->text_color = $request->user()->type->name == "Free" ? $request->user()->type->default_text_ad_color : $request->edit_text_color;
       $text->bg_color = $request->user()->type->name == "Free" ? $request->user()->type->default_text_ad_bg_color : $request->edit_bg_color;

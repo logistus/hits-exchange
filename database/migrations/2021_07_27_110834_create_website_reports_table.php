@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAdPricesTable extends Migration
+class CreateWebsiteReportsTable extends Migration
 {
   /**
    * Run the migrations.
@@ -13,11 +13,12 @@ class CreateAdPricesTable extends Migration
    */
   public function up()
   {
-    Schema::create('ad_prices', function (Blueprint $table) {
+    Schema::create('website_reports', function (Blueprint $table) {
       $table->id();
-      $table->enum('ad_type', ['Credits', 'Banner Impressions', 'Square Banner Impressions', 'Text Impressions']);
-      $table->unsignedMediumInteger('ad_amount');
-      $table->decimal('price');
+      $table->foreignId('website_id');
+      $table->foreignId('user_id');
+      $table->string('report_reason')->nullable();
+      $table->timestamp('create_at')->useCurrent();
     });
   }
 
@@ -28,6 +29,6 @@ class CreateAdPricesTable extends Migration
    */
   public function down()
   {
-    Schema::dropIfExists('ad_prices');
+    Schema::dropIfExists('website_reports');
   }
 }

@@ -1,8 +1,14 @@
+@php
+use Carbon\Carbon;
+@endphp
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('upgrade') }}">Upgrade</a></h4>
   <x-alert />
   <p>You are {{ (Auth::user()->type->name != "Free" && Auth::user()->upgrade_expires == NULL) ? "Lifetime " : "" }} {{ Auth::user()->type->name }} Member
-    {{ (Auth::user()->type->name != "Free" && Auth::user()->upgrade_expires != NULL) ?  " and it expires at ".Auth::user()->upgrade_expires : "" }}
+    {{ (Auth::user()->type->name != "Free" && Auth::user()->upgrade_expires != NULL) ?  " and it expires at ".
+    
+    Carbon::createFromTimeStamp(Auth::user()->upgrade_expires)->toDayDateTimeString()
+     : "" }}
   </p>
   <table class="table table-bordered align-middle">
     <tr class="bg-light">
@@ -96,7 +102,7 @@
         @if (count($user_type->prices) > 0)
         <td>
           @foreach ($user_type->prices as $price)
-          <form method="POST" action="{{ url('buy/upgrade/'.$user_type->id.'/'.$price->id) }}" class="mb-2">
+          <form method="POST" action="{{ url('buy/upgrade/'.$user_type->id.'/'.$price->id) }}" class="mb-3">
             @csrf
             {{ $price->time_amount . " " . $price->time_type }}{{ $price->time_amount > 1 ? "s" : "" }} {{ " - $" . $price->price }}
             <button type="submit" class="btn btn-sm btn-warning">Place Order</button>

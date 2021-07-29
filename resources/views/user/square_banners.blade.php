@@ -1,5 +1,6 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('square_banners') }}">Square Banners</a> ({{ count(Auth::user()->square_banners) }}/{{ Auth::user()->type->max_square_banners }})</h4>
+  <x-alert />
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>You have <strong>{{ number_format(Auth::user()->square_banner_imps) }}</strong> square banner impressions.</div>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSquareBannerModal">
@@ -22,7 +23,6 @@
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="pause-selected" name="action" value="pause_selected"><i class="bi-pause"></i> Pause Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="activate-selected" name="action" value="activate_selected"><i class="bi-play"></i> Activate Selected</button>
     </div>
-    <x-alert />
     <table class="table table-bordered align-middle">
       <thead>
         <tr class="bg-light">
@@ -204,5 +204,6 @@
         }
       });
     });
+
   </script>
 </x-layout>

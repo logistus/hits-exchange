@@ -18,10 +18,23 @@ class UserTypeController extends Controller
     if ($price->time_amount > 1)
       $order_item .= "s";
     $order_item .= " " . $type->name . " Member";
+    // Calculate order_amount as days
+    if ($price->time_type == "Day") {
+      $order_amount = $price->time_amount;
+    } else if ($price->time_type == "Week") {
+      $order_amount = $price->time_amount * 7;
+    } else if ($price->time_type == "Month") {
+      $order_amount = $price->time_amount * 30;
+    } else {
+      $order_amount = $price->time_amount * 365;
+    }
 
     Order::create([
       'user_id' => Auth::user()->id,
+      'order_type' => 'Upgrade',
       'order_item' => $order_item,
+      'order_amount' => $order_amount,
+      'order_member_type' => $type->id,
       'price' => $price->price,
       'status' => 'Pending Payment'
     ]);
