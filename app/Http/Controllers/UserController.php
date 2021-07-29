@@ -25,6 +25,7 @@ class UserController extends Controller
   public function home()
   {
     $page = "Home";
+    mail('logistus@gmail.com', 'My Subject', 'adasadd');
     return view('home', compact('page'));
   }
 
