@@ -189,15 +189,16 @@ class OrderController extends Controller
       errorAndDie('Amount is less than order total!');
     }
 
+    $pb->txn_id = $txn_id;
+
     if ($status >= 100 || $status == 2) {
       $pb->status = 'Completed';
-      $pb->save();
     } else if ($status < 0) {
       return back()->with('status', ['warning', 'An error accured, try again later please.']);
     } else {
-      $pb->txn_id = $txn_id;
-      $pb->save();
+      //$pb->txn_id = $txn_id;
     }
+    $pb->save();
     die('IPN OK');
   }
 }
