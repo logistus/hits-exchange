@@ -42,6 +42,7 @@
             <input type="hidden" name="custom" value="{{ $pb->id  }}">
             <input type="hidden" name="item_name" value="Purchase Balance Deposit">
             <input type="hidden" name="cancel_url" value="{{ url('user/purchase_balance/deposit') }}">
+            <input type="hidden" name="success_url" value="{{ url('user/purchase_balance') }}">
             <input type="image" src="https://www.coinpayments.net/images/pub/buynow-wide-blue.png" alt="Buy Now with CoinPayments.net">
           </form>
         </div>
