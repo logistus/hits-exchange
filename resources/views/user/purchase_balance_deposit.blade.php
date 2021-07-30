@@ -28,7 +28,7 @@
           <p class="card-text">Enter the desired amount below and click "Pay Using CoinPayments" button.</p>
           <p class="card-text">When you click the "Pay Using CoinPayments" button, you will be directed to the CoinPayments website.</p>
           <p class="card-text">After you complete the transaction, your deposit will be credited automatically through the CoinPayments IPN.</p>
-          <form action="https://www.coinpayments.net/index.php" method="post" class="text-center mt-3" target="_blank">
+          <form action="https://www.coinpayments.net/index.php" method="post" class="text-center mt-3" target="_top">
             <input type="hidden" name="cmd" value="_pay">
             <input type="hidden" name="reset" value="1">
             <input type="hidden" name="merchant" value="0a163329f1a618ee280c49eb1db2d9c2">
