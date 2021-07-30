@@ -20,7 +20,7 @@ class CreatePurchaseBalancesTable extends Migration
       $table->enum('type', ['Commission Transfer', 'Surf Prize', 'Signup Bonus', 'Purchase', 'Deposit']);
       $table->decimal('amount');
       $table->timestamp('created_at')->useCurrent();
-      $table->enum('status', ['Completed', 'Pending']);
+      $table->enum('status', ['Completed', 'Pending'])->default('Pending');
     });
   }
 

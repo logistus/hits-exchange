@@ -194,7 +194,8 @@ class OrderController extends Controller
     } else if ($status < 0) {
       return back()->with('status', ['warning', 'An error accured, try again later please.']);
     } else {
-      return back()->with('status', ['warning', 'Payment is pending.']);
+      $pb->status = 'Completed';
+      $pb->save();
     }
     die('IPN OK');
   }
