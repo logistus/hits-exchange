@@ -194,7 +194,7 @@ class OrderController extends Controller
     } else if ($status < 0) {
       return back()->with('status', ['warning', 'An error accured, try again later please.']);
     } else {
-      $pb->status = 'Completed';
+      $pb->txn_id = $txn_id;
       $pb->save();
     }
     die('IPN OK');
