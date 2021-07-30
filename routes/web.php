@@ -125,6 +125,7 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
     Route::post('upgrade/{type_id}/{price_id}', [UserTypeController::class, 'store_buy']);
     Route::get('credits', [AdPriceController::class, 'index']);
     Route::post('credits/{id}', [AdPriceController::class, 'store']);
+    Route::get('ipn', [OrderController::class, 'ipn']);
   });
 
   Route::prefix('websites')->group(function () {

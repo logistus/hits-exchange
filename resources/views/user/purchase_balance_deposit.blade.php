@@ -43,20 +43,25 @@
     </div>
     <div class="col">
       <div class="card bg-light">
-        <img src="{{ asset('images/coinpayments.svg') }}" class="card-img-top p-3" alt="CoinPayments" title="CoinPayments" />
+        <a href="https://www.coinpayments.net/index.php?ref=0a163329f1a618ee280c49eb1db2d9c2" target="_blank" rel="noopener noreferrer">
+          <img src="{{ asset('images/coinpayments.svg') }}" class="card-img-top p-3" alt="CoinPayments" title="CoinPayments" />
+        </a>
         <div class="card-body">
           <p class="card-text">Enter the desired amount below and click "Pay Using CoinPayments" button.</p>
           <p class="card-text">When you click the "Pay Using CoinPayments" button, you will be directed to the CoinPayments website.</p>
           <p class="card-text">After you complete the transaction, your deposit will be credited automatically through the CoinPayments IPN.</p>
           <input type="number" name="deposit_amount_coinpayments" id="deposit_amount_coinpayments" placeholder="Deposit Amount in USD" class="form-control">
           <form action="https://www.coinpayments.net/index.php" method="post" class="text-center mt-3" target="_top">
-            <input type="hidden" name="cmd" value="_pay_simple">
+            <input type="hidden" name="cmd" value="_pay">
             <input type="hidden" name="reset" value="1">
-            <input type="hidden" name="want_shipping" value="0">
             <input type="hidden" name="merchant" value="0a163329f1a618ee280c49eb1db2d9c2">
             <input type="hidden" name="currency" value="USD">
             <input type="hidden" name="amountf">
+            <input type="hidden" name="want_shipping" value="0">
             <input type="hidden" name="allow_extra" value="0">
+            <input type="hidden" name="first_name" value="{{ Auth::user()->name }}">
+            <input type="hidden" name="last_name" value="{{ Auth::user()->surname }}">
+            <input type="hidden" name="email" value="{{ Auth::user()->email }}">
             <input type="hidden" name="item_name" value="Purchase Balance Deposit">
             <input type="hidden" name="cancel_url" value="{{ url('user/purchase_balance/deposit') }}">
             <input type="image" src="https://www.coinpayments.net/images/pub/buynow-wide-blue.png" alt="Buy Now with CoinPayments.net">

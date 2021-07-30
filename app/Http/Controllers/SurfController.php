@@ -280,7 +280,7 @@ class SurfController extends Controller
           $reward_credit = ($surf_ratio * User::where('id', Auth::user()->upline)->get()->first()->type->credit_reward_ratio) / 100;
           User::where('id', Auth::user()->upline)->get()->first()->increment('credits', $reward_credit);
         }
-        $status = '<span class="bg-success text-white px-4 py-2 fs-2">+' . (int) Auth::user()->type->surf_ratio  + 0 . ' Credit</span>'; // added + 0 to remove unnecessary zeros
+        $status = '<span class="bg-success text-white px-4 py-2 fs-2">+' . Auth::user()->type->surf_ratio . ' Credit</span>';
       } else {
         User::where('id', Auth::user()->id)->increment('wrong_clicks');
         $status = '<span class="bg-danger text-white px-4 py-2 fs-2">Wrong Click!</span>';
