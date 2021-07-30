@@ -3,10 +3,14 @@ use App\Models\Order;
 @endphp
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('user/purchase_balance') }}">Purchase Balance</a></h4>
-  <p class="d-flex justify-content-between align-items-center">
-    <span>You have <strong>${{ number_format(Auth::user()->purchase_balance_completed->sum('amount'), 2) }}</strong> in your purchase balance.</span>
-    <a href="{{ url('user/purchase_balance/deposit') }}" class="btn btn-success">Deposit</a>
-  </p>
+  <x-alert />
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>You have <strong>${{ number_format(Auth::user()->purchase_balance_completed->sum('amount'), 2) }}</strong> in your purchase balance.</div>
+    <div>
+      <a href="{{ url('user/transfer_commissions') }}" class="btn btn-primary">Transfer Commissions</a>
+      <a href="{{ url('user/purchase_balance/create') }}" class="btn btn-success">Create</a>
+    </div>
+  </div>
   @if (count($purchase_balance) > 0)
   <table class="table table-bordered align-middle">
     <thead>
@@ -35,7 +39,12 @@ use App\Models\Order;
             ${{ $pb->amount }}
           </span>
         </td>
-        <td>{{ $pb->status }}</td>
+        <td>
+          {{ $pb->status }}
+          @if ($pb->status == 'Pending')
+          (<a href="{{ url('user/purchase_balance/deposit', $pb->id) }}">Deposit</a>)
+          @endif
+        </td>
       </tr>
       @endforeach
     </tbody>

@@ -12,6 +12,7 @@ use App\Http\Controllers\BannerController;
 use App\Http\Controllers\LoginSpotlightController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PrivateMessageController;
+use App\Http\Controllers\PurchaseBalanceController;
 use App\Http\Controllers\SquareBannerController;
 use App\Http\Controllers\TextAdController;
 use App\Http\Controllers\WebsiteController;
@@ -219,9 +220,13 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
     Route::post('password', [UserController::class, 'change_password']);
     Route::post('profile', [UserController::class, 'save_profile']);
     Route::get('commissions', [UserController::class, 'commissions']);
-    Route::get('purchase_balance', [UserController::class, 'purchase_balance']);
-    Route::get('purchase_balance/deposit', [UserController::class, 'purchase_balance_deposit']);
-    Route::post('transfer_commissions', [UserController::class, 'transfer_commissions']);
+
+    Route::get('transfer_commissions', [PurchaseBalanceController::class, 'transfer_commissions']);
+    Route::post('transfer_commissions', [PurchaseBalanceController::class, 'transfer_commissions_post']);
+    Route::get('purchase_balance', [PurchaseBalanceController::class, 'index']);
+    Route::get('purchase_balance/create', [PurchaseBalanceController::class, 'create']);
+    Route::post('purchase_balance/create', [PurchaseBalanceController::class, 'store']);
+    Route::get('purchase_balance/deposit/{id}', [PurchaseBalanceController::class, 'deposit']);
   });
 });
 

@@ -9,7 +9,7 @@ $text2 = TextAd::select_random();
 $square_banner = SquareBanner::select_random();
 $square_banner2 = SquareBanner::select_random();
 @endphp
-<div class=" mt-3 mx-auto bd-highlight p-2 d-inline-flex align-items-center flex-column flex-lg-row bg-light">
+<div class=" mt-5 mx-auto bd-highlight p-2 d-inline-flex align-items-center flex-column flex-lg-row bg-light">
   <div class="mb-2">
     <a href="{{ url('square_banners/click', $square_banner->id) }}" target="_blank" rel="noopener noreferrer">
       <img src="{{ $square_banner->image_url }}" class="w-100" />

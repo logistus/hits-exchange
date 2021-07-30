@@ -1,8 +1,8 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('buy/credits') }}">Buy Credits & Impressions</a></h4>
   <x-alert />
-  <h5 class="mt-3 text-primary fw-bold">Buy Credits</h5>
-  <div class="d-flex">
+  <h5 class="mt-3 text-primary text-center fw-bold">Buy Credits</h5>
+  <div class="d-flex justify-content-center">
     @foreach ($credit_ad_prices as $credit_ad_price)
     <div class="card me-3 bg-light">
       <div class="card-body">
@@ -16,8 +16,8 @@
     </div>
     @endforeach
   </div>
-  <h5 class="mt-3 text-primary fw-bold">Buy Banner Impressions</h5>
-  <div class="d-flex">
+  <h5 class="mt-3 text-primary text-center fw-bold">Buy Banner Impressions</h5>
+  <div class="d-flex justify-content-center">
     @foreach ($banner_ad_prices as $banner_ad_price)
     <div class="card me-3 bg-light">
       <div class="card-body">
@@ -31,8 +31,8 @@
     </div>
     @endforeach
   </div>
-  <h5 class="mt-3 text-primary fw-bold">Buy Square Banner Impressions</h5>
-  <div class="d-flex">
+  <h5 class="mt-3 text-primary text-center fw-bold">Buy Square Banner Impressions</h5>
+  <div class="d-flex justify-content-center">
     @foreach ($square_banner_ad_prices as $square_banner_ad_price)
     <div class="card me-3 bg-light">
       <div class="card-body">
@@ -46,8 +46,8 @@
     </div>
     @endforeach
   </div>
-  <h5 class="mt-3 text-primary fw-bold">Buy Text Ad Impressions</h5>
-  <div class="d-flex">
+  <h5 class="mt-3 text-primary text-center fw-bold">Buy Text Ad Impressions</h5>
+  <div class="d-flex justify-content-center">
     @foreach ($text_ad_prices as $text_ad_price)
     <div class="card me-3 bg-light">
       <div class="card-body">

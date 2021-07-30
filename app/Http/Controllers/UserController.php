@@ -390,41 +390,6 @@ class UserController extends Controller
     return view('user/commissions', compact('page', 'commissions_unpaid', 'commissions_paid', 'commissions_all', 'commissions_transferred'));
   }
 
-  public function purchase_balance(Request $request)
-  {
-    $page = "Purchase Balance";
-    $purchase_balance = $request->user()->purchase_balance;
-    return view('user/purchase_balance', compact('page', 'purchase_balance'));
-  }
-
-  public function purchase_balance_deposit(Request $request)
-  {
-    $page = "Deposit Purchase Balance";
-    return view('user/purchase_balance_deposit', compact('page'));
-  }
-
-  public function transfer_commissions(Request $request)
-  {
-    $request->validate([
-      "commission_transfer_amount" => "required|numeric|min:0.5|max:" . $request->user()->commissions_all->sum('amount')
-    ]);
-
-    Commission::insert([
-      'user_id' => $request->user()->id,
-      'amount' => '-' . $request->commission_transfer_amount,
-      'status' => 'Transferred'
-    ]);
-
-    PurchaseBalance::insert([
-      'user_id' => $request->user()->id,
-      'type' => 'Commission Transfer',
-      'amount' => $request->commission_transfer_amount + ($request->commission_transfer_amount * 20) / 100,
-      'status' => 'Completed'
-    ]);
-
-    return back()->with('status', ['success', 'Commissions successfully transferred.']);
-  }
-
   public function transfer_credits(Request $request, $id)
   {
     $page = "Transfer Credits";

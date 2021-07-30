@@ -46,7 +46,7 @@
                 <li><a class="dropdown-item" href="{{ url('user/referrals') }}">Referrals</a></li>
                 <li>
                   <a class="dropdown-item" href="{{ url('user/purchase_balance') }}">
-                    Purchase Balance <span class="badge bg-primary">${{ number_format(Auth::user()->purchase_balance->sum('amount'), 2) }}</span>
+                    Purchase Balance <span class="badge bg-primary">${{ number_format(Auth::user()->purchase_balance_completed->sum('amount'), 2) }}</span>
                   </a>
                 </li>
                 <li>
@@ -144,7 +144,7 @@
         </div>
       </div>
     </nav>
-    <div class="card p-3">
+    <div class="card p-3 pt-5">
       {{ $slot }}
       <x-userads />
     </div>

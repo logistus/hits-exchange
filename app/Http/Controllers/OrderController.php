@@ -116,11 +116,11 @@ class OrderController extends Controller
   {
     $cp_merchant_id = '0a163329f1a618ee280c49eb1db2d9c2';
     $cp_ipn_secret = 'etfjd8dP2JuQBTEL9gk4';
-    $cp_debug_email = 'sinanyilmaz@yandex.com';
+    $pb = PurchaseBalance::findOrFail('id', $_POST['custom']);
 
     //These would normally be loaded from your database, the most common way is to pass the Order ID through the 'custom' POST field.
     $order_currency = 'USD';
-    $order_total = 10.00;
+    $order_total = $pb->amount;
 
     function errorAndDie($error_msg)
     {
@@ -189,11 +189,12 @@ class OrderController extends Controller
     }
 
     if ($status >= 100 || $status == 2) {
-      // payment is complete or queued for nightly payout, success
+      $pb->status = 'Completed';
+      $pb->save();
     } else if ($status < 0) {
-      //payment error, this is usually final but payments will sometimes be reopened if there was no exchange rate conversion or with seller consent
+      return back()->with('status', ['warning', 'An error accured, try again later please.']);
     } else {
-      //payment is pending, you can optionally add a note to the order page
+      return back()->with('status', ['warning', 'Payment is pending.']);
     }
     die('IPN OK');
   }
