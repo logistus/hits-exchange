@@ -116,11 +116,6 @@ class OrderController extends Controller
   {
     $cp_merchant_id = '0a163329f1a618ee280c49eb1db2d9c2';
     $cp_ipn_secret = 'etfjd8dP2JuQBTEL9gk4';
-    $pb = PurchaseBalance::findOrFail('id', $_POST['custom']);
-
-    //These would normally be loaded from your database, the most common way is to pass the Order ID through the 'custom' POST field.
-    $order_currency = 'USD';
-    $order_total = $pb->amount;
 
     function errorAndDie($error_msg)
     {
@@ -171,6 +166,12 @@ class OrderController extends Controller
     $currency2 = $_POST['currency2'];
     $status = intval($_POST['status']);
     $status_text = $_POST['status_text'];
+
+    $pb = PurchaseBalance::findOrFail('id', $_POST['custom']);
+
+    //These would normally be loaded from your database, the most common way is to pass the Order ID through the 'custom' POST field.
+    $order_currency = 'USD';
+    $order_total = $pb->amount;
 
     if ($ipn_type != 'button') { // Advanced Button payment
       die("IPN OK: Not a button payment");
