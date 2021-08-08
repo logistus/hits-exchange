@@ -1,5 +1,5 @@
 <x-layout title="{{ $page }}">
-  <h3><a href="{{ url('websites') }}">Websites</a> ({{ count(Auth::user()->websites) }}/{{ Auth::user()->type->max_websites }})</h3>
+  <h4><a href="{{ url('websites') }}">Websites</a> ({{ count(Auth::user()->websites) }}/{{ Auth::user()->type->max_websites }})</h4>
   <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3">
     <div>You have <strong>{{ number_format(Auth::user()->credits, 2) }}</strong> credits.</div>
     <button type="button" class="btn btn-primary mt-sm-0 mt-3" data-bs-toggle="modal" data-bs-target="#addWebsiteModal">
@@ -9,7 +9,7 @@
   @if (count($websites))
   <form action="{{ url('websites/update') }}" method="POST">
     @csrf
-    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center mb-3 mt-5 alert alert-info">
+    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center mb-3 alert alert-info">
       <div>Evenly distribute </div>
       <div>
         <input type="number" name="credits_to_distribute" min="0" max="{{ Auth::user()->credits }}" style="width: 7rem;" class="form-control mx-2">

@@ -50,7 +50,7 @@
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <aside class="main-sidebar sidebar-light-primary elevation-4">
       <!-- Brand Logo -->
       <a href="{{ url('admin') }}" class="brand-link">
         <img src="{{ asset('images/hits.exchange.logo.png') }}" alt="{{ config('app.name') }}" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -64,7 +64,6 @@
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
               <a href="{{ url('admin') }}" class="nav-link {{ url()->current() == url('admin') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                   Dashboard
                 </p>
@@ -72,7 +71,6 @@
             </li>
             <li class="nav-item {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add')) ? 'menu-open' : '' }}">
               <a href="#" class="nav-link {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add')) ? 'active' : '' }}">
-                <i class="nav-icon fas fa-user"></i>
                 <p>
                   Members
                   <i class="right fas fa-angle-left"></i>
@@ -81,14 +79,32 @@
               <ul class="nav nav-treeview">
                 <li class="nav-item">
                   <a href="{{ url('admin/members/add') }}" class="nav-link {{ url()->current() == url('admin/members/add') ? 'active' : '' }}">
-                    <i class="fas fa-user-plus nav-icon"></i>
                     <p>Add Member</p>
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="{{ url('admin/members/list') }}" class="nav-link {{ url()->current() == url('admin/members/list') ? 'active' : '' }}">
-                    <i class="fas fa-users nav-icon"></i>
                     <p>List Members</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item {{ (url()->current() == url('admin/websites/list') || url()->current() == url('admin/websites/add')) ? 'menu-open' : '' }}">
+              <a href="#" class="nav-link {{ (url()->current() == url('admin/websites/list') || url()->current() == url('admin/websites/add')) ? 'active' : '' }}">
+                <p>
+                  Websites
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url('admin/websites/add') }}" class="nav-link {{ url()->current() == url('admin/websites/add') ? 'active' : '' }}">
+                    <p>Add Website</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url('admin/websites/list') }}" class="nav-link {{ url()->current() == url('admin/websites/list') ? 'active' : '' }}">
+                    <p>List Websites</p>
                   </a>
                 </li>
               </ul>

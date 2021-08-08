@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\WebsiteController as AdminWebsiteController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
@@ -159,8 +161,8 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
   });
   Route::prefix('square_banners')->group(function () {
     Route::get('/', [SquareBannerController::class, 'index']);
-    Route::get('/click/{id}', [SquareBannerController::class, 'banner_click']);
-    Route::get('/reset/{id}', [SquareBannerController::class, 'banner_reset']);
+    Route::get('/click/{id}', [SquareBannerController::class, 'square_banner_click']);
+    Route::get('/reset/{id}', [SquareBannerController::class, 'square_banner_reset']);
 
     Route::get('/change_status/{id}', [SquareBannerController::class, 'change_status']);
     Route::get('/delete/{id}', [SquareBannerController::class, 'destroy']);
@@ -234,13 +236,25 @@ Route::middleware(['admin'])->group(function () {
   Route::prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index']);
     Route::prefix('members')->group(function () {
-      Route::get('list', [AdminController::class, 'list_users']);
-      Route::get('add', [AdminController::class, 'add_user_get']);
-      Route::get('edit/{id}', [AdminController::class, 'edit_user_get']);
-      Route::post('edit/{id}', [AdminController::class, 'edit_user_post']);
-      Route::post('add', [AdminController::class, 'add_user_post']);
-      Route::post('shortcuts', [AdminController::class, 'shortcuts']);
-      Route::post('suspend', [AdminController::class, 'suspend']);
+      Route::get('list', [AdminUserController::class, 'list_users']);
+      Route::get('add', [AdminUserController::class, 'add_user_get']);
+      Route::get('edit/{id}', [AdminUserController::class, 'edit_user_get']);
+      Route::post('edit/{id}', [AdminUserController::class, 'edit_user_post']);
+      Route::post('add', [AdminUserController::class, 'add_user_post']);
+      Route::post('actions', [AdminUserController::class, 'actions_members']);
+      Route::post('suspend', [AdminUserController::class, 'suspend']);
+    });
+    Route::prefix('websites')->group(function () {
+      Route::get('list', [AdminWebsiteController::class, 'list_websites']);
+      Route::get('add', [AdminWebsiteController::class, 'add_website_get']);
+      Route::get('edit/{id}', [AdminWebsiteController::class, 'edit_website_get']);
+      Route::get('pause/{id}', [AdminWebsiteController::class, 'pause_website']);
+      Route::get('activate/{id}', [AdminWebsiteController::class, 'activate_website']);
+      Route::get('suspend/{id}', [AdminWebsiteController::class, 'suspend_website']);
+      Route::get('delete/{id}', [AdminWebsiteController::class, 'destroy']);
+      Route::post('edit/{id}', [AdminWebsiteController::class, 'edit_website_post']);
+      Route::post('add', [AdminWebsiteController::class, 'add_website_post']);
+      Route::post('actions', [AdminWebsiteController::class, 'actions_websites']);
     });
   });
 });

@@ -73,7 +73,7 @@ request()->get('filterByNoUpline')
 </div>
 @endif
 @if (count($users))
-<p class="mb-0 px-1 py-3"><strong>Viewing:</strong> {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ count($users) }} total users</p>
+<p class="mb-0 px-1 py-3"><strong>Viewing:</strong> {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ count(User::all()) }} total users</p>
 <table class="table table-bordered table-hover table-head-fixed">
   <thead>
     <tr>
@@ -142,7 +142,7 @@ request()->get('filterByNoUpline')
           class='text-danger font-weight-bold'
           @endif>{{ $user->status }}</span></td>
       <td>
-        <form action="{{ url('admin/members/shortcuts') }}" method="POST">
+        <form action="{{ url('admin/members/actions') }}" method="POST">
           @csrf
           <div class="btn-group" role="group" aria-label="Manage Member">
             <a class="btn btn-sm btn-primary" href="{{ url('admin/members/edit', $user->id) }}" title="Edit Member"><i class="fas fa-edit"></i></a>
@@ -264,5 +264,6 @@ request()->get('filterByNoUpline')
     })
 
   });
+
 </script>
 @endsection
