@@ -37,7 +37,7 @@ Add Website
     <div class="form-row mb-3">
       <label for="assigned" class="col-sm-2 col-form-label">Assigned</label>
       <div class="col-sm-5">
-        <input type="text" name="assigned" value="{{ old('assigned') }}" class="form-control @error('assigned') border border-danger @enderror">
+        <input type="text" name="assigned" value="{{ old('assigned') ?  old('assigned') : '0' }}" class="form-control @error('assigned') border border-danger @enderror">
         @error('assigned')
         <div class="text-danger">{{ $message }}</div>
         @enderror
@@ -76,13 +76,4 @@ Add Website
     <button type="submit" class="btn btn-primary mt-3">Add Website</button>
   </form>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-  $(function() {
-
-  });
-
-</script>
 @endsection

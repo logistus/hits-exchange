@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\WebsiteController as AdminWebsiteController;
+use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
@@ -255,6 +256,18 @@ Route::middleware(['admin'])->group(function () {
       Route::post('edit/{id}', [AdminWebsiteController::class, 'edit_website_post']);
       Route::post('add', [AdminWebsiteController::class, 'add_website_post']);
       Route::post('actions', [AdminWebsiteController::class, 'actions_websites']);
+    });
+    Route::prefix('banners')->group(function () {
+      Route::get('list', [AdminBannerController::class, 'list_banners']);
+      Route::get('add', [AdminBannerController::class, 'add_banner_get']);
+      Route::get('edit/{id}', [AdminBannerController::class, 'edit_banner_get']);
+      Route::get('pause/{id}', [AdminBannerController::class, 'pause_banner']);
+      Route::get('activate/{id}', [AdminBannerController::class, 'activate_banner']);
+      Route::get('suspend/{id}', [AdminBannerController::class, 'suspend_banner']);
+      Route::get('delete/{id}', [AdminBannerController::class, 'destroy']);
+      Route::post('edit/{id}', [AdminBannerController::class, 'edit_banner_post']);
+      Route::post('add', [AdminBannerController::class, 'add_banner_post']);
+      Route::post('actions', [AdminBannerController::class, 'actions_banners']);
     });
   });
 });

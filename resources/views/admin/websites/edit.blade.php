@@ -70,10 +70,10 @@ Edit Website
       <label for="status" class="col-sm-2 col-form-label">Status</label>
       <div class="col-sm-5">
         <select name="status" id="status" class="custom-select">
-          <option value="Pending">Pending</option>
-          <option value="Active" selected>Active</option>
-          <option value="Paused">Paused</option>
-          <option value="Suspended">Suspended</option>
+          <option value="Pending" {{ $website->status == "Pending" ? "selected" : ""}}>Pending</option>
+          <option value="Active" {{ $website->status == "Active" ? "selected" : ""}}>Active</option>
+          <option value="Paused" {{ $website->status == "Paused" ? "selected" : ""}}>Paused</option>
+          <option value="Suspended" {{ $website->status == "Suspended" ? "selected" : ""}}>Suspended</option>
         </select>
       </div>
     </div>

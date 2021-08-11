@@ -23,7 +23,7 @@ class WebsiteController extends Controller
     $per_page =  $request->query('per_page') ? $request->query('per_page') : $request->cookie('websites_list_per_page');
 
     $sort = $request->query('sort') ? $request->query('sort') : "desc";
-    $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'views_today';
+    $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'id';
 
     $filterStatus = $request->query('filterByStatus');
     $filterUsername = $request->query('filterByUsername');
@@ -119,11 +119,11 @@ class WebsiteController extends Controller
     $isBanned = BannedUrlController::check_banned($request->url);
 
     if ($isBanned) {
-      return back()->with('status', ['warning', $isBanned]);
+      return back()->with('status', ['warning', $isBanned])->withInput();
     } else {
+      $website = Website::create($request->only('assigned', 'max_daily_views', 'auto_assign', 'status'));
 
-      $website = Website::create($request->only('url', 'assigned', 'max_daily_views', 'auto_assign', 'status'));
-
+      $website->url = str_replace("http://", "https://", $request->url);
       $website->user_id = User::where('username', $request->username)->value('id');
       $website->save();
     }
@@ -151,9 +151,9 @@ class WebsiteController extends Controller
     $isBanned = BannedUrlController::check_banned($request->url);
 
     if ($isBanned) {
-      return back()->with('status', ['warning', $isBanned]);
+      return back()->with('status', ['warning', $isBanned])->withInput();
     } else {
-      $website->url = $request->url;
+      $website->url = str_replace("http://", "https://", $request->url);
       $website->user_id = User::where('username', $request->username)->value('id');
       $website->assigned = $request->assigned;
       $website->max_daily_views = $request->max_daily_views;

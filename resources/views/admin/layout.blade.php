@@ -64,6 +64,7 @@
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
               <a href="{{ url('admin') }}" class="nav-link {{ url()->current() == url('admin') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
                 <p>
                   Dashboard
                 </p>
@@ -71,6 +72,7 @@
             </li>
             <li class="nav-item {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add')) ? 'menu-open' : '' }}">
               <a href="#" class="nav-link {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add')) ? 'active' : '' }}">
+                <i class="fas fa-users"></i>
                 <p>
                   Members
                   <i class="right fas fa-angle-left"></i>
@@ -91,6 +93,7 @@
             </li>
             <li class="nav-item {{ (url()->current() == url('admin/websites/list') || url()->current() == url('admin/websites/add')) ? 'menu-open' : '' }}">
               <a href="#" class="nav-link {{ (url()->current() == url('admin/websites/list') || url()->current() == url('admin/websites/add')) ? 'active' : '' }}">
+                <i class="fas fa-link"></i>
                 <p>
                   Websites
                   <i class="right fas fa-angle-left"></i>
@@ -105,6 +108,27 @@
                 <li class="nav-item">
                   <a href="{{ url('admin/websites/list') }}" class="nav-link {{ url()->current() == url('admin/websites/list') ? 'active' : '' }}">
                     <p>List Websites</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item {{ (url()->current() == url('admin/banners/list') || url()->current() == url('admin/banners/add')) ? 'menu-open' : '' }}">
+              <a href="#" class="nav-link {{ (url()->current() == url('admin/banners/list') || url()->current() == url('admin/banners/add')) ? 'active' : '' }}">
+                <i class="fas fa-images"></i>
+                <p>
+                  Banners
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url('admin/banners/add') }}" class="nav-link {{ url()->current() == url('admin/banners/add') ? 'active' : '' }}">
+                    <p>Add Banner</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url('admin/banners/list') }}" class="nav-link {{ url()->current() == url('admin/banners/list') ? 'active' : '' }}">
+                    <p>List Banners</p>
                   </a>
                 </li>
               </ul>
