@@ -154,6 +154,27 @@
                 </li>
               </ul>
             </li>
+            <li class="nav-item {{ (url()->current() == url('admin/text_ads/list') || url()->current() == url('admin/text_ads/add')) ? 'menu-open' : '' }}">
+              <a href="#" class="nav-link {{ (url()->current() == url('admin/text_ads/list') || url()->current() == url('admin/text_ads/add')) ? 'active' : '' }}">
+                <i class="fas fa-ad"></i>
+                <p>
+                  Text Ads
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url('admin/text_ads/add') }}" class="nav-link {{ url()->current() == url('admin/text_ads/add') ? 'active' : '' }}">
+                    <p>Add Text Ad</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url('admin/text_ads/list') }}" class="nav-link {{ url()->current() == url('admin/text_ads/list') ? 'active' : '' }}">
+                    <p>List Text Ads</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </nav>
         <!-- /.sidebar-menu -->

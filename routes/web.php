@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\WebsiteController as AdminWebsiteController;
 use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\Admin\SquareBannerController as AdminSquareBannerController;
+use App\Http\Controllers\Admin\TextAdController as AdminTextAdController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
@@ -281,6 +282,18 @@ Route::middleware(['admin'])->group(function () {
       Route::post('edit/{id}', [AdminSquareBannerController::class, 'edit_square_banner_post']);
       Route::post('add', [AdminSquareBannerController::class, 'add_square_banner_post']);
       Route::post('actions', [AdminSquareBannerController::class, 'actions_square_banners']);
+    });
+    Route::prefix('text_ads')->group(function () {
+      Route::get('list', [AdminTextAdController::class, 'list_text_ads']);
+      Route::get('add', [AdminTextAdController::class, 'add_text_ad_get']);
+      Route::get('edit/{id}', [AdminTextAdController::class, 'edit_text_ad_get']);
+      Route::get('pause/{id}', [AdminTextAdController::class, 'pause_text_ad']);
+      Route::get('activate/{id}', [AdminTextAdController::class, 'activate_text_ad']);
+      Route::get('suspend/{id}', [AdminTextAdController::class, 'suspend_text_ad']);
+      Route::get('delete/{id}', [AdminTextAdController::class, 'destroy']);
+      Route::post('edit/{id}', [AdminTextAdController::class, 'edit_text_ad_post']);
+      Route::post('add', [AdminTextAdController::class, 'add_text_ad_post']);
+      Route::post('actions', [AdminTextAdController::class, 'actions_text_ads']);
     });
   });
 });
