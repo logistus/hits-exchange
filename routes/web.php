@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\WebsiteController as AdminWebsiteController;
 use App\Http\Controllers\Admin\BannerController as AdminBannerController;
+use App\Http\Controllers\Admin\SquareBannerController as AdminSquareBannerController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
@@ -268,6 +269,18 @@ Route::middleware(['admin'])->group(function () {
       Route::post('edit/{id}', [AdminBannerController::class, 'edit_banner_post']);
       Route::post('add', [AdminBannerController::class, 'add_banner_post']);
       Route::post('actions', [AdminBannerController::class, 'actions_banners']);
+    });
+    Route::prefix('square_banners')->group(function () {
+      Route::get('list', [AdminSquareBannerController::class, 'list_square_banners']);
+      Route::get('add', [AdminSquareBannerController::class, 'add_square_banner_get']);
+      Route::get('edit/{id}', [AdminSquareBannerController::class, 'edit_square_banner_get']);
+      Route::get('pause/{id}', [AdminSquareBannerController::class, 'pause_square_banner']);
+      Route::get('activate/{id}', [AdminSquareBannerController::class, 'activate_square_banner']);
+      Route::get('suspend/{id}', [AdminSquareBannerController::class, 'suspend_square_banner']);
+      Route::get('delete/{id}', [AdminSquareBannerController::class, 'destroy']);
+      Route::post('edit/{id}', [AdminSquareBannerController::class, 'edit_square_banner_post']);
+      Route::post('add', [AdminSquareBannerController::class, 'add_square_banner_post']);
+      Route::post('actions', [AdminSquareBannerController::class, 'actions_square_banners']);
     });
   });
 });

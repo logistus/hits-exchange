@@ -133,6 +133,27 @@
                 </li>
               </ul>
             </li>
+            <li class="nav-item {{ (url()->current() == url('admin/square_banners/list') || url()->current() == url('admin/square_banners/add')) ? 'menu-open' : '' }}">
+              <a href="#" class="nav-link {{ (url()->current() == url('admin/square_banners/list') || url()->current() == url('admin/square_banners/add')) ? 'active' : '' }}">
+                <i class="fas fa-photo-video"></i>
+                <p>
+                  Square Banners
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url('admin/square_banners/add') }}" class="nav-link {{ url()->current() == url('admin/square_banners/add') ? 'active' : '' }}">
+                    <p>Add Square Banner</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url('admin/square_banners/list') }}" class="nav-link {{ url()->current() == url('admin/square_banners/list') ? 'active' : '' }}">
+                    <p>List Square Banners</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </nav>
         <!-- /.sidebar-menu -->

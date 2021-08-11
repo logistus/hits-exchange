@@ -1,5 +1,5 @@
 @php
-use \App\Models\Banner;
+use \App\Models\SquareBanner;
 use \App\Models\User;
 use \Carbon\Carbon;
 
@@ -10,13 +10,13 @@ $sort_icon = (request()->get('sort') == 'desc' || request()->get('sort') == '') 
 @extends('admin.layout')
 
 @section('page')
-List Banners
+List Square Banners
 @endsection
 
 @section('breadcrumb')
 <ol class="breadcrumb float-sm-right">
   <li class="breadcrumb-item"><a href="{{ url('admin') }}">Home</a></li>
-  <li class="breadcrumb-item active">List Banners</li>
+  <li class="breadcrumb-item active">List Square Banners</li>
 </ol>
 @endsection
 
@@ -35,7 +35,7 @@ List Banners
   </form>
   <div>
     <button class="btn btn-secondary" id="filtersBtn"><i class="fas fa-filter"></i> Add Filters</button>
-    <a class="btn btn-info" href="{{ url('admin/banners/list') }}"><i class="fas fa-reset"></i> Reset Filters</a>
+    <a class="btn btn-info" href="{{ url('admin/square_banners/list') }}"><i class="fas fa-reset"></i> Reset Filters</a>
   </div>
 </div>
 @if (
@@ -60,8 +60,8 @@ request()->get('filterByStatus')
 </div>
 @endif
 @if (count($banners))
-<p class="mb-0 px-1 py-3"><strong>Viewing:</strong> {{ $banners->firstItem() }} to {{ $banners->lastItem() }} of {{ count(Banner::all()) }} total banners</p>
-<form action="{{ url('admin/banners/actions') }}" method="POST">
+<p class="mb-0 px-1 py-3"><strong>Viewing:</strong> {{ $banners->firstItem() }} to {{ $banners->lastItem() }} of {{ count(SquareBanner::all()) }} total banners</p>
+<form action="{{ url('admin/square_banners/actions') }}" method="POST">
   @csrf
   <div style="min-height: 55px;">
     <button type="submit" class="btn btn-danger mb-3 d-none" id="delete-selected" onclick="return confirm('Are you sure?');" name="action" value="delete_selected">Delete Selected</button>
@@ -82,7 +82,7 @@ request()->get('filterByStatus')
           <i class="fas fa-chevron-{{ $sort_icon }}"></i>
           @endif
         </th>
-        <th scope="col" style="max-width: 300px !important;">Image</th>
+        <th scope="col">Image</th>
         <th scope="col">
           <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'image_url', 'sort' => $sort]) }}">Image URL</a>
           @if (request()->get('sort_by') == "image_url")
@@ -136,7 +136,7 @@ request()->get('filterByStatus')
           </div>
         </td>
         <td>{{ $banner->id }}</td>
-        <td><img src="{{ $banner->image_url }}" style="width: 234px;" /></td>
+        <td><img src="{{ $banner->image_url }}" style="width: 50%;" /></td>
         <td>
           <a href="{{ $banner->image_url }}" target="_blank" class="d-block" rel="noopener noreferrer">{{ $banner->image_url }}</a>
         </td>
@@ -158,22 +158,22 @@ request()->get('filterByStatus')
             @endif>{{ $banner->status }}</span></td>
         <td>
           <div class="btn-group" role="group" aria-label="Manage Banner">
-            <a class="btn btn-sm btn-primary" href="{{ url('admin/banners/edit', $banner->id) }}" title="Edit Banner"><i class="fas fa-edit"></i></a>
+            <a class="btn btn-sm btn-primary" href="{{ url('admin/square_banners/edit', $banner->id) }}" title="Edit Banner"><i class="fas fa-edit"></i></a>
             @if ($banner->status == "Suspended")
-            <a href="{{ url('admin/banners/activate', $banner->id) }}" class="btn btn-sm btn-info" title="Activate Banner"><i class="fas fa-check"></i></a>
+            <a href="{{ url('admin/square_banners/activate', $banner->id) }}" class="btn btn-sm btn-info" title="Activate Banner"><i class="fas fa-check"></i></a>
             @else
-            <a href="{{ url('admin/banners/suspend', $banner->id) }}" class="btn btn-sm btn-secondary" title="Suspend Banner"><i class="fas fa-ban"></i></a>
+            <a href="{{ url('admin/square_banners/suspend', $banner->id) }}" class="btn btn-sm btn-secondary" title="Suspend Banner"><i class="fas fa-ban"></i></a>
             @endif
             @if ($banner->status == "Pending")
-            <a href="{{ url('admin/banners/activate', $banner->id) }}" class="btn btn-sm btn-info" title="Activate Banner"><i class="fas fa-check-double"></i></a>
+            <a href="{{ url('admin/square_banners/activate', $banner->id) }}" class="btn btn-sm btn-info" title="Activate Banner"><i class="fas fa-check-double"></i></a>
             @endif
             @if ($banner->status == "Paused")
-            <a href="{{ url('admin/banners/activate', $banner->id) }}" class="btn btn-sm btn-info" title="Activate Banner"><i class="fas fa-play"></i></a>
+            <a href="{{ url('admin/square_banners/activate', $banner->id) }}" class="btn btn-sm btn-info" title="Activate Banner"><i class="fas fa-play"></i></a>
             @endif
             @if ($banner->status == "Active")
-            <a href="{{ url('admin/banners/pause', $banner->id) }}" class="btn btn-sm btn-info" title="Pause Banner"><i class="fas fa-pause"></i></a>
+            <a href="{{ url('admin/square_banners/pause', $banner->id) }}" class="btn btn-sm btn-info" title="Pause Banner"><i class="fas fa-pause"></i></a>
             @endif
-            <a href="{{ url('admin/banners/delete', $banner->id) }}" onclick="return confirm('Are you sure?');" class="btn btn-sm btn-danger" title="Delete Banner"><i class="fas fa-trash"></i></a>
+            <a href="{{ url('admin/square_banners/delete', $banner->id) }}" onclick="return confirm('Are you sure?');" class="btn btn-sm btn-danger" title="Delete Banner"><i class="fas fa-trash"></i></a>
           </div>
         </td>
       </tr>
@@ -183,10 +183,10 @@ request()->get('filterByStatus')
 </form>
 {{ $banners->links() }}
 @else
-<p>No banners found.</p>
+<p>No square banners found.</p>
 @endif
 <!-- Fİlters Section -->
-<form style="display: none; position: absolute; top: 56.8px; right: 0; width: 250; background-color: lightgray; z-index: 999; padding: 10px 20px; height: calc(100vh - 56.8px); overflow: auto;" id="addFilters" action="{{ url('admin/banners/list') }}" method="GET">
+<form style="display: none; position: absolute; top: 56.8px; right: 0; width: 250; background-color: lightgray; z-index: 999; padding: 10px 20px; height: calc(100vh - 56.8px); overflow: auto;" id="addFilters" action="{{ url('admin/square_banners/list') }}" method="GET">
   <div class="form-group">
     <label for="filterByUsername">By Username</label>
     <input type="text" class="form-control" value="{{ request()->get('filterByUsername') }}" id="filterByUsername" name="filterByUsername" aria-describedby="Filter by username">
