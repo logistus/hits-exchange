@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\WebsiteController as AdminWebsiteController;
 use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\Admin\SquareBannerController as AdminSquareBannerController;
 use App\Http\Controllers\Admin\TextAdController as AdminTextAdController;
+use App\Http\Controllers\Admin\MemberTypeController as AdminMemberTypeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
@@ -246,6 +247,14 @@ Route::middleware(['admin'])->group(function () {
       Route::post('add', [AdminUserController::class, 'add_user_post']);
       Route::post('actions', [AdminUserController::class, 'actions_members']);
       Route::post('suspend', [AdminUserController::class, 'suspend']);
+    });
+    Route::prefix('member_types')->group(function () {
+      Route::get('/', [AdminMemberTypeController::class, 'index']);
+      Route::get('/create', [AdminMemberTypeController::class, 'create']);
+      Route::post('/', [AdminMemberTypeController::class, 'store']);
+      Route::get('/delete/{id}', [AdminMemberTypeController::class, 'destroy']);
+      Route::get('/edit/{id}', [AdminMemberTypeController::class, 'edit']);
+      Route::put('/{id}', [AdminMemberTypeController::class, 'update']);
     });
     Route::prefix('websites')->group(function () {
       Route::get('list', [AdminWebsiteController::class, 'list_websites']);

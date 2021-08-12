@@ -70,7 +70,7 @@
                 </p>
               </a>
             </li>
-            <li class="nav-item {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add')) ? 'menu-open' : '' }}">
+            <li class="nav-item {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add') || url()->current() == url('admin/member_types')) ? 'menu-open' : '' }}">
               <a href="#" class="nav-link {{ (url()->current() == url('admin/members/list') || url()->current() == url('admin/members/add')) ? 'active' : '' }}">
                 <i class="fas fa-users"></i>
                 <p>
@@ -87,6 +87,11 @@
                 <li class="nav-item">
                   <a href="{{ url('admin/members/list') }}" class="nav-link {{ url()->current() == url('admin/members/list') ? 'active' : '' }}">
                     <p>List Members</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url('admin/member_types') }}" class="nav-link {{ url()->current() == url('admin/member_types') ? 'active' : '' }}">
+                    <p>Member Types</p>
                   </a>
                 </li>
               </ul>
