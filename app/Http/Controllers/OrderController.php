@@ -28,12 +28,17 @@ class OrderController extends Controller
   {
     $order = Order::findOrFail($id);
     $response = Gate::inspect("update", $order);
+    // Check if user has sufficent completed purchase balance in account
+    if ($request->user()->purchase_balance_completed->sum('amount') < $order->price) {
+      return back()->with("status", ["warning", "You don't have enough purchase balance to pay for this order."]);
+    }
     if ($response->allowed()) {
       PurchaseBalance::insert([
         'user_id' => $request->user()->id,
         'order_id' => $id,
         'type' => 'Purchase',
-        'amount' => '-' . $order->price
+        'amount' => '-' . $order->price,
+        'status' => 'Completed'
       ]);
       $order->update(['status' => 'Completed']);
       // Start Page Order

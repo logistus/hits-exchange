@@ -5,10 +5,10 @@ use App\Models\Order;
   <h4><a href="{{ url('user/purchase_balance') }}">Purchase Balance</a></h4>
   <x-alert />
   <div class="d-flex justify-content-between align-items-center mb-5">
-    <div>You have <strong>${{ number_format(Auth::user()->purchase_balance_completed->sum('amount'), 2) }}</strong> in your purchase balance.</div>
+    <div>You have <strong>${{ number_format(Auth::user()->purchase_balance_completed->sum('amount'), 2) }}</strong> in your purchase balance. You <strong>can't</strong> withdraw this money. You can use it to purchase only.</div>
     <div>
       <a href="{{ url('user/transfer_commissions') }}" class="btn btn-primary">Transfer Commissions</a>
-      <a href="{{ url('user/purchase_balance/create') }}" class="btn btn-success">Create</a>
+      <a href="{{ url('user/purchase_balance/create') }}" class="btn btn-success">Add</a>
     </div>
   </div>
   @if (count($purchase_balance) > 0)
@@ -42,7 +42,7 @@ use App\Models\Order;
         <td>
           {{ $pb->status }}
           @if ($pb->status == 'Pending')
-          (<a href="{{ url('user/purchase_balance/deposit', $pb->id) }}">Deposit</a>)
+          (<a href="{{ url('user/purchase_balance/deposit', $pb->id) }}">Deposit</a> - <a href="{{ url('user/purchase_balance/delete', $pb->id) }}">Delete</a>)
           @endif
         </td>
       </tr>

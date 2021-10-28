@@ -16,23 +16,59 @@
       <select name="reward" class="form-select my-2">
         <option value="0">Select Reward</option>
         @foreach ($prizes as $prize)
-        <option value="{{ $prize->prize_type }}">{{ $prize->prize_amount }} {{ $prize->prize_type }}</option>
+        @if ($prize->credit_prize != null)
+        <option value="Credits">{{ number_format($prize->credit_prize) }} Credits</option>
+        @endif
+        @if ($prize->banner_prize != null)
+        <option value="Banner Impressions">{{ number_format($prize->banner_prize) }} Banner Impressions</option>
+        @endif
+        @if ($prize->square_banner_prize != null)
+        <option value="Square Banner Impressions">{{ number_format($prize->square_banner_prize) }} Square Banner Impressions</option>
+        @endif
+        @if ($prize->text_ad_prize != null)
+        <option value="Text Ad Impressions">{{ number_format($prize->text_ad_prize) }} Text Ad Impressions</option>
+        @endif
+        @if ($prize->purchase_balance != null)
+        <option value="Purchase Balance">${{ $prize->purchase_balance }} Purchase Balance</option>
+        @endif
         @endforeach
       </select>
       <button type="submit" class="btn btn-success">Claim Reward</button>
     </form>
   </div>
   @endif
-  @foreach ($surfer_rewards as $minimum_page => $rewards)
-  <div class="p-3 border d-flex rewards" @if ($surf_page==$minimum_page) style="background-color: #d8e5f3;" @endif>
+  @foreach ($surfer_rewards as $surfer_reward)
+  <div class="p-3 border d-flex rewards" @if ($surf_page==$surfer_reward->page) style="background-color: #d8e5f3;" @endif>
     <div>
-      <div class="fs-4">Surf at least {{ $minimum_page }} pages to choose one of the prizes below:</div>
+      <div class="fs-4">Surf at least {{ $surfer_reward->page }} pages to choose one of the prizes below:</div>
+      @php
+      $rewards = array();
+      if ($surfer_reward->credit_prize != NULL) {
+      $reward = number_format($surfer_reward->credit_prize)." Credits";
+      array_push($rewards, $reward);
+      }
+      if ($surfer_reward->banner_prize != NULL) {
+      $reward = number_format($surfer_reward->banner_prize)." Banner Impressions";
+      array_push($rewards, $reward);
+      }
+      if ($surfer_reward->square_banner_prize != NULL) {
+      $reward = number_format($surfer_reward->square_banner_prize)." Square Banner Impressions";
+      array_push($rewards, $reward);
+      }
+      if ($surfer_reward->text_ad_prize != NULL) {
+      $reward = number_format($surfer_reward->text_ad_prize)." Text Ad Impressions";
+      array_push($rewards, $reward);
+      }
+      if ($surfer_reward->purchase_balance != NULL) {
+      $reward = "$".$surfer_reward->purchase_balance." Purchase Balance";
+      array_push($rewards, $reward);
+      }
+      @endphp
       @foreach ($rewards as $reward)
-      <span>{{ $reward->prize_amount }} {{ $reward->prize_type }}
-        @if (!$loop->last)
-        ,
-        @endif
-      </span>
+      {{ $reward }}
+      @if (!$loop->last)
+      or
+      @endif
       @endforeach
     </div>
   </div>

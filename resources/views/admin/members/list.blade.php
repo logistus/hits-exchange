@@ -260,8 +260,8 @@ request()->get('filterByNoUpline')
       var button = $(event.relatedTarget); // Button that triggered the modal
       var user_id = button.data('userid'); // Extract info from data-* attributes
       var modal = $(this);
-      modal.find('.modal-body #user_id').val(user_id);
-    })
+      modal.find('.modal-body form').val(user_id);
+    });
 
   });
 

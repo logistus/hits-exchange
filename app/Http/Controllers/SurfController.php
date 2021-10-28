@@ -44,7 +44,7 @@ class SurfController extends Controller
           }
         }
       }
-    } else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 25) == 0) {
+    } else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
       session(['selected_website_url' => url('prize_page')]);
     } else if ($signup_bonus) {
       session(['selected_website_url' => url('signup_bonus_claimed', $signup_bonus->id)]);
@@ -114,7 +114,7 @@ class SurfController extends Controller
   {
     $signup_bonus = SignupBonus::where('surf_amount', Auth::user()->correct_clicks)->orderBy('surf_amount')->get()->first();
 
-    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 25) == 0) {
+    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
       return url('prize_page');
     } else if ($signup_bonus) {
       return url('signup_bonus_claimed', $signup_bonus->id);
@@ -366,25 +366,25 @@ class SurfController extends Controller
         // credits
         $credits_won = round($credit_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('credits', $credits_won);
-        $prize_text = "Congrats! You have won $credits_won credits.";
+        $prize_text = "You have won $credits_won credits.";
         break;
       case 2:
         // banners
         $banners_won = round($banner_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('banner_imps', $banners_won);
-        $prize_text = "Congrats! You have won $banners_won banner impressions.";
+        $prize_text = "You have won $banners_won banner impressions.";
         break;
       case 3:
         // square banners
         $square_banners_won = round($square_banner_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('square_banner_imps', $square_banners_won);
-        $prize_text = "Congrats! You have won $square_banners_won banner impressions.";
+        $prize_text = "You have won $square_banners_won banner impressions.";
         break;
       case 4:
         // text ads
         $text_ads_won = round($text_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('text_imps', $text_ads_won);
-        $prize_text = "Congrats! You have won $text_ads_won text ad impressions.";
+        $prize_text = "You have won $text_ads_won text ad impressions.";
         break;
       default:
         $prize_text = "Invalid prize type.";
@@ -413,5 +413,10 @@ class SurfController extends Controller
         'status' => '10 credits won.'
       ]);
     }
+  }
+
+  public function frame_breaker_detected()
+  {
+    return view('frame_breaker');
   }
 }

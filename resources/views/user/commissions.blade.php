@@ -2,7 +2,7 @@
 use App\Models\Order;
 use App\Models\User;
 if (!isset($_GET['type']))
-$commissions = $commissions_all;
+$commissions = $commissions_unpaid;
 else if ($_GET['type'] == 'Transferred')
 $commissions = $commissions_transferred;
 else
@@ -19,9 +19,9 @@ $commissions = $commissions_paid;
   <p class="text-end">
     <strong>View by status: </strong>
     @if (request()->get('type') == '')
-    All
+    Unpaid
     @else
-    <a href='{{ url('user/commissions') }}'>All</a>
+    <a href='{{ url('user/commissions') }}'>Unpaid</a>
     @endif
     |
     @if (request()->get('type') == 'Transferred')
@@ -61,13 +61,13 @@ $commissions = $commissions_paid;
         </td>
         <td>{{ Order::where('id', $commission->order_id)->value('order_item') ? Order::where('id', $commission->order_id)->value('order_item') : "N/A" }}</td>
         <td>${{ $commission->amount }}</td>
-        <td>{{ $commission->status }}</td>
+        <td>{{ $commission->status == NULL ? "Unpaid" : $commission->status }}</td>
       </tr>
       @endforeach
     </tbody>
   </table>
   @else
-  <p class="alert alert-info">You don't have any {{ strtolower(request()->get('type')) }} commissions.</p>
+  <p class="alert alert-info">You don't have any {{ strtolower(request()->get('type') == NULL ? "unpaid" : request()->get('type')) }} commissions.</p>
   @endif
   @else
   <p class="alert alert-info">Invalid commission type.</p>

@@ -19,5 +19,10 @@
       @endforeach
     </div>
     @endif
-
+    @if ($surf_codes)
+    <div class="bg-light border p-3">
+      <h4 class="mb-3">Today's Surf Code</h4>
+      <p>Enter the code <strong>{{ $surf_codes->code }}</strong> on the <a href="{{ url('surf_codes') }}">Surf Codes</a> page (under Rewards), surf {{ $surf_codes->surf_amount }} pages and win a prize!</strong></p>
+    </div>
+    @endif
 </x-layout>

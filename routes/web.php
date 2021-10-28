@@ -6,7 +6,11 @@ use App\Http\Controllers\Admin\BannerController as AdminBannerController;
 use App\Http\Controllers\Admin\SquareBannerController as AdminSquareBannerController;
 use App\Http\Controllers\Admin\TextAdController as AdminTextAdController;
 use App\Http\Controllers\Admin\MemberTypeController as AdminMemberTypeController;
+use App\Http\Controllers\Admin\SurferRewardController as AdminSurferRewardController;
+use App\Http\Controllers\Admin\SurfCodeController as AdminSurfCodeController;
+use App\Http\Controllers\Admin\SurfCodePrizeController as AdminSurfCodePrizeController;
 use App\Http\Controllers\AdminController;
+
 use App\Http\Controllers\AdPriceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -101,6 +105,7 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
   Route::get('/dashboard', [UserController::class, 'dashboard']);
   Route::get('/upgrade', [UserController::class, 'upgrade']);
   Route::get('/surf', [SurfController::class, 'view']);
+  Route::get('/frame_breaker', [SurfController::class, 'frame_breaker_detected']);
   Route::get('/surf_icons', [SurfController::class, 'surf_icons']);
   Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
   Route::get('/promote', [UserController::class, 'promote']);
@@ -233,9 +238,11 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
     Route::get('purchase_balance/create', [PurchaseBalanceController::class, 'create']);
     Route::post('purchase_balance/create', [PurchaseBalanceController::class, 'store']);
     Route::get('purchase_balance/deposit/{id}', [PurchaseBalanceController::class, 'deposit']);
+    Route::get('purchase_balance/delete/{id}', [PurchaseBalanceController::class, 'destroy']);
   });
 });
 
+// Admin routes
 Route::middleware(['admin'])->group(function () {
   Route::prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index']);
@@ -303,6 +310,26 @@ Route::middleware(['admin'])->group(function () {
       Route::post('edit/{id}', [AdminTextAdController::class, 'edit_text_ad_post']);
       Route::post('add', [AdminTextAdController::class, 'add_text_ad_post']);
       Route::post('actions', [AdminTextAdController::class, 'actions_text_ads']);
+    });
+
+    Route::prefix('surfer_rewards')->group(function () {
+      Route::get('/', [AdminSurferRewardController::class, 'list']);
+      Route::get('create', [AdminSurferRewardController::class, 'create']);
+      Route::post('/', [AdminSurferRewardController::class, 'store']);
+      Route::get('edit/{id}', [AdminSurferRewardController::class, 'edit']);
+      Route::put('/{id}', [AdminSurferRewardController::class, 'update']);
+      Route::get('delete/{id}', [AdminSurferRewardController::class, 'destroy']);
+    });
+
+    Route::prefix('surf_codes')->group(function () {
+      Route::get('/', [AdminSurfCodeController::class, 'list']);
+      Route::get('create', [AdminSurfCodeController::class, 'create']);
+      Route::post('/', [AdminSurfCodeController::class, 'store']);
+      Route::get('edit/{id}', [AdminSurfCodeController::class, 'edit']);
+      Route::put('/{id}', [AdminSurfCodeController::class, 'update']);
+      Route::get('delete/{id}', [AdminSurfCodeController::class, 'destroy']);
+      Route::get('prizes/delete/{id}', [AdminSurfCodePrizeController::class, 'destroy']);
+      Route::post('prizes', [AdminSurfCodePrizeController::class, 'store']);
     });
   });
 });

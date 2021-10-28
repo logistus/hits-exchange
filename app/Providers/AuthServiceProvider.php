@@ -21,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
     'App\Models\LoginSpotlight' => 'App\Policies\LoginSpotlightPolicy',
     'App\Models\PrivateMessage' => 'App\Policies\PrivateMessagePolicy',
     'App\Models\Order' => 'App\Policies\OrderPolicy',
+    'App\Models\PurchaseBalance' => 'App\Policies\PurchaseBalancePolicy',
   ];
 
   /**

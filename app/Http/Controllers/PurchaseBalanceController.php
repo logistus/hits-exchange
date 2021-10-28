@@ -6,6 +6,7 @@ use App\Models\Commission;
 use Illuminate\Http\Request;
 use App\Models\PurchaseBalance;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class PurchaseBalanceController extends Controller
 {
@@ -27,6 +28,18 @@ class PurchaseBalanceController extends Controller
   {
     $page = "Add Purchase Balance";
     return view('user/add_purchase_balance', compact('page'));
+  }
+
+  public function destroy($id)
+  {
+    $pb = PurchaseBalance::findOrFail($id);
+    $response = Gate::inspect("delete", $pb);
+    if ($response->allowed()) {
+      $pb->delete();
+      return back();
+    } else {
+      return back()->with("status", ["warning", $response->message()]);
+    }
   }
 
   public function transfer_commissions()

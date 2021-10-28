@@ -16,8 +16,8 @@ class CreateSurfCodePrizesTable extends Migration
     Schema::create('surf_code_prizes', function (Blueprint $table) {
       $table->id();
       $table->foreignId('code_id');
-      $table->unsignedMediumInteger('prize_amount');
-      $table->enum('prize_type', ['Credits', 'Banner Impressions', 'Text Ad Impressions', 'Purchase Balance']);
+      $table->unsignedDecimal('prize_amount');
+      $table->enum('prize_type', ['Credits', 'Banner Impressions', 'Square Banner Impressions', 'Text Ad Impressions', 'Purchase Balance']);
     });
   }
 

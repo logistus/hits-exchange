@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\PurchaseBalance;
 use App\Models\SignupBonus;
+use App\Models\SurfCode;
 use App\Models\UserType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -66,7 +67,8 @@ class UserController extends Controller
   {
     $page = "Dashboard";
     $signup_bonuses = SignupBonus::all();
-    return view("dashboard", compact("page", "signup_bonuses"));
+    $surf_codes = SurfCode::where('confirmed', 1)->where('valid_from', date("Y-m-d"))->get()->first();
+    return view("dashboard", compact("page", "signup_bonuses", "surf_codes"));
   }
 
   public function convert_view()

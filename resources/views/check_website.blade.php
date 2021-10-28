@@ -22,7 +22,7 @@
       </form>
       <a href="{{ url('websites') }}" class="d-block">No</a>
     </div>
-    <iframe style="height: calc(100% - 110px); overflow-x:hidden;" sandbox="" frameborder="0" src="{{ $website->url }}" id="surf_window"></iframe>
+    <iframe style="height: calc(100% - 110px); overflow-x:hidden;" frameborder="0" src="{{ $website->url }}" id="surf_window"></iframe>
   </div>
 </body>
 </html>

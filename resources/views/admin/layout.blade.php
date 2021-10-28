@@ -50,7 +50,7 @@
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-light-primary elevation-4">
+    <aside class="main-sidebar sidebar-light-primary elevation-2">
       <!-- Brand Logo -->
       <a href="{{ url('admin') }}" class="brand-link">
         <img src="{{ asset('images/hits.exchange.logo.png') }}" alt="{{ config('app.name') }}" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -176,6 +176,27 @@
                 <li class="nav-item">
                   <a href="{{ url('admin/text_ads/list') }}" class="nav-link {{ url()->current() == url('admin/text_ads/list') ? 'active' : '' }}">
                     <p>List Text Ads</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item {{ (url()->current() == url('admin/surfer_rewards') || url()->current() == url('admin/surf_codes')) ? 'menu-open' : '' }}">
+              <a href="#" class="nav-link {{ (url()->current() == url('admin/surfer_rewards') || url()->current() == url('admin/surf_codes')) ? 'active' : '' }}">
+                <i class="fas fa-mouse"></i>
+                <p>
+                  Surf Settings
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{{ url('admin/surfer_rewards') }}" class="nav-link {{ url()->current() == url('admin/surfer_rewards') ? 'active' : '' }}">
+                    <p>Surfer Rewards</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{{ url('admin/surf_codes') }}" class="nav-link {{ url()->current() == url('admin/surf_codes') ? 'active' : '' }}">
+                    <p>Surf Codes</p>
                   </a>
                 </li>
               </ul>

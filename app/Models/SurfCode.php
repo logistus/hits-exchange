@@ -15,4 +15,9 @@ class SurfCode extends Model
   {
     return $this->hasMany(SurfCodePrize::class, 'code_id');
   }
+
+  public function completed_total()
+  {
+    return $this->hasMany(SurfCodeClaim::class, 'code_id')->where('completed', 1);
+  }
 }

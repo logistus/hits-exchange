@@ -15,9 +15,12 @@ class CreateSurferRewardsTable extends Migration
   {
     Schema::create('surfer_rewards', function (Blueprint $table) {
       $table->id();
-      $table->unsignedMediumInteger('minimum_page');
-      $table->unsignedMediumInteger('prize_amount');
-      $table->enum('prize_type', ['Credits', 'Banner Impressions', 'Text Ad Impressions', 'Purchase Balance']);
+      $table->unsignedMediumInteger('page');
+      $table->unsignedDecimal('credit_prize')->nullable();
+      $table->unsignedDecimal('banner_prize')->nullable();
+      $table->unsignedDecimal('square_banner_prize')->nullable();
+      $table->unsignedDecimal('text_ad_prize')->nullable();
+      $table->unsignedDecimal('purchase_balance')->nullable();
     });
   }
 

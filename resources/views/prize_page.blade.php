@@ -16,7 +16,7 @@ use App\Models\User;
 
 <body class="vh-100">
   <div class="container d-flex flex-column align-items-center mt-5 h-100">
-    @if ($surfed_today > $last_prize_claimed && $surfed_today % 5 != 0)
+    @if ($surfed_today > $last_prize_claimed && $surfed_today % 6 != 0)
     <h3 class="text-danger">You can't claim this prize yet, please continue surfing.</h3>
     <x-userads />
     @else
@@ -25,6 +25,7 @@ use App\Models\User;
     <x-userads />
     @else
     @if (session('status'))
+    <i class="bi bi-emoji-smile" style="font-size: 10rem;" class="mb-3"></i>
     <h3 class="text-success">{{ session('status') }}</h3>
     @php User::where('id', Auth::id())->update(['claim_surf_prize' => $surfed_today]); @endphp
     <x-userads />
