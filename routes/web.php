@@ -100,6 +100,9 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 Route::post('user/change-email', [UserController::class, 'change_email'])->middleware(['auth', 'suspended']);
 Route::get('user/profile', [UserController::class, 'view_profile'])->middleware(['suspended']);
 Route::get('suspended', [UserController::class, 'suspended']);
+Route::get('banners/click/{id}', [BannerController::class, 'banner_click']);
+Route::get('square_banners/click/{id}', [SquareBannerController::class, 'square_banner_click']);
+Route::get('texts/click/{text_id}', [TextAdController::class, 'text_click']);
 
 Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
@@ -157,7 +160,6 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
   });
   Route::prefix('banners')->group(function () {
     Route::get('/', [BannerController::class, 'index']);
-    Route::get('/click/{id}', [BannerController::class, 'banner_click']);
     Route::get('/reset/{id}', [BannerController::class, 'banner_reset']);
 
     Route::get('/change_status/{id}', [BannerController::class, 'change_status']);
@@ -170,7 +172,6 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
   });
   Route::prefix('square_banners')->group(function () {
     Route::get('/', [SquareBannerController::class, 'index']);
-    Route::get('/click/{id}', [SquareBannerController::class, 'square_banner_click']);
     Route::get('/reset/{id}', [SquareBannerController::class, 'square_banner_reset']);
 
     Route::get('/change_status/{id}', [SquareBannerController::class, 'change_status']);
@@ -183,7 +184,6 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
   });
   Route::prefix('texts')->group(function () {
     Route::get('/', [TextAdController::class, 'index']);
-    Route::get('/click/{text_id}', [TextAdController::class, 'text_click']);
     Route::get('/reset/{id}', [TextAdController::class, 'text_reset']);
     Route::get('/change_status/{id}', [TextAdController::class, 'change_status']);
     Route::get('/delete/{id}', [TextAdController::class, 'destroy']);
