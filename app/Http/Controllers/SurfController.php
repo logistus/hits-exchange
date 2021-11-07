@@ -44,11 +44,11 @@ class SurfController extends Controller
           }
         }
       }
-    } else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
+    } /*else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
       session(['selected_website_url' => url('prize_page')]);
-    } else if ($signup_bonus) {
+    } *else if ($signup_bonus) {
       session(['selected_website_url' => url('signup_bonus_claimed', $signup_bonus->id)]);
-    } else {
+    } */ else {
       session(['selected_website_url' => url('start_page')]);
     }
 
@@ -358,8 +358,9 @@ class SurfController extends Controller
     $banner_prize_base = 10;
     $square_banner_prize_base = 10;
     $text_prize_base = 50;
+    $purchase_balance_prize = 0.05;
 
-    $prize_won = mt_rand(1, 4);
+    $prize_won = mt_rand(1, 5);
 
     switch ($prize_won) {
       case 1:
@@ -385,6 +386,16 @@ class SurfController extends Controller
         $text_ads_won = round($text_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('text_imps', $text_ads_won);
         $prize_text = "You have won $text_ads_won text ad impressions.";
+        break;
+      case 5:
+        // purchase balance
+        PurchaseBalance::create([
+          'user_id' => Auth::id(),
+          'type' => 'Surf Prize',
+          'amount' => $purchase_balance_prize,
+          'status' => 'Completed'
+        ]);
+        $prize_text = "$$purchase_balance_prize has been added to your purchase balance.";
         break;
       default:
         $prize_text = "Invalid prize type.";
