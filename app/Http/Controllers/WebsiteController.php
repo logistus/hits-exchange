@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BannedUrl;
 use App\Models\Website;
+use App\Models\WebsiteStat;
 use Hamcrest\Type\IsBoolean;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -76,6 +77,7 @@ class WebsiteController extends Controller
     } else {
       $website = Website::create([
         "user_id" => $request->user()->id,
+        "title" => $request->title,
         "url" => str_replace("http://", "https://", $request->url),
         "max_daily_views" => $request->max_daily_views,
       ]);
@@ -120,29 +122,31 @@ class WebsiteController extends Controller
         $websites = $request->assign_websites;
         $total_assign = 0;
         // Calculate how many credits user wants to assign
-        foreach ($websites as $credit) {
-          $total_assign += $credit;
-        }
+        if ($websites) {
+          foreach ($websites as $credit) {
+            $total_assign += $credit;
+          }
 
-        // if total assign value is greater than user"s credits, stop
-        if ($request->user()->credits < $total_assign) {
-          return back()->with("status", ["warning", "You don't have enough credits."]);
-        } else {
-          // otherwise, continue to assign
-          foreach ($websites as $id => $credit) {
-            $website = Website::findOrFail($id);
-            $response = Gate::inspect("update", $website);
-            if ($response->allowed()) {
-              if ($credit) {
-                $website->increment("assigned", $credit);
-                $request->user()->decrement("credits", $credit);
+          // if total assign value is greater than user"s credits, stop
+          if ($request->user()->credits < $total_assign) {
+            return back()->with("status", ["warning", "You don't have enough credits."]);
+          } else {
+            // otherwise, continue to assign
+            foreach ($websites as $id => $credit) {
+              $website = Website::findOrFail($id);
+              $response = Gate::inspect("update", $website);
+              if ($response->allowed()) {
+                if ($credit) {
+                  $website->increment("assigned", $credit);
+                  $request->user()->decrement("credits", $credit);
+                }
+              } else {
+                return back()->with("status", ["warning", $response->message()]);
               }
-            } else {
-              return back()->with("status", ["warning", $response->message()]);
             }
           }
-          return back();
         }
+        return back();
         break;
 
       case "delete_selected":
@@ -190,6 +194,27 @@ class WebsiteController extends Controller
         }
         return back();
         break;
+
+      case "transfer_credits":
+        $from_website = Website::findOrFail($request->transfer_from);
+        $to_website = Website::findOrFail($request->transfer_to);
+        $transfer_amount = $request->credits_to_transfer;
+
+        if ($transfer_amount > $from_website->assigned) {
+          return back()->with("status", ["warning", "$from_website->url doest not have $transfer_amount credits assigned"]);
+        } else {
+          $response_from = Gate::inspect("update", $from_website);
+          $response_to = Gate::inspect("update", $to_website);
+          if ($response_from->allowed() && $response_to->allowed()) {
+            $from_website->decrement("assigned", $transfer_amount);
+            $from_website->save();
+            $to_website->increment("assigned", $transfer_amount);
+            $to_website->save();
+            return back()->with("status", ["success", "Transfer completed."]);
+          } else {
+            return back()->with("status", ["warning", $response_from->message()]);
+          }
+        }
 
       case "distribute_credits":
         // find users active websites
@@ -239,6 +264,7 @@ class WebsiteController extends Controller
       return back()->with('status', ['warning', $isBanned]);
     }
     if ($response->allowed()) {
+      $website->title = $request->edit_title;
       $website->url = str_replace("http://", "https://", $request->edit_url);
       $website->max_daily_views = $request->edit_max_daily_views;
       if ($website->isDirty("url")) {
@@ -273,9 +299,9 @@ class WebsiteController extends Controller
     $website = Website::findOrFail($id);
     $response = Gate::inspect("update", $website);
     if ($response->allowed()) {
-      $website->views = 0;
-      $website->save();
-      return back();
+      $stats = WebsiteStat::where('website_id', $id);
+      $stats->delete();
+      return back()->with("status", ["success", "Stats resetted."]);
     } else {
       return back()->with("status", ["warning", $response->message()]);
     }

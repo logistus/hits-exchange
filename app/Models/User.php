@@ -63,6 +63,11 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return $this->status === 'Suspended';
   }
 
+  public static function signedUpToday()
+  {
+    return count(User::where('join_date', date('Y-m-d'))->get());
+  }
+
   public function gravatar()
   {
     return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
@@ -77,6 +82,12 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
   {
     $user = User::findOrFail($user_id);
     return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($user->email)));
+  }
+
+
+  public function assigned_credits()
+  {
+    return $this->hasMany(Website::class, 'user_id')->sum('assigned');
   }
 
   public function websites()
@@ -192,11 +203,6 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
   public function commissions_paid()
   {
     return $this->hasMany(Commission::class, 'user_id')->where('status', 'Paid')->orderByDesc('id');
-  }
-
-  public function commissions_unpaid()
-  {
-    return $this->hasMany(Commission::class, 'user_id')->where('status', NULL)->orderByDesc('id');
   }
 
   public function commissions_transferred()

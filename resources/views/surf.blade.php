@@ -12,20 +12,29 @@
 </head>
 
 <body class="vh-100">
-  <div class="d-flex flex-column h-100">
-    <div style="height: 110px;" class="bg-light d-flex align-items-center justify-content-between">
-      <div class="ms-3 invisible" id="website-owner">
-        <div class="d-flex flex-column align-items-center justify-content-center">
+  <div class="d-flex flex-column h-100 bg-light">
+    <div style="height: 110px;" class="d-flex align-items-center justify-content-between col-9 mx-auto">
+      <div class="ms-3 invisible mx-5 rounded-3" id="website-owner" style="min-width: 155px; max-height: 66px;">
+        <div class="d-flex align-items-center justify-content-center">
+          <img src="" id="gravatar" alt="" class="me-3" width="48" height="48" />
           <span id="owner"></span>
-          <img src="" id="gravatar" alt="" width="48" height="48" />
         </div>
       </div>
-      <div>
-        <div id="status"></div>
-        <form method="POST" id="validate_view" class="d-none d-flex align-items-center">
-          @csrf
-          <div class="px-1 py-2 icons border bg-white" style="min-width: 320px;"></div>
-        </form>
+      <div class="d-flex align-items-center">
+        <div style="min-width: 40px; text-align: center;">
+          <div class="timer fs-1 me-3"></div>
+        </div>
+        <div style="min-width: 330px;">
+          <div id="status" style="min-width: 330px; min-height: 66px; line-height: 66px;" class="d-none fs-2 text-center"></div>
+          <form method="POST" id="validate_view" class="d-none">
+            @csrf
+            <div class="px-1 py-2 icons border bg-white" style="min-width: 320px; min-height: 66px;"></div>
+          </form>
+        </div>
+        <div class="border bg-white text-center px-3" style="padding-top: 6px; min-height: 66px;">
+          <div>Surfed Today</div>
+          <strong id="surfed_today">{{ Auth::user()->surfed_today }}</strong>
+        </div>
       </div>
       <div class="me-2 d-flex flex-column">
         <a href="{{ url('banners/click', session('selected_banner_id')) }}" id="banner_target" target="_blank" rel="noopener noreferrer">
@@ -39,28 +48,36 @@
         ">{{ session('selected_text_body') }}</a>
       </div>
     </div>
-    <div style="height: 10px;" id="timer_wrapper" class="bg-transparent w-100">
-      <div id="progress-bar" class="bg-success h-100" style="width: 0%;"></div>
-    </div>
-    <div style="height: 40px;" class="bg-dark p-2 fs-6 d-flex justify-content-between">
-      <div id="url-viewing" class="invisible">
-        <span class="text-white">Viewing:</span>
-        <a href="{{ session('selected_website_url') }}" class="link-light" id="url" target="_blank" rel="noopener noreferrer">{{ session('selected_website_url') }}</a> <i class="bi bi-box-arrow-up-right text-white" style="font-size: .8rem;"></i>
-        (<a href="#" id="report_url" target="_blank" class="bg-danger text-white">Report this URL</a>)
+    <div class="bg-light p-2 fs-6 d-flex justify-content-between align-items-center px-3 border-bottom">
+      <div class="d-flex">
+        <a href="{{ url('/buy/credits') }}" target="_blank" class="me-3">Buy Credits</a>
+        <a href="{{ url('/dashboard') }}" class="me-3">Dashboard</a>
       </div>
-      <div><a href="{{ url('/dashboard') }}" class="link-light">Dashboard</a></div>
+      <div class="btn-group bg-white" role="group" aria-label="Actions for the website currently viewing">
+        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add to Favorites">
+          <i class="bi bi-star"></i>
+        </a>
+        <a href="#" id="report_url" target="_blank" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Report this URL">
+          <i class="bi bi-exclamation-triangle"></i>
+        </a>
+        <a href="{{ session('selected_website_url') }}" id="url" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Open In New Tab">
+          <i class="bi bi-box-arrow-up-right"></i>
+        </a>
+      </div>
+      <div>Server Time: {{ date("Y-m-d") }}</div>
     </div>
-    <iframe style="height: calc(100% - 210px); overflow-x:hidden;" frameborder="0" src="{{ session('selected_website_url') }}" id="surf_window"></iframe>
-    <div id="bottom_bar" class="bg-primary text-white p-4 d-flex">
-      <div class="me-3">Surfed This Session: <strong id="surfed_session">{{ session('surfed_session') }}</strong></div>
-      <div class="me-3">Surfed Today: <strong id="surfed_today">{{ Auth::user()->surfed_today }}</strong></div>
-      <div class="me-3">Credits: <strong id="credits">{{ Auth::user()->credits }}</strong></div>
-    </div>
+    <iframe style="height: calc(100% - 150px); overflow-x:hidden;" frameborder="0" src="{{ session('selected_website_url') }}" id="surf_window"></iframe>
   </div>
 </body>
 <script src="{{ asset('js/jquery-3.6.0.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
 
 <script>
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
   let cid;
 
   function checkScreenSize() {
@@ -85,46 +102,32 @@
     var start_url = "{{ session('selected_website_url') }}";
     var surfed_session = "{{ session('surfed_session') }}";
 
-    $("#status").text("Viewing start page");
-
-    $(window).on('beforeunload', function(e) {
-      console.log(document.activeElement.href);
-      if (!e) e = window.event;
-      //e.cancelBubble is supported by IE - this will kill the bubbling process.
-      e.cancelBubble = true;
-      e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
-
-      //e.stopPropagation works in Firefox.
-      if (e.stopPropagation) {
-        e.stopPropagation();
-        e.preventDefault();
-        //document.querySelector("iframe").setAttribute("src", "http://localhost:8000/frame_breaker");
-      }
-    });
-
     if (start_url.startsWith(app_url) || surfed_session == "0") {
-      $("#url-viewing").removeClass("visible").addClass("invisible");
       $("#website-owner").removeClass("visible").addClass("invisible");
     } else {
-      $("#url-viewing").removeClass("invisible").addClass("visible");
       $("#website-owner").removeClass("invisible").addClass("visible");
     }
 
     function startProgressBar() {
       $(".icons").html('<div class="d-flex justify-content-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
       $("#validate_view").addClass("d-none");
-      $("#progress-bar").attr("style", "width: 0%");
-      $("#progress-bar").animate({
-        width: "100%"
-      }, {
-        duration: (timer * 1) * 1000
-        , easing: "linear"
-        , complete: function() {
+      $(".timer").removeClass("d-none").text(timer);
+      $("#status").removeClass("d-none");
+
+      let timerDown = setInterval(countDown, 1000);
+
+      function countDown() {
+        if ($(".timer").text() * 1 > 0) {
+          $(".timer").text(($(".timer").text()) - 1);
+          $("#status").removeClass("d-none");
+        } else {
           $("#validate_view").removeClass("d-none");
-          $("#status").hide();
           $(".icons").load('/view_surf_icons');
+          $(".timer").addClass("d-none");
+          $("#status").addClass("d-none");
+          clearInterval(timerDown);
         }
-      });
+      }
     }
 
     startProgressBar();
@@ -138,28 +141,9 @@
         if (response.status == "ec") {
           location.href = "/";
         } else {
-          /*
-          $(window).on('beforeunload', function(e) {
-            console.log(document.activeElement.href);
-            if (document.activeElement.src !== response.url || document.activeElement.href !== app_url + ":8000/dashboard") {
-              if (!e) e = window.event;
-              //e.cancelBubble is supported by IE - this will kill the bubbling process.
-              e.cancelBubble = true;
-              e.returnValue = 'You sure you want to leave?'; //This is displayed on the dialog
-
-              //e.stopPropagation works in Firefox.
-              if (e.stopPropagation) {
-                e.stopPropagation();
-                e.preventDefault();
-                //document.querySelector("iframe").setAttribute("src", "http://localhost:8000/frame_breaker");
-              }
-            }
-          });
-          */
           //console.log(response);
-          $("#status").show().html(response.status);
+          $("#status").removeClass("d-none").html(response.status);
           $("#surf_window").attr("src", response.url);
-          $("#url").text(response.url);
           $("#url").attr("href", response.url);
           $("#owner").text(response.website_owner_username);
           $("#gravatar").prop("src", response.website_owner_gravatar).prop("alt", response.website_owner_username);
@@ -183,10 +167,8 @@
           $("#credits").text(credits.toFixed(2));
           $("#report_url").attr("href", "/report_website/" + response.website_id);
           if (response.url.startsWith(app_url)) {
-            $("#url-viewing").removeClass("visible").addClass("invisible");
             $("#website-owner").removeClass("visible").addClass("invisible");
           } else {
-            $("#url-viewing").removeClass("invisible").addClass("visible");
             $("#website-owner").removeClass("invisible").addClass("visible");
           }
 

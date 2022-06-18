@@ -241,7 +241,7 @@ class TextAdController extends Controller
       $text->views = 0;
       $text->clicks = 0;
       $text->save();
-      return back();
+      return back()->with("status", ["success", "Stats resetted."]);
     } else {
       return back()->with('status', $response->message());
     }

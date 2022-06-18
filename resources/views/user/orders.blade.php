@@ -9,7 +9,6 @@
         <th scope="col">Item</th>
         <th scope="col">Price</th>
         <th scope="col">Status</th>
-        <th scope="col">Payment</th>
         <th scope="col">Delete</th>
       </tr>
     </thead>
@@ -19,7 +18,6 @@
         <td>{{ $order->created_at }}</td>
         <td>{{ $order->order_item }}</td>
         <td>${{ $order->price }}</td>
-        <td>{{ $order->status }}</td>
         <td>
           @if ($order->status == 'Pending Payment')
           @if (Auth::user()->purchase_balance_completed->sum('amount') >= $order->price)

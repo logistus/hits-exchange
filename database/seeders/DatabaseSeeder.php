@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
       UserTypeSeeder::class,
       UpgradePricesSeeder::class,
       AdPricesSeeder::class,
-      SurferRewardSeeder::class
     ]);
   }
 }

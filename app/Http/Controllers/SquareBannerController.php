@@ -250,7 +250,7 @@ class SquareBannerController extends Controller
       $square_banner->views = 0;
       $square_banner->clicks = 0;
       $square_banner->save();
-      return back();
+      return back()->with("status", ["success", "Stats resetted."]);
     } else {
       return back()->with("status", ["warning", $response->message()]);
     }

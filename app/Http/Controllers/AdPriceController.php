@@ -11,10 +11,10 @@ class AdPriceController extends Controller
   public function index()
   {
     $page = "Buy Credits & Impressions";
-    $credit_ad_prices = AdPrice::where('ad_type', 'Credits')->get();
-    $banner_ad_prices = AdPrice::where('ad_type', 'Banner Impressions')->get();
-    $square_banner_ad_prices = AdPrice::where('ad_type', 'Square Banner Impressions')->get();
-    $text_ad_prices = AdPrice::where('ad_type', 'Text Impressions')->get();
+    $credit_ad_prices = AdPrice::where('ad_type', 'Credits')->orderBy('ad_amount')->get();
+    $banner_ad_prices = AdPrice::where('ad_type', 'Banner Impressions')->orderBy('ad_amount')->get();
+    $square_banner_ad_prices = AdPrice::where('ad_type', 'Square Banner Impressions')->orderBy('ad_amount')->get();
+    $text_ad_prices = AdPrice::where('ad_type', 'Text Impressions')->orderBy('ad_amount')->get();
 
     return view('buy/credits', compact('page', 'credit_ad_prices', 'banner_ad_prices', 'square_banner_ad_prices', 'text_ad_prices'));
   }

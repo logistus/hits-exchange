@@ -12,7 +12,7 @@ use App\Models\Order;
     </div>
   </div>
   @if (count($purchase_balance) > 0)
-  <table class="table table-bordered align-middle">
+  <table class="table align-middle">
     <thead>
       <tr class="bg-light">
         <th scope="col">Date</th>

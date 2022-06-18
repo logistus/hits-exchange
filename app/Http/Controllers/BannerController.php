@@ -265,7 +265,7 @@ class BannerController extends Controller
       $banner->views = 0;
       $banner->clicks = 0;
       $banner->save();
-      return back();
+      return back()->with("status", ["success", "Stats resetted."]);
     } else {
       return back()->with("status", ["warning", $response->message()]);
     }

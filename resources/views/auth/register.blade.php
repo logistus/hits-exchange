@@ -82,7 +82,7 @@ use App\Models\User;
     <div class="form-check mt-3">
       <input class="form-check-input" type="checkbox" id="tos" name="tos">
       <label class="form-check-label" for="tos">
-        Accept <a href="#">Terms of Service</a>
+        Accept <a href="{{ url('terms') }}">Terms of Service</a>
       </label>
     </div>
     @error('tos')

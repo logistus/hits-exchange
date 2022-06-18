@@ -1,16 +1,21 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('banners') }}">Banners</a> ({{ count(Auth::user()->banners) }}/{{ Auth::user()->type->max_banners }})</h4>
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>You have <strong>{{ number_format(Auth::user()->banner_imps) }}</strong> banner impressions.</div>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBannerModal">
-      <i class="bi-plus"></i> Add New Banner
-    </button>
+    <div>
+      You have <strong>{{ number_format(Auth::user()->banner_imps) }}</strong> banner impressions.
+    </div>
+    <div>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBannerModal">
+        <i class="bi-plus"></i> Add New Banner
+      </button>
+      <a href="{{ url('buy/credits') }}" class="btn btn-success"> <i class="bi bi-cart"></i> Buy Banner Impressions</a>
+    </div>
   </div>
   <x-alert />
   @if (count($banners))
   <form action="{{ url('banners/update') }}" method="POST">
     @csrf
-    <div class="d-flex align-items-center justify-content-center mb-3 alert alert-info">
+    <!--<div class="d-flex align-items-center justify-content-center mb-3 alert alert-info">
       <div>Evenly distribute </div>
       <div>
         <input type="number" name="imps_to_distribute" min="0" max="{{ Auth::user()->banner_imps }}" style="width: 7rem;" class="form-control mx-2">
@@ -18,12 +23,13 @@
       <div>impressions to my active banners.</div>
       <button type="submit" class="btn btn-dark ms-2" name="action" value="distribute_imps">Distribute</button>
     </div>
+    -->
     <div style="min-height: 55px;">
       <button type="submit" class="btn btn-danger mb-3 d-none" id="delete-selected" onclick="return confirm('Are you sure?');" name="action" value="delete_selected"><i class="bi-trash"></i> Delete Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="pause-selected" name="action" value="pause_selected"><i class="bi-pause"></i> Pause Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="activate-selected" name="action" value="activate_selected"><i class="bi-play"></i> Activate Selected</button>
     </div>
-    <table class="table table-bordered align-middle">
+    <table class="table align-middle">
       <thead>
         <tr class="bg-light">
           <th scope="col">
@@ -32,12 +38,10 @@
             </div>
           </th>
           <th scope="col">Banner</th>
-          <th scope="col">Impressions Assigned</th>
-          <th scope="col">Views</th>
-          <th scope="col">Clicks</th>
-          <th scope="col">Status</th>
-          <th scope="col">Assign Impressions</th>
+          <th scope="col">Balance</th>
           <th scope="col">Actions</th>
+          <th scope="col">Status</th>
+          <th scope="col">Assign</th>
         </tr>
       </thead>
       <tbody>
@@ -54,8 +58,16 @@
             </a>
           </td>
           <td>{{ $banner->assigned }}</td>
-          <td>{{ $banner->views }}</td>
-          <td>{{ $banner->clicks }}</td>
+          <td>
+            <div class="d-flex">
+              <div data-bs-toggle="tooltip" data-bs-placement="top" title="Banner Stats">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#statsBannerModal" data-bs-id="{{ $banner->id }}" class="btn btn-outline-secondary me-2"><i class="bi-bar-chart-line"></i></a>
+              </div>
+              <div data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Banner">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#editBannerModal" data-bs-id="{{ $banner->id }}" class="btn btn-outline-secondary me-2"><i class="bi-pencil-square"></i></a>
+              </div>
+            </div>
+          </td>
           <td class="@if ($banner->status == 'Active')
           {{'text-success'}}
           @elseif ($banner->status == 'Suspended')
@@ -76,19 +88,11 @@
           <td>
             <input type="number" name="assign_banners[{{ $banner->id }}]" class="form-control" style="width: 7rem;" min="0" />
           </td>
-          <td>
-            <div class="d-flex">
-              <a href="#" title="Edit this Banner" data-bs-toggle="modal" data-bs-target="#editBannerModal" data-bs-id="{{ $banner->id }}" class="btn btn-outline-primary me-2"><i class="bi-pencil-square"></i></a>
-              <a href="{{ url('banners/reset', $banner->id) }}" title="Reset stats" class="btn btn-outline-secondary me-2"><i class="bi-arrow-counterclockwise"></i></a>
-              <a href="{{ url('banners/delete', $banner->id) }}" title="Delete this banner" onclick="return confirm('Are you sure?');" class="btn btn-outline-danger"><i class="bi-trash"></i></a>
-            </div>
-          </td>
         </tr>
         @endforeach
         <tr>
-          <td colspan="6"></td>
-          <td class="d-grid"><button type="submit" name="action" value="assign" class="btn btn-success">Assign</button></td>
-          <td></td>
+          <td colspan="5"></td>
+          <td class="d-grid"><button type="submit" name="action" value="assign" class="btn btn-outline-secondary">Assign</button></td>
         </tr>
       </tbody>
     </table>
@@ -157,6 +161,25 @@
       </div>
     </form>
   </div>
+  <!-- Stats Banner Modal -->
+  <div class="modal fade" id="statsBannerModal" tabindex="-1" aria-labelledby="Banner Statistics Modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Banner Stats</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Views: </strong> <span id="banner_views"></span></p>
+          <p><strong>Clicks: </strong> <span id="banner_clicks"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a href="#" id="stat-reset-link" class="btn btn-outline-secondary">Reset Stats</a>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script>
     $(function() {
@@ -169,6 +192,18 @@
           $("#edit-banner-form").attr("action", '/banners/' + response.id);
         });
       });
+
+      $("#statsBannerModal").on('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var id = button.getAttribute("data-bs-id");
+
+        $.get("/banners/" + id, function(response) {
+          $("#banner_views").text(response.views);
+          $("#banner_clicks").text(response.clicks);
+          $("#stat-reset-link").attr("href", "/banners/reset/" + response.id);
+        });
+      });
+
       $("#toggle-all-banners").change(function() {
         if (this.checked) {
           $(".banner").each(function() {

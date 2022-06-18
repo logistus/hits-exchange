@@ -1,15 +1,19 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('texts') }}">Text Ads</a> ({{ count(Auth::user()->texts) }}/{{ Auth::user()->type->max_texts }})</h4>
-  <x-alert />
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>You have <strong>{{ number_format(Auth::user()->text_imps) }}</strong> text ad impressions.</div>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTextAdModal">
-      <i class="bi-plus"></i> Add New Text Ad
-    </button>
+    <div>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTextAdModal">
+        <i class="bi-plus"></i> Add New Text Ad
+      </button>
+      <a href="{{ url('buy/credits') }}" class="btn btn-success"> <i class="bi bi-cart"></i> Buy Text Impressions</a>
+    </div>
   </div>
+  <x-alert />
   @if (count($texts))
   <form action="{{ url('texts/update') }}" method="POST">
     @csrf
+    <!--
     <div class="d-flex align-items-center justify-content-center mb-3 alert alert-info">
       <div>Evenly distribute </div>
       <div>
@@ -18,12 +22,13 @@
       <div>impressions to my active text ads.</div>
       <button type="submit" class="btn btn-dark ms-2" name="action" value="distribute_imps">Distribute</button>
     </div>
+    -->
     <div style="min-height: 55px;">
       <button type="submit" class="btn btn-danger mb-3 d-none" id="delete-selected" onclick="return confirm('Are you sure?');" name="action" value="delete_selected"><i class="bi-trash"></i> Delete Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="pause-selected" name="action" value="pause_selected"><i class="bi-pause"></i> Pause Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="activate-selected" name="action" value="activate_selected"><i class="bi-play"></i> Activate Selected</button>
     </div>
-    <table class="table table-bordered align-middle">
+    <table class="table align-middle">
       <tr class="bg-light">
         <th scope="col">
           <div class="form-check">
@@ -31,12 +36,10 @@
           </div>
         </th>
         <th scope="col">Text Ad</th>
-        <th scope="col">Impressions Assigned</th>
-        <th scope="col">Views</th>
-        <th scope="col">Clicks</th>
-        <th scope="col">Status</th>
-        <th scope="col">Assign Impressions</th>
+        <th scope="col">Balance</th>
         <th scope="col">Actions</th>
+        <th scope="col">Status</th>
+        <th scope="col">Assign</th>
       </tr>
       <tbody>
         @foreach ($texts as $text)
@@ -47,7 +50,6 @@
             </div>
           </td>
           <td>
-
             <a href="{{ $text->target_url }}" target="_blank" class="p-2 text-center" style="
               text-decoration: none;
               color: {{ $text->text_color }};
@@ -60,8 +62,16 @@
             </a>
           </td>
           <td>{{ $text->assigned }}</td>
-          <td>{{ $text->views }}</td>
-          <td>{{ $text->clicks }}</td>
+          <td>
+            <div class="d-flex">
+              <div data-bs-toggle="tooltip" data-bs-placement="top" title="Text Ad Stats">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#statsTextAdModal" data-bs-id="{{ $text->id }}" class="btn btn-outline-secondary me-2"><i class="bi-bar-chart-line"></i></a>
+              </div>
+              <div data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Text Ad">
+                <a href="#" title="Edit this Text Ad" data-bs-toggle="modal" data-bs-target="#editTextAdModal" data-bs-id="{{ $text->id }}" class="btn btn-outline-secondary me-2"><i class="bi-pencil-square"></i></a>
+              </div>
+            </div>
+          </td>
           <td class=" @if ($text->status == 'Active')
               {{'text-success'}}
               @elseif ($text->status == 'Suspended')
@@ -80,21 +90,13 @@
             @endif
           </td>
           <td>
-            <input type="number" name="assign_texts[{{ $text->id }}]" class="form-control w-100" style="width: 7rem;" min="0" />
-          </td>
-          <td>
-            <div class="d-flex">
-              <a href="#" title="Edit this Text Ad" data-bs-toggle="modal" data-bs-target="#editTextAdModal" data-bs-id="{{ $text->id }}" class="btn btn-outline-primary me-2"><i class="bi-pencil-square"></i></a>
-              <a href="{{ url('texts/reset', $text->id) }}" title="Reset stats" class="btn btn-outline-secondary me-2"><i class="bi-arrow-counterclockwise"></i></a>
-              <a href="{{ url('texts/delete', $text->id) }}" title="Delete this text ad" onclick="return confirm('Are you sure?');" class="btn btn-outline-danger"><i class="bi-trash"></i></a>
-            </div>
+            <input type="number" name="assign_texts[{{ $text->id }}]" class="form-control" style="width: 7rem;" min="0" />
           </td>
         </tr>
         @endforeach
         <tr>
-          <td colspan="6"></td>
-          <td><button type="submit" name="action" value="assign" class="btn btn-success w-100">Assign</button></td>
-          <td></td>
+          <td colspan="5"></td>
+          <td><button type="submit" name="action" value="assign" class="btn btn-outline-secondary w-100">Assign</button></td>
         </tr>
       </tbody>
     </table>
@@ -201,6 +203,25 @@
       </div>
     </form>
   </div>
+  <!-- Stats Text Ad Modal -->
+  <div class="modal fade" id="statsTextAdModal" tabindex="-1" aria-labelledby="Text Ad Statistics Modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Text Ad Stats</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Views: </strong> <span id="textad_views"></span></p>
+          <p><strong>Clicks: </strong> <span id="textad_clicks"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a href="#" id="stat-reset-link" class="btn btn-outline-secondary">Reset Stats</a>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script>
     $(function() {
@@ -272,6 +293,18 @@
           }
         });
       });
+
+      $("#statsTextAdModal").on('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var id = button.getAttribute("data-bs-id");
+
+        $.get("/texts/" + id, function(response) {
+          $("#textad_views").text(response.views);
+          $("#textad_clicks").text(response.clicks);
+          $("#stat-reset-link").attr("href", "/texts/reset/" + response.id);
+        });
+      });
+
       $("#toggle-all-texts").change(function() {
         if (this.checked) {
           $(".text").each(function() {

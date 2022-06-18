@@ -5,16 +5,20 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link href="{{ asset('css/app.css') }}" rel="stylesheet">
   <title>{{ config('app.name') }} {{ $title ? "- $title" : "" }}</title>
-</head>
+  <style>
+    .navbar-dark .navbar-nav .nav-link {
+      color: rgba(255, 255, 255);
+    }
 
+  </style>
+</head>
 <body class="bg-light">
   <div class="container-lg">
     <div class="row">
@@ -66,13 +70,13 @@
         @endauth
         @guest
         <div>
-          <a href="{{ url('login') }}" class="me-3">Login</a>
+          <a href="{{ url('login') }}" class="me-3 text-decoration-none">Login</a>
           <a href="{{ url('register') }}" class="btn btn-primary">Register</a>
         </div>
         @endguest
       </div>
     </div>
-    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #5f3dc4;">
       <div class="container-fluid px-0">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -80,15 +84,17 @@
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              @if (Auth::check())
-              <a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a>
-              @else
               <a class="nav-link" href="{{ url('/') }}">Home</a>
-              @endif
+            </li>
+            @if (Auth::check())
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a>
+            </li>
+            @endif
             </li>
             @auth
             <li class="nav-item"><a class="nav-link" href="{{ url('surf') }}">Surf</a></li>
-            <li class="nav-item dropdown">
+            <!--<li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="rewardsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Rewards
               </a>
@@ -97,6 +103,7 @@
                 <li><a class="dropdown-item" href="{{ url('surfer_rewards') }}">Surfer Rewards</a></li>
               </ul>
             </li>
+            -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="adsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 My Ads
@@ -133,7 +140,7 @@
               <a class="nav-link fw-bold" href="{{ url('upgrade') }}">Upgrade</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url('promote') }}">Promo Tools</a>
+              <a class="nav-link" href="{{ url('promote') }}">Promote</a>
             </li>
             </li>
             @endauth
@@ -144,25 +151,27 @@
         </div>
       </div>
     </nav>
-    <div class="card p-3 pt-5">
+    <div class="card p-5">
       {{ $slot }}
       <x-userads />
     </div>
     <footer class="bg-dark text-white p-3 d-flex justify-content-between mb-3">
       <div>Copyright © {{ config('app.name') }}</div>
       <div>
-        <a href="#" class="link-light">Terms of Service</a> - <a href="#" class="link-light">Privacy Policy</a>
+        <a href="{{ url('terms') }}" class="link-light">Terms of Service</a> - <a href="{{ url('privacy') }}" class="link-light">Privacy Policy</a>
       </div>
     </footer>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
   <script>
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     });
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
 
   </script>
 </body>
-
+</body>
 </html>

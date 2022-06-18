@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Country;
-use App\Models\Commission;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\PurchaseBalance;
 use App\Models\SignupBonus;
+use App\Models\SplashPage;
 use App\Models\SurfCode;
 use App\Models\UserType;
 use Illuminate\Support\Facades\DB;
@@ -316,7 +315,7 @@ class UserController extends Controller
     // check current password
     if (Hash::check($request->current_password, $request->user()->password)) {
       // password correct, change password
-      $request->user()->password = $request->new_password; // did not hashed because User model hashes password before saving
+      $request->user()->password = $request->new_password; // not hashed because User model hashes password before saving
       $request->user()->save();
       $request->session()->passwordConfirmed();
       // send an email to user
@@ -415,16 +414,17 @@ class UserController extends Controller
     return back()->with('status', ['success', "$request->credits successfully transferred to " . User::where('id', $id)->value('username')]);
   }
 
-  public function ref_link($id)
+  public function ref_link($username)
   {
-    Cookie::queue("ref_id", $id, 60 * 24 * 30);
+    Cookie::queue("hits_exchange_ref", $username, 60 * 24 * 30);
     return redirect('/');
   }
 
   public function promote()
   {
     $page = "Promo Tools";
-    return view('user/promote', compact('page'));
+    $splash_pages = SplashPage::all();
+    return view('user/promote', compact('page', 'splash_pages'));
   }
 
   public function upgrade()
@@ -432,5 +432,17 @@ class UserController extends Controller
     $page = "Upgrade";
     $user_types = UserType::all();
     return view('user/upgrade', compact('page', 'user_types'));
+  }
+
+  public function terms()
+  {
+    $page = "Terms of Service";
+    return view('terms', compact('page'));
+  }
+
+  public function privacy()
+  {
+    $page = "Privacy Policy";
+    return view('privacy', compact('page'));
   }
 }

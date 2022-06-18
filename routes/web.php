@@ -23,6 +23,7 @@ use App\Http\Controllers\LoginSpotlightController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PrivateMessageController;
 use App\Http\Controllers\PurchaseBalanceController;
+use App\Http\Controllers\SplashPageController;
 use App\Http\Controllers\SquareBannerController;
 use App\Http\Controllers\TextAdController;
 use App\Http\Controllers\WebsiteController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
 use App\Http\Controllers\UserTypeController;
 use App\Http\Controllers\WebsiteReportController;
+use App\Http\Controllers\WebsiteStatController;
 use App\Http\Middleware\UpgradeCheck;
 use App\Models\LoginSpotlight;
 use App\Models\User;
@@ -51,7 +53,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 Route::get('/', [UserController::class, 'home']);
 
-Route::get('/ref/{id}', [UserController::class, 'ref_link']);
+Route::get('/ref/{username}', [UserController::class, 'ref_link']);
 
 Route::get('/login', [LoginController::class, 'login']);
 Route::post('/login', [LoginController::class, 'authenticate'])->middleware('throttle:6,1')->name('login');
@@ -60,6 +62,9 @@ Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth');
 
 Route::get('/register', [LoginController::class, 'register'])->middleware('guest');
 Route::post('/register', [UserController::class, 'store'])->middleware('guest');
+
+Route::get('/terms', [UserController::class, 'terms']);
+Route::get('/privacy', [UserController::class, 'privacy']);
 
 
 // Password Reset Routes
@@ -103,6 +108,8 @@ Route::get('suspended', [UserController::class, 'suspended']);
 Route::get('banners/click/{id}', [BannerController::class, 'banner_click']);
 Route::get('square_banners/click/{id}', [SquareBannerController::class, 'square_banner_click']);
 Route::get('texts/click/{text_id}', [TextAdController::class, 'text_click']);
+
+Route::get('splash/{splash_id}/ref/{username}', [SplashPageController::class, 'index']);
 
 Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group(function () {
   Route::get('/dashboard', [UserController::class, 'dashboard']);
@@ -152,6 +159,10 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
     Route::put('/{id}', [WebsiteController::class, 'update_selected']);
     Route::get('/reset/{id}', [WebsiteController::class, 'website_reset']);
     Route::get('/check_website/{id}', [WebsiteController::class, 'website_check']);
+    Route::get('/stats/{id}/{interval}', [WebsiteStatController::class, 'show_interval_stats']);
+    Route::get('/stats/{id}/{date}', [WebsiteStatController::class, 'show_at_date']);
+    Route::get('/stats/{id}/visits/{interval?}', [WebsiteStatController::class, 'visits']);
+    Route::get('/stats/{id}', [WebsiteStatController::class, 'show']);
 
     Route::post('/approve/{id}', [WebsiteController::class, 'website_approve']);
     Route::post('/', [WebsiteController::class, 'store']);

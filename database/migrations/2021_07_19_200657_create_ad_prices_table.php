@@ -15,7 +15,7 @@ class CreateAdPricesTable extends Migration
   {
     Schema::create('ad_prices', function (Blueprint $table) {
       $table->id();
-      $table->enum('ad_type', ['Credits', 'Banner Impressions', 'Square Banner Impressions', 'Text Impressions']);
+      $table->enum('ad_type', ['Credits', 'Banner Impressions', 'Square Banner Impressions', 'Text Impressions', 'Start Page', 'Login Spotlight']);
       $table->unsignedMediumInteger('ad_amount');
       $table->decimal('price');
     });

@@ -2,6 +2,8 @@
 use App\Models\Order;
 use App\Models\User;
 if (!isset($_GET['type']))
+$commissions = $commissions_all;
+else if ($_GET['type'] == 'Unpaid')
 $commissions = $commissions_unpaid;
 else if ($_GET['type'] == 'Transferred')
 $commissions = $commissions_transferred;
@@ -12,16 +14,16 @@ $commissions = $commissions_paid;
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('user/commissions') }}">Commissions</a></h4>
   <div>Total unpaid commissions:
-    <strong>${{ number_format(Auth::user()->total_unpaid_commissions, 2) }}</strong>
+    <strong>${{ number_format(Auth::user()->commissions_all->sum('amount'), 2) }}</strong>
   </div>
   <div>Total paid commissions: <strong>${{ number_format(abs(Auth::user()->commissions_paid->sum('amount')), 2) }}</strong></div>
   <div>Total transferred commissions: <strong>${{ number_format(abs(Auth::user()->commissions_transferred->sum('amount')), 2) }}</strong></div>
   <p class="text-end">
     <strong>View by status: </strong>
     @if (request()->get('type') == '')
-    Unpaid
+    All
     @else
-    <a href='{{ url('user/commissions') }}'>Unpaid</a>
+    <a href='{{ url('user/commissions') }}'>All</a>
     @endif
     |
     @if (request()->get('type') == 'Transferred')
@@ -37,8 +39,8 @@ $commissions = $commissions_paid;
     @endif
   </p>
   @if (request()->get('type') == '' || request()->get('type') == 'Paid' || request()->get('type') == 'Transferred')
-  @if (count($commissions) > 0)
-  <table class="table table-bordered align-middle">
+  @if ($commissions && count($commissions) > 0)
+  <table class="table align-middle">
     <thead>
       <tr class="bg-light">
         <th scope="col">Date</th>
@@ -61,7 +63,7 @@ $commissions = $commissions_paid;
         </td>
         <td>{{ Order::where('id', $commission->order_id)->value('order_item') ? Order::where('id', $commission->order_id)->value('order_item') : "N/A" }}</td>
         <td>${{ $commission->amount }}</td>
-        <td>{{ $commission->status == NULL ? "Unpaid" : $commission->status }}</td>
+        <td>{{ $commission->status }}</td>
       </tr>
       @endforeach
     </tbody>

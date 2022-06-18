@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Banner;
-use App\Models\LoginSpotlight;
-use App\Models\PurchaseBalance;
-use App\Models\SignupBonus;
-use App\Models\StartPage;
 use App\Models\TextAd;
 use App\Models\Website;
 use App\Models\SurfCode;
+use App\Models\StartPage;
+use App\Models\SignupBonus;
+use App\Models\WebsiteStat;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\SurfCodeClaim;
+use App\Models\LoginSpotlight;
+use App\Models\PurchaseBalance;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
@@ -29,7 +31,6 @@ class SurfController extends Controller
     session(['surfed_session' => 0]);
     // Check if there is any active start page URL
     $active_start_pages = StartPage::select('id', 'dates', 'url')->where('status', 'Active')->get();
-    $signup_bonus = SignupBonus::where('surf_amount', Auth::user()->correct_clicks)->orderBy('surf_amount')->get()->first();
 
     if (count($active_start_pages) > 0) {
       foreach ($active_start_pages as $active_start_page) {
@@ -40,15 +41,13 @@ class SurfController extends Controller
             StartPage::where('id', $active_start_page->id)->increment('total_views');
             break 2;
           } else {
+            session(['selected_website_id' => 0]);
             session(['selected_website_url' => url('start_page')]);
           }
         }
       }
-    } /*else if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
-      session(['selected_website_url' => url('prize_page')]);
-    } *else if ($signup_bonus) {
-      session(['selected_website_url' => url('signup_bonus_claimed', $signup_bonus->id)]);
-    } */ else {
+    } else {
+      session(['selected_website_id' => 0]);
       session(['selected_website_url' => url('start_page')]);
     }
 
@@ -75,8 +74,20 @@ class SurfController extends Controller
     return view('surf_code/surf_code_claimed', compact('prizes_text', 'code'));
   }
 
-  public function checkSurfCode()
+  public function selectRandomWebsite()
   {
+    // check prize page
+    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
+      session(['selected_website_id' => 0]);
+      return url('prize_page');
+    }
+    // check signup bonus
+    $signup_bonus = SignupBonus::where('surf_amount', Auth::user()->correct_clicks)->orderBy('surf_amount')->get()->first();
+    if ($signup_bonus) {
+      session(['selected_website_id' => 0]);
+      return url('signup_bonus_claimed', $signup_bonus->id);
+    }
+    // check surf code
     $active_surf_codes = Auth::user()->active_surf_codes;
     if (count($active_surf_codes)) {
       foreach ($active_surf_codes as $active_surf_code) {
@@ -100,40 +111,25 @@ class SurfController extends Controller
             }
           }
           $url = url('surf_code_claimed', $active_surf_code->code_info->id);
+          session(['selected_website_id' => 0]);
           return $url;
-        } else {
-          return $this->selectRandomWebsite();
         }
       }
-    } else {
-      return $this->selectRandomWebsite();
     }
-  }
-
-  public function selectRandomWebsite()
-  {
-    $signup_bonus = SignupBonus::where('surf_amount', Auth::user()->correct_clicks)->orderBy('surf_amount')->get()->first();
-
-    if (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') > 0 && (User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today') % 6) == 0) {
-      return url('prize_page');
-    } else if ($signup_bonus) {
-      return url('signup_bonus_claimed', $signup_bonus->id);
-    } else {
-      $website = Website::inRandomOrder()->select('id', 'url', 'user_id')
-        ->where('user_id', '!=', Auth::user()->id)
-        ->where('assigned', '>', 0)
-        ->where('status', 'Active')
-        ->where('max_daily_views', 0)
-        ->orwhere(function ($query) {
-          $query->where('views_today', '<=', 'max_daily_views')
-            ->where('max_daily_views', '>', 0);
-        })->limit(1)->get()->first();
-      // save website ID to session
-      session(['selected_website_owner' => $website->user_id]);
-      session(['selected_website_url' => $website->url]);
-      session(['selected_website_id' => $website->id]);
-      return $website;
-    }
+    $website = Website::inRandomOrder()->select('id', 'url', 'user_id')
+      ->where('user_id', '!=', Auth::user()->id)
+      ->where('assigned', '>', 0)
+      ->where('status', 'Active')
+      ->where('max_daily_views', 0)
+      ->orwhere(function ($query) {
+        $query->where('views_today', '<=', 'max_daily_views')
+          ->where('max_daily_views', '>', 0);
+      })->limit(1)->get()->first();
+    // save website ID to session
+    session(['selected_website_owner' => $website->user_id]);
+    session(['selected_website_url' => $website->url]);
+    session(['selected_website_id' => $website->id]);
+    return $website;
   }
 
   public function selectRandomBanner()
@@ -239,11 +235,59 @@ class SurfController extends Controller
       User::where('id', Auth::user()->id)->increment('surfed_today');
 
       // increase website's views and views today columns, aaaanddd decrease credit
-      Website::where('id', session('selected_website_id'))->increment('views');
-      Website::where('id', session('selected_website_id'))->increment('views_today');
+      //Website::where('id', session('selected_website_id'))->increment('views');
+      //Website::where('id', session('selected_website_id'))->increment('views_today');
+      if (session('selected_website_id') > 0) {
+        WebsiteStat::updateOrInsert(
+          ['website_id' => session('selected_website_id')],
+          [
+            'view_date' => date('Y-m-d'),
+            'total_views' => DB::raw('total_views + 1')
+          ]
+        );
+      }
       Website::where('id', session('selected_website_id'))->decrement('assigned');
 
-      $website = $this->checkSurfCode();
+      if ($id == session('icon_ids')[session('correct_icons')[0]] || $id == session('icon_ids')[session('correct_icons')[1]]) {
+        $auto_assign = $this->check_auto_assign($request->user());
+        if ($auto_assign < $request->user()->type->min_auto_assign) {
+          return redirect('websites/auto_assign');
+        }
+        if (session('selected_website_id') > 0) {
+          User::where('id', Auth::user()->id)->increment('correct_clicks');
+          $user_websites = Auth::user()->websites;
+          $user_total_auto_assign = Auth::user()->websites->sum('auto_assign');
+          $auto_assigned = 0;
+          // check auto assign
+          if ($user_total_auto_assign > 0) {
+            foreach ($user_websites as $website) {
+              if ($website->auto_assign > 0) {
+                $credits_to_assign = ($surf_ratio * $website->auto_assign) / 100;
+                $auto_assigned += $credits_to_assign;
+                Website::where('id', $website->id)->increment('assigned', $credits_to_assign);
+              }
+            }
+            User::where('id', Auth::user()->id)->increment('credits', $surf_ratio - $auto_assigned);
+          } else {
+            // if it is 0, give all credits to user
+            User::where('id', Auth::user()->id)->increment('credits', $surf_ratio);
+          }
+
+          // if user has upline, give upline credits based on user type
+          if (Auth::user()->upline) {
+            $reward_credit = ($surf_ratio * User::where('id', Auth::user()->upline)->get()->first()->type->credit_reward_ratio) / 100;
+            User::where('id', Auth::user()->upline)->get()->first()->increment('credits', $reward_credit);
+          }
+          $status = '<span class="text-success fw-bold">+' . Auth::user()->type->surf_ratio . ' Credit</span>';
+        } else {
+          $status = '';
+        }
+      } else {
+        User::where('id', Auth::user()->id)->increment('wrong_clicks');
+        $status = '<span class="text-danger fw-bold">Wrong Click!</span>';
+      }
+
+      $website = $this->selectRandomWebsite();
       $banner = $this->selectRandomBanner();
       $text = $this->selectRandomTextAd();
       $url = is_object($website) ? $website->url : $website;
@@ -251,40 +295,6 @@ class SurfController extends Controller
       $website_owner_gravatar = is_object($website) ?  User::generate_gravatar($website->user_id) : null;
       $website_owner_username = is_object($website) ? User::where('id', $website->user_id)->value('username') : null;
 
-      if ($id == session('icon_ids')[session('correct_icons')[0]] || $id == session('icon_ids')[session('correct_icons')[1]]) {
-        $auto_assign = $this->check_auto_assign($request->user());
-        if ($auto_assign < $request->user()->type->min_auto_assign) {
-          return redirect('websites/auto_assign');
-        }
-        User::where('id', Auth::user()->id)->increment('correct_clicks');
-        $user_websites = Auth::user()->websites;
-        $user_total_auto_assign = Auth::user()->websites->sum('auto_assign');
-        $auto_assigned = 0;
-        // check auto assign
-        if ($user_total_auto_assign > 0) {
-          foreach ($user_websites as $website) {
-            if ($website->auto_assign > 0) {
-              $credits_to_assign = ($surf_ratio * $website->auto_assign) / 100;
-              $auto_assigned += $credits_to_assign;
-              Website::where('id', $website->id)->increment('assigned', $credits_to_assign);
-            }
-          }
-          User::where('id', Auth::user()->id)->increment('credits', $surf_ratio - $auto_assigned);
-        } else {
-          // if it is 0, give all credits to user
-          User::where('id', Auth::user()->id)->increment('credits', $surf_ratio);
-        }
-
-        // if user has upline, give upline credits based on user type
-        if (Auth::user()->upline) {
-          $reward_credit = ($surf_ratio * User::where('id', Auth::user()->upline)->get()->first()->type->credit_reward_ratio) / 100;
-          User::where('id', Auth::user()->upline)->get()->first()->increment('credits', $reward_credit);
-        }
-        $status = '<span class="bg-success text-white px-4 py-2 fs-2">+' . Auth::user()->type->surf_ratio . ' Credit</span>';
-      } else {
-        User::where('id', Auth::user()->id)->increment('wrong_clicks');
-        $status = '<span class="bg-danger text-white px-4 py-2 fs-2">Wrong Click!</span>';
-      }
       return response()->json([
         'status' => $status,
         'url' => $url,
@@ -354,41 +364,49 @@ class SurfController extends Controller
   public function claim_surf_prize()
   {
     $surfed_today = User::where("id", Auth::user()->id)->lockForUpdate()->value('surfed_today');
+    // TODO: set&get these values from admin page
     $credit_prize_base = 4;
     $banner_prize_base = 10;
     $square_banner_prize_base = 10;
     $text_prize_base = 50;
-    $purchase_balance_prize = 0.05;
+    $purchase_balance_prize = 0.01;
 
-    $prize_won = mt_rand(1, 5);
+    $prize = mt_rand(1, 100);
+
+    if ($prize >= 95) {
+      $prize_won = 'purchase_balance';
+    } else if ($prize < 95 && $prize >= 65) {
+      $prize_won = 'credits';
+    } else if ($prize < 65 && $prize >= 45) {
+      $prize_won = 'banners';
+    } else if ($prize < 45 && $prize >= 25) {
+      $prize_won = 'square_banners';
+    } else if ($prize < 25 && $prize >= 0) {
+      $prize_won = 'text_ads';
+    }
 
     switch ($prize_won) {
-      case 1:
-        // credits
+      case 'credits':
         $credits_won = round($credit_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('credits', $credits_won);
         $prize_text = "You have won $credits_won credits.";
         break;
-      case 2:
-        // banners
+      case 'banners':
         $banners_won = round($banner_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('banner_imps', $banners_won);
         $prize_text = "You have won $banners_won banner impressions.";
         break;
-      case 3:
-        // square banners
+      case 'square_banners':
         $square_banners_won = round($square_banner_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('square_banner_imps', $square_banners_won);
         $prize_text = "You have won $square_banners_won banner impressions.";
         break;
-      case 4:
-        // text ads
+      case 'text_ads':
         $text_ads_won = round($text_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('text_imps', $text_ads_won);
         $prize_text = "You have won $text_ads_won text ad impressions.";
         break;
-      case 5:
-        // purchase balance
+      case 'purchase_balance':
         PurchaseBalance::create([
           'user_id' => Auth::id(),
           'type' => 'Surf Prize',

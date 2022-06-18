@@ -1,15 +1,19 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('square_banners') }}">Square Banners</a> ({{ count(Auth::user()->square_banners) }}/{{ Auth::user()->type->max_square_banners }})</h4>
-  <x-alert />
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>You have <strong>{{ number_format(Auth::user()->square_banner_imps) }}</strong> square banner impressions.</div>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSquareBannerModal">
-      <i class="bi-plus"></i> Add New Square Banner
-    </button>
+    <div>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSquareBannerModal">
+        <i class="bi-plus"></i> Add New Square Banner
+      </button>
+      <a href="{{ url('buy/credits') }}" class="btn btn-success"> <i class="bi bi-cart"></i> Buy Text Impressions</a>
+    </div>
   </div>
+  <x-alert />
   @if (count($square_banners))
   <form action="{{ url('square_banners/update') }}" method="POST">
     @csrf
+    <!--
     <div class="d-flex align-items-center justify-content-center mb-3 alert alert-info">
       <div>Evenly distribute </div>
       <div>
@@ -18,12 +22,13 @@
       <div>impressions to my active banners.</div>
       <button type="submit" class="btn btn-dark ms-2" name="action" value="distribute_imps">Distribute</button>
     </div>
+    -->
     <div style="min-height: 55px;">
       <button type="submit" class="btn btn-danger mb-3 d-none" id="delete-selected" onclick="return confirm('Are you sure?');" name="action" value="delete_selected"><i class="bi-trash"></i> Delete Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="pause-selected" name="action" value="pause_selected"><i class="bi-pause"></i> Pause Selected</button>
       <button type="submit" class="btn btn-secondary mb-3 d-none" id="activate-selected" name="action" value="activate_selected"><i class="bi-play"></i> Activate Selected</button>
     </div>
-    <table class="table table-bordered align-middle">
+    <table class="table align-middle">
       <thead>
         <tr class="bg-light">
           <th scope="col">
@@ -32,12 +37,10 @@
             </div>
           </th>
           <th scope="col">Square Banner</th>
-          <th scope="col">Impressions Assigned</th>
-          <th scope="col">Views</th>
-          <th scope="col">Clicks</th>
-          <th scope="col">Status</th>
-          <th scope="col">Assign Impressions</th>
+          <th scope="col">Balance</th>
           <th scope="col">Actions</th>
+          <th scope="col">Status</th>
+          <th scope="col">Assign</th>
         </tr>
       </thead>
       <tbody>
@@ -54,8 +57,16 @@
             </a>
           </td>
           <td>{{ $square_banner->assigned }}</td>
-          <td>{{ $square_banner->views }}</td>
-          <td>{{ $square_banner->clicks }}</td>
+          <td>
+            <div class="d-flex">
+              <div data-bs-toggle="tooltip" data-bs-placement="top" title="Square Banner Stats">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#statsSquareBannerModal" data-bs-id="{{ $square_banner->id }}" class="btn btn-outline-secondary me-2"><i class="bi-bar-chart-line"></i></a>
+              </div>
+              <div data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Square Banner">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#editSquareBannerModal" data-bs-id="{{ $square_banner->id }}" class="btn btn-outline-secondary me-2"><i class="bi-pencil-square"></i></a>
+              </div>
+            </div>
+          </td>
           <td class="@if ($square_banner->status == 'Active')
           {{'text-success'}}
           @elseif ($square_banner->status == 'Suspended')
@@ -76,18 +87,11 @@
           <td>
             <input type="number" name="assign_square_banners[{{ $square_banner->id }}]" class="form-control" style="width: 7rem;" min="0" />
           </td>
-          <td>
-            <div class="d-flex">
-              <a href="#" title="Edit this Banner" data-bs-toggle="modal" data-bs-target="#editSquareBannerModal" data-bs-id="{{ $square_banner->id }}" class="btn btn-outline-primary me-2"><i class="bi-pencil-square"></i></a>
-              <a href="{{ url('square_banners/reset', $square_banner->id) }}" title="Reset stats" class="btn btn-outline-secondary me-2"><i class="bi-arrow-counterclockwise"></i></a>
-              <a href="{{ url('square_banners/delete', $square_banner->id) }}" title="Delete this banner" onclick="return confirm('Are you sure?');" class="btn btn-outline-danger"><i class="bi-trash"></i></a>
-            </div>
-          </td>
         </tr>
         @endforeach
         <tr>
-          <td colspan="6"></td>
-          <td class="d-grid"><button type="submit" name="action" value="assign" class="btn btn-success">Assign</button></td>
+          <td colspan="5"></td>
+          <td class="d-grid"><button type="submit" name="action" value="assign" class="btn btn-outline-secondary">Assign</button></td>
           <td></td>
         </tr>
       </tbody>
@@ -157,6 +161,25 @@
       </div>
     </form>
   </div>
+  <!-- Stats Banner Modal -->
+  <div class="modal fade" id="statsSquareBannerModal" tabindex="-1" aria-labelledby="Square Banner Statistics Modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Square Banner Stats</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Views: </strong> <span id="sqbanner_views"></span></p>
+          <p><strong>Clicks: </strong> <span id="sqbanner_clicks"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <a href="#" id="stat-reset-link" class="btn btn-outline-secondary">Reset Stats</a>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script>
     $(function() {
@@ -167,6 +190,16 @@
           $("#edit-banner-target-url").val(response.target_url);
           $("#edit-banner-image-url").val(response.image_url);
           $("#edit-banner-form").attr("action", '/square_banners/' + response.id);
+        });
+      });
+      $("#statsSquareBannerModal").on('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var id = button.getAttribute("data-bs-id");
+
+        $.get("/square_banners/" + id, function(response) {
+          $("#sqbanner_views").text(response.views);
+          $("#sqbanner_clicks").text(response.clicks);
+          $("#stat-reset-link").attr("href", "/square_banners/reset/" + response.id);
         });
       });
       $("#toggle-all-banners").change(function() {

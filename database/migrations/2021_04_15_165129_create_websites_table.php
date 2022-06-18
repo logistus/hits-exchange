@@ -16,6 +16,7 @@ class CreateWebsitesTable extends Migration
     Schema::create('websites', function (Blueprint $table) {
       $table->id();
       $table->foreignId("user_id");
+      $table->string("title", 50);
       $table->string("url");
       $table->enum('status', ['Pending', 'Active', 'Paused', 'Suspended']);
       $table->unsignedMediumInteger('views')->default(0);
