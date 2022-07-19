@@ -9,20 +9,16 @@ class CoinpaymentsButton extends Component
   public $amount;
   public $item;
   public $id;
-  public $cancelUrl;
-  public $successUrl;
   /**
    * Create a new component instance.
    *
    * @return void
    */
-  public function __construct($amount, $id, $item, $cancelUrl, $successUrl)
+  public function __construct($amount, $id, $item)
   {
     $this->amount = $amount;
     $this->id = $id;
     $this->item = $item;
-    $this->cancelUrl = $cancelUrl;
-    $this->successUrl = $successUrl;
   }
 
   /**

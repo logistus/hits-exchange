@@ -7,7 +7,7 @@
         href="{{ url('private_messages') }}">
         <i class="bi-inbox"></i>
         Inbox
-        <span class="badge bg-secondary">{{ count(Auth::user()->private_messages) }}</span>
+        <span class="badge text-bg-light">{{ count(Auth::user()->private_messages) }}</span>
         <span class="visually-hidden">messages in inbox</span>
       </a>
     </li>
@@ -17,7 +17,7 @@
         @endif href="{{ url('private_messages/sent') }}">
         <i class="bi-arrow-up-left"></i>
         Sent
-        <span class="badge bg-secondary">{{ count(Auth::user()->private_messages_sent) }}</span>
+        <span class="badge text-bg-light">{{ count(Auth::user()->private_messages_sent) }}</span>
         <span class="visually-hidden">messages in sent</span>
       </a>
     </li>
@@ -27,7 +27,7 @@
         @endif href="{{ url('private_messages/trash') }}">
         <i class="bi-trash"></i>
         Trash
-        <span class="badge bg-secondary">{{ count(Auth::user()->private_messages_trash) }}</span>
+        <span class="badge text-bg-light">{{ count(Auth::user()->private_messages_trash) }}</span>
         <span class="visually-hidden">messages in trash</span>
       </a>
     </li>

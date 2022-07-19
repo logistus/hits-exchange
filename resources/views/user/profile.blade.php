@@ -1,10 +1,19 @@
+@php
+use Carbon\Carbon;
+@endphp
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('user/profile') }}">Edit Profile</a></h4>
   <x-alert />
   @if (Auth::user()->email_verified_at)
   <form action="{{ url('user/profile') }}" method="POST">
     @csrf
-    <h4>Personal Informations</h4>
+    <div class="row mb-3">
+      <label for="member_since" class="col-sm-2 col-form-label">Member Since</label>
+      <div class="col-sm-5">
+        <input type="text" readonly class="form-control-plaintext" id="member_since" value="{{ Carbon::create(Auth::user()->join_date)->format("j F Y") }}">
+      </div>
+    </div>
+    <h4 class="my-3">Personal Informations</h4>
     <div class="row mb-3">
       <label for="name" class="col-sm-2 col-form-label">Name</label>
       <div class="col-sm-5">
@@ -55,7 +64,7 @@
         </select>
       </div>
     </div>
-    <h4 class="mt-5">Cashout Settings</h4>
+    <h4 class="my-3">Cashout Settings</h4>
     <div class="row mb-3">
       <label for="payment_type" class="col-sm-2 col-form-label">Payment Type</label>
       <div class="col-sm-5">
@@ -108,7 +117,7 @@
     <button type="submit" class="btn btn-primary offset-sm-2 mt-3">Save Changes</button>
   </form>
   <hr>
-  <h4>Change Password</h4>
+  <h4 class="my-3">Change Password</h4>
   <form action="{{ url('user/password') }}" method="POST">
     @csrf
     <div class="row mb-3">
@@ -138,11 +147,11 @@
     <button type="submit" class="btn btn-primary offset-sm-2 mt-3">Change Password</button>
   </form>
   <hr>
-  <h4>Delete Account</h4>
-  <p class="alert alert-danger">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aliquam iure, alias laborum soluta temporibus laboriosam veniam blanditiis delectus voluptates, cumque maxime. Dolores, dolorum minima dolore error magnam facere modi laudantium.</p>
-  <form action="{{ url('user/delete') }}" method="POST">
+  <h4 class="my-3">Delete Account</h4>
+  <form action="{{ url('user/delete') }}" method="POST" class="alert alert-danger">
+    <p>You can not <strong>undo</strong> this action. All your earned commissions, purchase balances, and advertisements will be deleted <strong>permanently</strong>. You will also <strong>lose all your referrals</strong>.</p>
     @csrf
-    <button type="submit" class="btn btn-danger">I understand, delete my account</button>
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure that you want to delete your account?');">I understand, delete my account</button>
   </form>
   @else
   <form action="{{ url('user/change-email') }}" method="POST">

@@ -15,9 +15,11 @@ use Illuminate\Http\Request;
 use App\Models\SurfCodeClaim;
 use App\Models\LoginSpotlight;
 use App\Models\PurchaseBalance;
+use App\Models\SurfHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
+use Carbon\Carbon;
 
 class SurfController extends Controller
 {
@@ -253,6 +255,7 @@ class SurfController extends Controller
         if ($auto_assign < $request->user()->type->min_auto_assign) {
           return redirect('websites/auto_assign');
         }
+
         if (session('selected_website_id') > 0) {
           User::where('id', Auth::user()->id)->increment('correct_clicks');
           $user_websites = Auth::user()->websites;
@@ -285,6 +288,35 @@ class SurfController extends Controller
       } else {
         User::where('id', Auth::user()->id)->increment('wrong_clicks');
         $status = '<span class="text-danger fw-bold">Wrong Click!</span>';
+      }
+
+      // Create or update surf history record
+      SurfHistory::updateOrInsert([
+        'user_id' => Auth::user()->id,
+        'surf_date' => date("Y-m-d")
+      ], [
+        'surfed_total' => DB::raw('surfed_total + 1'),
+        'credits_total' => DB::raw('credits_total + ' . Auth::user()->type->surf_ratio)
+      ]);
+
+      // check wrong clicks/correct clicks ratio
+      $wrong_clicks = User::where('id', Auth::user()->id)->value('wrong_clicks');
+      $correct_clicks = User::where('id', Auth::user()->id)->value('correct_clicks');
+      if ($correct_clicks > 0 && $wrong_clicks > 0) {
+        $human_ratio = $wrong_clicks / $correct_clicks;
+      } else {
+        $human_ratio = 0;
+      }
+      // TODO: set 0.01 and suspend until values from admin panel
+      if ($human_ratio > 1) {
+        User::where('id', Auth::user()->id)->update([
+          'status' => 'Suspended',
+          'suspend_reason' => 'Too many invalid clicks',
+          'suspend_until' => Carbon::tomorrow()->format("Y-m-d")
+        ]);
+        return response()->json([
+          'status' => 'bot',
+        ]);
       }
 
       $website = $this->selectRandomWebsite();
@@ -389,21 +421,25 @@ class SurfController extends Controller
       case 'credits':
         $credits_won = round($credit_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('credits', $credits_won);
+        User::where('id', Auth::user()->id)->increment('credit_prize_won', $credits_won);
         $prize_text = "You have won $credits_won credits.";
         break;
       case 'banners':
         $banners_won = round($banner_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('banner_imps', $banners_won);
+        User::where('id', Auth::user()->id)->increment('banner_prize_won', $banners_won);
         $prize_text = "You have won $banners_won banner impressions.";
         break;
       case 'square_banners':
         $square_banners_won = round($square_banner_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('square_banner_imps', $square_banners_won);
-        $prize_text = "You have won $square_banners_won banner impressions.";
+        User::where('id', Auth::user()->id)->increment('square_banner_prize_won', $square_banners_won);
+        $prize_text = "You have won $square_banners_won square banner impressions.";
         break;
       case 'text_ads':
         $text_ads_won = round($text_prize_base * ($surfed_today / 100));
         User::where('id', Auth::user()->id)->increment('text_imps', $text_ads_won);
+        User::where('id', Auth::user()->id)->increment('text_ad_prize_won', $text_ads_won);
         $prize_text = "You have won $text_ads_won text ad impressions.";
         break;
       case 'purchase_balance':
@@ -413,6 +449,7 @@ class SurfController extends Controller
           'amount' => $purchase_balance_prize,
           'status' => 'Completed'
         ]);
+        User::where('id', Auth::user()->id)->increment('purchase_balance_won', $purchase_balance_prize);
         $prize_text = "$$purchase_balance_prize has been added to your purchase balance.";
         break;
       default:

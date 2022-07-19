@@ -57,9 +57,6 @@
             </div>
           </td>
           <td>{{ round($website->assigned) }}</td>
-          {{-- <td>{{ $website->views }}</td>
-          <td>{{ $website->views_today }}</td>
-          <td>{{ $website->max_daily_views == 0 ? 'Unlimited' : $website->max_daily_views }}</td> --}}
           <td class="@if ($website->status == 'Active')
           {{'text-success'}}
           @elseif ($website->status == 'Suspended')

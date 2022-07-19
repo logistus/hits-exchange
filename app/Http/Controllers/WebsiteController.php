@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BannedUrl;
 use App\Models\Website;
 use App\Models\WebsiteStat;
-use Hamcrest\Type\IsBoolean;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;

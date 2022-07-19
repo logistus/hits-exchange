@@ -32,7 +32,6 @@ class CreateUsersTable extends Migration
       $table->unsignedMediumInteger('banner_imps')->default(0);
       $table->unsignedMediumInteger('square_banner_imps')->default(0);
       $table->unsignedMediumInteger('text_imps')->default(0);
-      $table->unsignedSmallInteger('surfed_today')->default(0);
       $table->unsignedBigInteger('start_time')->default(0);
       $table->unsignedBigInteger('last_click')->default(0);
       $table->unsignedInteger('correct_clicks')->default(0);
@@ -44,6 +43,7 @@ class CreateUsersTable extends Migration
       $table->boolean('pm_notification')->default(1);
       $table->rememberToken();
       $table->date('last_login')->nullable();
+      $table->unsignedInteger('surfed_today')->default(0);
       $table->ipAddress('ip_address')->nullable();
       $table->decimal('total_purchased')->default(0);
       $table->date('join_date')->default(date("Y-m-d"));
@@ -52,6 +52,12 @@ class CreateUsersTable extends Migration
       $table->date('suspend_until')->nullable();
       $table->boolean('admin')->default(0);
       $table->unsignedSmallInteger('claim_surf_prize');
+      $table->string("tracker", 50);
+      $table->unsignedInteger('credit_prize_won')->default(0);
+      $table->unsignedInteger('banner_prize_won')->default(0);
+      $table->unsignedInteger('square_banner_prize_won')->default(0);
+      $table->unsignedInteger('text_ad_prize_won')->default(0);
+      $table->unsignedDecimal('purchase_balance_won')->default(0);
     });
   }
 

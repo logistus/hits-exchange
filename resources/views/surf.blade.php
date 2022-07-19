@@ -53,8 +53,8 @@
         <a href="{{ url('/buy/credits') }}" target="_blank" class="me-3">Buy Credits</a>
         <a href="{{ url('/dashboard') }}" class="me-3">Dashboard</a>
       </div>
-      <div class="btn-group bg-white" role="group" aria-label="Actions for the website currently viewing">
-        <a href="#" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add to Favorites">
+      <div class="btn-group bg-white website_actions invisible" role="group" aria-label="Actions for the website currently viewing">
+        <a href="#" class="btn btn-outline-secondary add_favorites" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add to Favorites">
           <i class="bi bi-star"></i>
         </a>
         <a href="#" id="report_url" target="_blank" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Report this URL">
@@ -100,12 +100,14 @@
     var timer = "{{ Auth::user()->type->surf_timer }}";
     var app_url = "{{ config('app.url') }}";
     var start_url = "{{ session('selected_website_url') }}";
-    var surfed_session = "{{ session('surfed_session') }}";
+    var website_id = "{{ session('selected_website_id') }}";
 
-    if (start_url.startsWith(app_url) || surfed_session == "0") {
+    if (start_url.startsWith(app_url)) {
       $("#website-owner").removeClass("visible").addClass("invisible");
+      $(".website_actions").removeClass("visible").addClass("invisible");
     } else {
       $("#website-owner").removeClass("invisible").addClass("visible");
+      $(".website_actions").removeClass("invisible").addClass("visible");
     }
 
     function startProgressBar() {
@@ -137,9 +139,11 @@
 
       $.post("/validate_click/" + cid, {
         _token: $("[name='_token']").val()
-      , }, function(response) {
-        if (response.status == "ec") {
+      }, function(response) {
+        if (response.status === "ec") {
           location.href = "/";
+        } else if (response.status === "bot") {
+          location.href = "/dashboard";
         } else {
           //console.log(response);
           $("#status").removeClass("d-none").html(response.status);
@@ -161,21 +165,53 @@
             $(".text").css("font-weight", "normal");
           }
 
-          $("#surfed_session").text(parseInt($("#surfed_session").text()) + 1);
+          //$("#surfed_session").text(parseInt($("#surfed_session").text()) + 1);
           $("#surfed_today").text(response.surfed_today);
           credits = response.credits * 1;
           $("#credits").text(credits.toFixed(2));
           $("#report_url").attr("href", "/report_website/" + response.website_id);
           if (response.url.startsWith(app_url)) {
             $("#website-owner").removeClass("visible").addClass("invisible");
+            $(".website_actions").removeClass("visible").addClass("invisible");
           } else {
             $("#website-owner").removeClass("invisible").addClass("visible");
+            $(".website_actions").removeClass("invisible").addClass("visible");
           }
+
+          $(".add_favorites").attr("id", response.website_id);
+
+          $.get("/websites/favorites/check/" + response.website_id, function(response) {
+            if (response) {
+              $(".add_favorites").removeClass("btn-outline-secondary").addClass("btn-success").attr("data-bs-original-title", "Remove from Favorites");
+              $(".add_favorites > i").removeClass("bi-star").addClass("bi-star-fill");
+            } else {
+              $(".add_favorites").addClass("btn-outline-secondary").removeClass("btn-success").attr("data-bs-original-title", "Add to Favorites");
+              $(".add_favorites > i").addClass("bi-star").removeClass("bi-star-fill");
+            }
+          });
 
           startProgressBar();
         }
       });
+    });
 
+    $(".add_favorites").click(function(e) {
+      e.preventDefault();
+      let website_id = $(this).attr("id");
+      if (website_id !== undefined) {
+        $.get("/websites/favorites/" + website_id, function(response) {
+          //console.log(response);
+          if (response.status === "success") {
+            if (response.message === "added") {
+              $(".add_favorites").removeClass("btn-outline-secondary").addClass("btn-success").attr("data-bs-original-title", "Remove from Favorites");
+              $(".add_favorites > i").removeClass("bi-star").addClass("bi-star-fill");
+            } else {
+              $(".add_favorites").addClass("btn-outline-secondary").removeClass("btn-success").attr("data-bs-original-title", "Add to Favorites");;
+              $(".add_favorites > i").addClass("bi-star").removeClass("bi-star-fill");
+            }
+          }
+        });
+      }
     });
   });
 

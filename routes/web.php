@@ -19,9 +19,11 @@ use App\Http\Controllers\SurfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\LoginHistoryController;
 use App\Http\Controllers\LoginSpotlightController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PrivateMessageController;
+use App\Http\Controllers\PromoTrackerController;
 use App\Http\Controllers\PurchaseBalanceController;
 use App\Http\Controllers\SplashPageController;
 use App\Http\Controllers\SquareBannerController;
@@ -31,10 +33,10 @@ use App\Http\Controllers\SurfCodeController;
 use App\Http\Controllers\StartPageController;
 use App\Http\Controllers\SurferRewardController;
 use App\Http\Controllers\UserTypeController;
+use App\Http\Controllers\WebsiteFavoritesController;
 use App\Http\Controllers\WebsiteReportController;
 use App\Http\Controllers\WebsiteStatController;
 use App\Http\Middleware\UpgradeCheck;
-use App\Models\LoginSpotlight;
 use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
@@ -119,6 +121,7 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
   Route::get('/surf_icons', [SurfController::class, 'surf_icons']);
   Route::get('/view_surf_icons', [SurfController::class, 'view_surf_icons']);
   Route::get('/promote', [UserController::class, 'promote']);
+  Route::get('/promote/trackers', [PromoTrackerController::class, 'index']);
   Route::post('/validate_click/{id}', [SurfController::class, 'validate_click']);
   Route::get('report_website/{id}', [WebsiteReportController::class, 'index']);
   Route::post('report_website/{id}', [WebsiteReportController::class, 'store']);
@@ -152,6 +155,10 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
 
   Route::prefix('websites')->group(function () {
     Route::get('/', [WebsiteController::class, 'index']);
+    Route::get('/favorites', [WebsiteFavoritesController::class, 'index']);
+    Route::get('/favorites/{website_id}', [WebsiteFavoritesController::class, 'store']);
+    Route::get('/favorites/check/{website_id}', [WebsiteFavoritesController::class, 'check_favorite']);
+    Route::get('/favorites/delete/{id}', [WebsiteFavoritesController::class, 'destroy']);
     Route::get('/auto_assign', [WebsiteController::class, 'auto_assign_view']);
     Route::get('/change_status/{id}', [WebsiteController::class, 'change_status']);
     Route::get('/delete/{id}', [WebsiteController::class, 'destroy']);
@@ -232,7 +239,6 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
 
   Route::prefix('user')->group(function () {
     Route::get('referrals', [UserController::class, 'referrals']);
-    Route::get('transfer_credits/{id}', [UserController::class, 'transfer_credits']);
     Route::post('transfer_credits/{id}', [UserController::class, 'transfer_credits_post']);
     Route::prefix('orders')->group(function () {
       Route::get('/', [OrderController::class, 'index']);
@@ -250,6 +256,8 @@ Route::middleware(['auth', 'verified', 'suspended', UpgradeCheck::class])->group
     Route::post('purchase_balance/create', [PurchaseBalanceController::class, 'store']);
     Route::get('purchase_balance/deposit/{id}', [PurchaseBalanceController::class, 'deposit']);
     Route::get('purchase_balance/delete/{id}', [PurchaseBalanceController::class, 'destroy']);
+    Route::get('login_history', [LoginHistoryController::class, 'index']);
+    Route::get('stats', [UserController::class, 'stats']);
   });
 });
 

@@ -84,12 +84,6 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($user->email)));
   }
 
-
-  public function assigned_credits()
-  {
-    return $this->hasMany(Website::class, 'user_id')->sum('assigned');
-  }
-
   public function websites()
   {
     return $this->hasMany(Website::class, 'user_id')->orderBy('id', 'desc');
@@ -223,5 +217,25 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
   public function getTotalUnpaidCommissionsAttribute()
   {
     return $this->commissions_all->sum('amount');
+  }
+
+  public function promo_trackers()
+  {
+    return $this->hasMany(PromoTracker::class, 'user_id');
+  }
+
+  public function login_histories()
+  {
+    return $this->hasMany(LoginHistory::class, 'user_id')->orderByDesc('datetime');
+  }
+
+  public function surf_histories()
+  {
+    return $this->hasMany(SurfHistory::class, 'user_id');
+  }
+
+  public function favorites()
+  {
+    return $this->hasMany(WebsiteFavorites::class, 'user_id');
   }
 }

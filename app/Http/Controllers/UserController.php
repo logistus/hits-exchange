@@ -4,21 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Country;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\Models\SignupBonus;
-use App\Models\SplashPage;
 use App\Models\SurfCode;
 use App\Models\UserType;
+use App\Models\SplashPage;
+use App\Models\SignupBonus;
+use Illuminate\Support\Str;
+use App\Models\LoginHistory;
+use App\Models\PromoTracker;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\PasswordChanged;
-use App\Notifications\ReferralNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use App\Notifications\ReferralNotification;
 
 class UserController extends Controller
 {
@@ -43,21 +45,37 @@ class UserController extends Controller
     $user->surname = $request->surname;
     $user->country = $request->country;
     $user->last_login = now();
-    $user->save();
 
     // Send email for email verification
     event(new Registered($user));
 
     // Check if user has upline, if there is and he/she wants an email, send it
-    if ($request->cookie('ref_id')) {
-      $upline =  User::where('id', request()->cookie('ref_id'))->get()->first();
-      if ($upline && $upline->referral_notification) {
-        $upline->notify(new ReferralNotification($upline));
+    if ($request->cookie('hits_exchange_ref')) {
+      $upline =  User::where('username', request()->cookie('hits_exchange_ref'))->get()->first();
+      if ($upline) {
+        $user->upline = $upline->id;
+        if ($upline->referral_notification)
+          $upline->notify(new ReferralNotification($upline));
       }
     }
 
+    // Check/save promo tracker
+    if ($request->cookie('hits_exchange_tracker')) {
+      $user->tracker = $request->cookie('hits_exchange_tracker');
+    }
+
+    $user->save();
+
+
     // Log user in
     Auth::login($user);
+
+    LoginHistory::create([
+      'user_id' => Auth::id(),
+      'datetime' => now(),
+      'ip_address' => $_SERVER['REMOTE_ADDR'],
+      'status' => 1
+    ]);
 
     return redirect("/email/verify");
   }
@@ -149,11 +167,30 @@ class UserController extends Controller
   {
     $page = "Referrals";
     $sort_by = $request->query('sort_by') ? $request->query('sort_by') : 'join_date';
-    if ($sort_by == '' || $sort_by == 'join_date' || $sort_by == 'last_login' || $sort_by == 'user_type' || $sort_by == 'pages_surfed' || $sort_by == 'total_purchased') {
+    $sort = $request->query("sort") ? $request->query("sort") : "desc";
+
+    $filterUsername = $request->query('filterByUsername');
+    $filterByUserType = $request->query('filterByUserType');
+    $filterByStatus = $request->query('filterByStatus');
+    $filterByTracker = $request->query('filterByTracker');
+
+    if ($sort_by == '' || $sort_by == 'username' || $sort_by == 'join_date' || $sort_by == 'last_login' || $sort_by == 'user_type' || $sort_by == 'pages_surfed' || $sort_by == 'status' || $sort_by == 'total_purchased') {
       if ($sort_by == "pages_surfed") {
         $referrals = $request->user()->referrals()
           ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'total_purchased', 'correct_clicks', 'wrong_clicks')
-          ->orderByDesc(DB::raw("`correct_clicks` + `wrong_clicks`"))
+          ->when($filterUsername, function ($query, $filterUsername) {
+            return $query->where('username', $filterUsername);
+          })
+          ->when($filterByTracker, function ($query, $filterByTracker) {
+            return $query->where('tracker', $filterByTracker);
+          })
+          ->when($filterByUserType, function ($query, $filterByUserType) {
+            return $query->where('user_type', $filterByUserType);
+          })
+          ->when($filterByStatus, function ($query, $filterByStatus) {
+            return $query->where('status', $filterByStatus);
+          })
+          ->orderBy(DB::raw("`correct_clicks` + `wrong_clicks`"), $sort)
           ->paginate(15)
           ->withQueryString();
       }
@@ -178,11 +215,24 @@ class UserController extends Controller
       */ else {
         $referrals = $request->user()->referrals()
           ->select('id', 'username', 'user_type', 'status', 'last_login', 'join_date', 'total_purchased', 'correct_clicks', 'wrong_clicks')
-          ->orderByDesc($sort_by)
+          ->when($filterUsername, function ($query, $filterUsername) {
+            return $query->where('username', $filterUsername);
+          })
+          ->when($filterByTracker, function ($query, $filterByTracker) {
+            return $query->where('tracker', $filterByTracker);
+          })
+          ->when($filterByUserType, function ($query, $filterByUserType) {
+            return $query->where('user_type', $filterByUserType);
+          })
+          ->when($filterByStatus, function ($query, $filterByStatus) {
+            return $query->where('status', $filterByStatus);
+          })
+          ->orderBy($sort_by, $sort)
           ->paginate(15)
           ->withQueryString();
       }
-      return view("user.referrals", compact('referrals', 'page'));
+      $user_types = UserType::all();
+      return view("user.referrals", compact('referrals', 'page', 'user_types'));
     } else {
       $referrals = null;
       return back()->with("status", ["warning", "Invalid sorting type."]);
@@ -411,18 +461,24 @@ class UserController extends Controller
     $request->user()->decrement('credits', $request->credits);
     User::where('id', $id)->increment('credits', $request->credits);
 
-    return back()->with('status', ['success', "$request->credits successfully transferred to " . User::where('id', $id)->value('username')]);
+    return back()->with('status', ['success', "$request->credits credits successfully transferred to " . User::where('id', $id)->value('username')]);
   }
 
-  public function ref_link($username)
+  public function ref_link(Request $request, $username)
   {
     Cookie::queue("hits_exchange_ref", $username, 60 * 24 * 30);
+    $tracker = $request->query("t") ? $request->query("t") : null;
+    PromoTracker::updateOrInsert([
+      "user_id" => User::where("username", $username)->value("id"),
+      "tracker_name" => $tracker,
+    ])->increment("total_hits");
+    Cookie::queue("hits_exchange_tracker", $tracker, 60 * 24 * 30);
     return redirect('/');
   }
 
   public function promote()
   {
-    $page = "Promo Tools";
+    $page = "Affiliate Links";
     $splash_pages = SplashPage::all();
     return view('user/promote', compact('page', 'splash_pages'));
   }
@@ -444,5 +500,11 @@ class UserController extends Controller
   {
     $page = "Privacy Policy";
     return view('privacy', compact('page'));
+  }
+
+  public function stats()
+  {
+    $page = "Account Stats";
+    return view('user.stats', compact('page'));
   }
 }

@@ -28,6 +28,7 @@ class CreateUserTypesTable extends Migration
       $table->unsignedTinyInteger('credits_to_text');
       $table->unsignedTinyInteger('credit_reward_ratio');
       $table->unsignedTinyInteger('commission_ratio');
+      $table->unsignedSmallInteger('upgrade_reward_credits');
       $table->boolean('customize_text_ads');
       $table->string('default_text_ad_color', 7);
       $table->string('default_text_ad_bg_color', 7);

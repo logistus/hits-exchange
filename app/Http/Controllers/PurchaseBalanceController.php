@@ -51,7 +51,7 @@ class PurchaseBalanceController extends Controller
   public function transfer_commissions_post(Request $request)
   {
     $request->validate([
-      "commission_transfer_amount" => "required|numeric|min:0.5|max:" . $request->user()->commissions_all->sum('amount')
+      "commission_transfer_amount" => "required|numeric|max:" . $request->user()->commissions_all->sum('amount')
     ]);
 
     Commission::insert([
@@ -59,7 +59,7 @@ class PurchaseBalanceController extends Controller
       'amount' => '-' . $request->commission_transfer_amount,
       'status' => 'Transferred'
     ]);
-
+    // TODO: must be able to set 20% from admin page
     PurchaseBalance::insert([
       'user_id' => $request->user()->id,
       'type' => 'Commission Transfer',

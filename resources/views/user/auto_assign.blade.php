@@ -1,6 +1,6 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('websites/auto_assign') }}">Auto Assign</a></h4>
-  <div class="alert alert-info">
+  <div class="alert alert-info mt-3">
     <div>You must auto assign <strong>{{ Auth::user()->type->min_auto_assign }}%</strong> of your credits.</div>
     <div><strong>{{ Auth::user()->websites->sum('auto_assign') }}%</strong> of your credits are currently auto assigned.</div>
   </div>
@@ -11,7 +11,7 @@
   <form action="{{ url('websites/auto_assign') }}" method="POST">
     @csrf
     <x-alert />
-    <table class="table table-bordered align-middle">
+    <table class="table align-middle">
       <tr class="bg-light">
         <th scope="col">Website URL</th>
         <th scope="col">Auto Assign Percent</th>

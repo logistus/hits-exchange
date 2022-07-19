@@ -19,6 +19,12 @@ use Carbon\Carbon;
     </tr>
     <tbody>
       <tr>
+        <td>Monthly Bonus Credits</td>
+        @foreach ($user_types as $user_type)
+        <td>{{ $user_type->upgrade_reward_credits }} credits</td>
+        @endforeach
+      </tr>
+      <tr>
         <td>Surf Timer</td>
         @foreach ($user_types as $user_type)
         <td>{{ $user_type->surf_timer }} seconds</td>

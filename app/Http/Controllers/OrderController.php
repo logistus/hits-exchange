@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\LoginSpotlight;
 use App\Models\PurchaseBalance;
+use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Notifications\CommissionEarned;
@@ -61,6 +62,9 @@ class OrderController extends Controller
           'user_type' => $order->order_member_type,
           'upgrade_expires' => $expires,
         ]);
+        // Add Bonus Credits
+        $bonus_credits = UserType::where('id', $order->order_member_type)->value('upgrade_reward_credits');
+        User::where('id', Auth::id())->increment("credits", $bonus_credits);
       }
       // Credits
       if ($order->order_type == "Credits") {

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -15,6 +15,12 @@
   <style>
     .navbar-dark .navbar-nav .nav-link {
       color: rgba(255, 255, 255);
+    }
+
+    #profileDropdown:hover,
+    #profileDropdown:active,
+    #profileDropdown:focus {
+      border-color: transparent;
     }
 
   </style>
@@ -35,7 +41,7 @@
             </a>
             <img src=" {{ Auth::user()->generate_gravatar(Auth::user()->id) }}" alt="{{ Auth::user()->username }}" height="48" class="rounded-circle">
             <div class="dropdown">
-              <a class="btn dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <button class="btn btn-transparent dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="text-start" style="width: 100px; overflow-wrap: break-word; word-wrap:break-word; white-space:normal;">{{ Auth::user()->username }}</div>
                 <div @if (Auth::user()->type->name == "Free")
                   class="badge bg-secondary"
@@ -44,7 +50,7 @@
                   @endif
                   >{{ Auth::user()->type->name }} Member
                 </div>
-              </a>
+              </button>
               <ul class="dropdown-menu" aria-labelledby="profileDropdown">
                 <li><a class="dropdown-item" href="{{ url('user/profile') }}">Edit Profile</a></li>
                 <li><a class="dropdown-item" href="{{ url('user/referrals') }}">Referrals</a></li>
@@ -59,6 +65,8 @@
                   </a>
                 </li>
                 <li><a class="dropdown-item" href="{{ url('user/orders') }}">Orders</a></li>
+                <li><a class="dropdown-item" href="{{ url('user/login_history') }}">Login History</a></li>
+                <li><a class="dropdown-item" href="{{ url('user/stats') }}">Account Stats</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
@@ -110,9 +118,16 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="adsDropdown">
                 <li><a class="dropdown-item" href="{{ url('websites') }}">Websites</a></li>
+                <li><a class="dropdown-item" href="{{ url('websites/favorites') }}">Favorites</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
                 <li><a class="dropdown-item" href="{{ url('banners') }}">Banners</a></li>
                 <li><a class="dropdown-item" href="{{ url('square_banners') }}">Square Banners</a></li>
                 <li><a class="dropdown-item" href="{{ url('texts') }}">Text Ads</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
                 <li><a class="dropdown-item" href="{{ url('start_pages') }}">Start Pages</a></li>
                 <li><a class="dropdown-item" href="{{ url('login_spotlights') }}">Login Spotlights</a></li>
               </ul>
@@ -139,9 +154,14 @@
             <li class="nav-item">
               <a class="nav-link fw-bold" href="{{ url('upgrade') }}">Upgrade</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url('promote') }}">Promote</a>
-            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="promoteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Promote
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="promoteDropdown">
+                <li><a class="dropdown-item" href="{{ url('promote') }}">Affiliate Links</a></li>
+                <li><a class="dropdown-item" href="{{ url('promote/trackers') }}">Trackers</a></li>
+              </ul>
             </li>
             @endauth
             <li class="nav-item">

@@ -1,6 +1,8 @@
 @php
 use App\Models\Order;
 use App\Models\User;
+use Carbon\Carbon;
+
 if (!isset($_GET['type']))
 $commissions = $commissions_all;
 else if ($_GET['type'] == 'Unpaid')
@@ -53,16 +55,23 @@ $commissions = $commissions_paid;
     <tbody>
       @foreach ($commissions as $commission)
       <tr>
-        <td>{{ $commission->created_at }}</td>
+        <td>{{ Carbon::create($commission->created_at)->format("F j, Y, g:i a") }}</td>
         <td>
           @if ($commission->status == NULL)
-          {{ User::where('id', Order::where('id', $commission->user_id)->value('user_id'))->value('username') ? User::where('id', Order::where('id', $commission->user_id)->value('user_id'))->value('username') : "N/A" }}
+          {{
+            User::where('id', Order::where('id', $commission->order_id)->value('user_id'))->value('username') ? 
+            User::where('id', Order::where('id', $commission->order_id)->value('user_id'))->value('username') : 
+            "N/A" }}
           @else
           N/A
           @endif
         </td>
         <td>{{ Order::where('id', $commission->order_id)->value('order_item') ? Order::where('id', $commission->order_id)->value('order_item') : "N/A" }}</td>
-        <td>${{ $commission->amount }}</td>
+        <td>
+          <span class="{{ $commission->amount > 0 ? 'text-success' : 'text-danger' }}">
+            ${{ $commission->amount }}
+          </span>
+        </td>
         <td>{{ $commission->status }}</td>
       </tr>
       @endforeach

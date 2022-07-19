@@ -11,8 +11,8 @@
   <input type="hidden" name="email" value="{{ Auth::user()->email }}">
   <input type="hidden" name="invoice" value={{ $id }}>
   <input type="hidden" name="item_name" value="{{ $item }}">
-  <input type="hidden" name="cancel_url" value="{{ $cancelUrl }}">
-  <input type="hidden" name="success_url" value="{{ $successUrl }}">
+  <input type="hidden" name="cancel_url" value="{{ url('user/orders') }}">
+  <input type="hidden" name="success_url" value="{{ url('user/orders') }}">
   <input type="hidden" name="ipn_url" value="{{ url('buy/ipn') }}">
   <input type="image" src="https://www.coinpayments.net/images/pub/buynow-wide-blue.png" alt="Buy Now with CoinPayments.net">
 </form>

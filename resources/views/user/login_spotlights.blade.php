@@ -1,7 +1,7 @@
 <x-layout title="{{ $page }}">
   <h4><a href="{{ url('login_spotlights') }}">Login Spotlights</a></h4>
   @if (count($login_spotlights))
-  <table class="table table-bordered align-middle">
+  <table class="table align-middle mt-3">
     <thead>
       <tr class="bg-light">
         <th scope="col">URL</th>
