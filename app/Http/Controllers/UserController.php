@@ -468,11 +468,13 @@ class UserController extends Controller
   {
     Cookie::queue("hits_exchange_ref", $username, 60 * 24 * 30);
     $tracker = $request->query("t") ? $request->query("t") : null;
-    PromoTracker::updateOrInsert([
-      "user_id" => User::where("username", $username)->value("id"),
-      "tracker_name" => $tracker,
-    ])->increment("total_hits");
-    Cookie::queue("hits_exchange_tracker", $tracker, 60 * 24 * 30);
+    if ($tracker) {
+      PromoTracker::updateOrInsert([
+        "user_id" => User::where("username", $username)->value("id"),
+        "tracker_name" => $tracker,
+      ])->increment("total_hits");
+      Cookie::queue("hits_exchange_tracker", $tracker, 60 * 24 * 30);
+    }
     return redirect('/');
   }
 
