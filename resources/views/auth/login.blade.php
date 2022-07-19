@@ -37,7 +37,7 @@
             Remember me
           </label>
         </div>
-        @if (config(app.env == "production"))
+        @if (config("app.env") == "production")
         <div>Captcha</div>
         @endif
         <div class="d-grid">
