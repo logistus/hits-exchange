@@ -38,7 +38,7 @@
           </label>
         </div>
         @if (config("app.env") == "production")
-        <div>Captcha</div>
+        <div>Google Enterprise Captcha</div>
         @endif
         <div class="d-grid">
           <button type="submit" class="btn btn-primary mt-3">Login</button>
